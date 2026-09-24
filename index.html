@@ -1249,21 +1249,42 @@ body[data-theme="tidal"] .backup-panel{
 }
 </style>
 <style id="coffee-support-style">
-#coffeeBtn{position:relative}
-#coffeeBtn::after{
-  content:"Coming soon";
-  position:absolute;
-  left:50%;
-  top:calc(100% + 3px);
-  transform:translateX(-50%);
-  font:500 8.5px/1 Inter,system-ui,sans-serif;
-  letter-spacing:.05em;
-  opacity:0;
-  pointer-events:none;
-  white-space:nowrap;
-  transition:opacity .18s ease;
+/* Coffee / creator page */
+.coffee-page{padding-top:34px;padding-bottom:70px}
+.coffee-shell{width:min(940px,calc(100% - 42px));margin:0 auto}
+.coffee-hero{padding:34px 36px;margin-bottom:18px;position:relative;overflow:hidden}
+.coffee-hero::after{content:"✦";position:absolute;right:30px;top:20px;font-family:var(--serif);font-size:46px;opacity:.13}
+.coffee-kicker{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;opacity:.62;margin-bottom:8px}
+.coffee-hero h1{font-family:var(--serif);font-size:clamp(34px,5vw,52px);line-height:.98;margin:0 0 10px;font-weight:600}
+.coffee-hero p{margin:0;max-width:650px;line-height:1.65;opacity:.75}
+.coffee-grid{display:grid;grid-template-columns:1fr;gap:18px}
+.coffee-card{padding:30px 32px}
+.coffee-card h2{font-family:var(--serif);font-size:30px;line-height:1;margin:0 0 15px;font-weight:600}
+.coffee-card p{margin:0 0 14px;line-height:1.72;opacity:.82}
+.coffee-card p:last-child{margin-bottom:0}
+.coffee-signature{font-family:var(--serif);font-size:19px!important;opacity:.92!important;margin-top:20px!important}
+.coffee-support-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center}
+.coffee-support-copy h2{margin-bottom:10px}
+.coffee-support-button{min-width:190px;border:1px solid var(--line);border-radius:16px;padding:14px 18px;background:rgba(255,255,255,.24);color:inherit;font-weight:700;cursor:default;opacity:.72}
+.coffee-support-note{font-size:12px;opacity:.58!important;margin-top:9px!important}
+.feedback-intro{max-width:680px}
+.feedback-form{display:grid;gap:14px;margin-top:22px}
+.feedback-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.feedback-field{display:grid;gap:7px}
+.feedback-field label{font-size:12px;font-weight:650;opacity:.76}
+.feedback-field input,.feedback-field textarea{width:100%;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.18);color:inherit;padding:13px 14px;outline:none;resize:vertical}
+.feedback-field textarea{min-height:92px}
+.feedback-field input:focus,.feedback-field textarea:focus{border-color:rgba(182,154,98,.65);box-shadow:0 0 0 3px rgba(182,154,98,.10)}
+.feedback-submit-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:2px}
+.feedback-submit{border:1px solid var(--line);border-radius:14px;padding:12px 18px;background:var(--forest);color:var(--white);font-weight:700;opacity:.62;cursor:not-allowed}
+.feedback-status{font-size:12px;opacity:.58}
+@media(max-width:700px){
+  .coffee-shell{width:min(100% - 24px,940px)}
+  .coffee-hero,.coffee-card{padding:24px 22px}
+  .coffee-support-card{grid-template-columns:1fr}
+  .coffee-support-button{width:100%}
+  .feedback-grid{grid-template-columns:1fr}
 }
-#coffeeBtn.coffee-soon-show::after{opacity:.58}
 </style>
 <style id="pull-usable-area-centering">
 /* ===== PULL RITUAL USABLE-AREA CENTERING ===== */
@@ -5635,6 +5656,72 @@ body.aby-study-fullscreen .studying-mode-switch{
     </section>
   </div>
 </main>
+
+<main class="main coffee-page" id="coffeePage" hidden>
+  <div class="coffee-shell">
+    <section class="card coffee-hero">
+      <div class="coffee-kicker">BLOOM BY BIT</div>
+      <h1>A little corner from me to you.</h1>
+      <p>Thank you for wandering in. This is where I share a little more about why Bloom by Bit exists, how you can support it, and where you can leave thoughts for what should grow next.</p>
+    </section>
+
+    <div class="coffee-grid">
+      <section class="card coffee-card">
+        <h2>A little note from me ✦</h2>
+        <p>I have always been a little particular about the things I use every day. I found habit trackers I loved pieces of, study tools with features I wished others had, and beautiful productivity spaces that were <em>almost</em> what I was looking for.</p>
+        <p>So I decided to make my own little corner of the internet.</p>
+        <p><strong>Bloom by Bit</strong> is my attempt to bring all those little things together. Something practical enough to keep me on track, whimsical enough to make me want to come back, and filled with the tiny details I kept wishing existed elsewhere.</p>
+        <p>It is built around a simple idea: <strong>you do not have to change everything at once. Just keep growing, bit by bit.</strong> ✧</p>
+        <p>If Bloom by Bit happens to make your days a little more organized, motivating, or magical too, then I am very glad you wandered in.</p>
+        <p class="coffee-signature">Thank you for being here. 🌱</p>
+      </section>
+
+      <section class="card coffee-card coffee-support-card">
+        <div class="coffee-support-copy">
+          <h2>Buy me a coffee ☕</h2>
+          <p>If Bloom by Bit has made your day a bit easier, helped you stay on track, or simply made studying feel a little prettier, you will soon be able to leave a small tip here.</p>
+          <p>Completely optional, always appreciated, and mostly going toward the continued pursuit of making this little place even nicer.</p>
+        </div>
+        <button type="button" class="coffee-support-button" disabled aria-disabled="true">Support coming soon ✦</button>
+      </section>
+
+      <section class="card coffee-card">
+        <h2>Have a thought? ✧</h2>
+        <p class="feedback-intro">Do you like it? Is there something that feels a little off? Have an idea you wish it could do? I would genuinely love to hear what is working, what could be better, or what little feature you would love to see appear next.</p>
+        <form class="feedback-form" id="coffeeFeedbackForm">
+          <div class="feedback-field">
+            <label for="feedbackThoughts">What do you think of Bloom by Bit?</label>
+            <textarea id="feedbackThoughts" placeholder="A few thoughts..."></textarea>
+          </div>
+          <div class="feedback-grid">
+            <div class="feedback-field">
+              <label for="feedbackBetter">Anything that could be better?</label>
+              <textarea id="feedbackBetter" placeholder="Something that feels a little off..."></textarea>
+            </div>
+            <div class="feedback-field">
+              <label for="feedbackFeature">Anything you would love to see added?</label>
+              <textarea id="feedbackFeature" placeholder="A tiny feature wish..."></textarea>
+            </div>
+          </div>
+          <div class="feedback-grid">
+            <div class="feedback-field">
+              <label for="feedbackName">Name <span style="font-weight:400;opacity:.62">(optional)</span></label>
+              <input id="feedbackName" type="text" placeholder="Your name">
+            </div>
+            <div class="feedback-field">
+              <label for="feedbackEmail">Email <span style="font-weight:400;opacity:.62">(optional)</span></label>
+              <input id="feedbackEmail" type="email" placeholder="you@example.com">
+            </div>
+          </div>
+          <div class="feedback-submit-row">
+            <button class="feedback-submit" type="button" disabled aria-disabled="true">Send a little note ✧</button>
+            <span class="feedback-status">This is still a work in progress, but it will be up and running soon. ✧</span>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+</main>
 </div>
 
 
@@ -8055,8 +8142,10 @@ document.querySelectorAll('.nav-btn[data-target]').forEach(b=>b.onclick=()=>{
 
 function showHomePage(){
   const historyPage=$('historyPage');
+  const coffeePage=$('coffeePage');
   const home=$('home');
   if(historyPage)historyPage.hidden=true;
+  if(coffeePage)coffeePage.hidden=true;
   if(home)home.hidden=false;
 }
 
@@ -8066,7 +8155,9 @@ function showHistoryPage(){
   }
   const home=$('home');
   const historyPage=$('historyPage');
+  const coffeePage=$('coffeePage');
   if(home)home.hidden=true;
+  if(coffeePage)coffeePage.hidden=true;
   if(historyPage)historyPage.hidden=false;
   document.querySelectorAll('.nav-btn').forEach(n=>n.classList.remove('active'));
   $('historyNav')?.classList.add('active');
@@ -8093,16 +8184,23 @@ $('resetModal').addEventListener('click',e=>{
 });
 
 
-const coffeeBtn=$('coffeeBtn');
-if(coffeeBtn){
-  coffeeBtn.addEventListener('click',()=>{
-    const note=$('coffeeSoon');
-    if(note){
-      note.classList.add('show');
-      setTimeout(()=>note.classList.remove('show'),1800);
-    }
-  });
+function showCoffeePage(){
+  if(document.body.classList.contains('clock-mode')){
+    closeClockPage();
+  }
+  const home=$('home');
+  const historyPage=$('historyPage');
+  const coffeePage=$('coffeePage');
+  if(home)home.hidden=true;
+  if(historyPage)historyPage.hidden=true;
+  if(coffeePage)coffeePage.hidden=false;
+  document.querySelectorAll('.nav-btn').forEach(n=>n.classList.remove('active'));
+  $('coffeeBtn')?.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
+
+const coffeeBtn=$('coffeeBtn');
+if(coffeeBtn) coffeeBtn.onclick=showCoffeePage;
 
 
 function updateClockPage(){
