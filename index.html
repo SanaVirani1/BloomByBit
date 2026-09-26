@@ -4165,6 +4165,34 @@ body.clock-mode .clock-page{
   color:var(--muted);
   font:500 11.5px/1.35 Inter,system-ui,sans-serif;
 }
+
+.week-start-setting{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin:14px 0;
+  padding:11px 12px;
+  border:1px solid color-mix(in srgb,var(--edge) 82%,transparent);
+  border-radius:12px;
+  background:color-mix(in srgb,var(--surface) 72%,transparent);
+}
+.week-start-setting > div{min-width:0}
+.week-start-setting strong{display:block;font:700 12.5px/1.2 Inter,system-ui,sans-serif}
+.week-start-setting span{display:block;margin-top:4px;color:var(--muted);font:500 11.5px/1.35 Inter,system-ui,sans-serif}
+.week-start-setting select{
+  min-width:118px;
+  padding:8px 30px 8px 10px;
+  border:1px solid var(--edge);
+  border-radius:10px;
+  background:var(--surface);
+  color:var(--text);
+  font:600 12px/1.2 Inter,system-ui,sans-serif;
+}
+@media(max-width:520px){
+  .week-start-setting{align-items:flex-start;flex-direction:column}
+  .week-start-setting select{width:100%}
+}
 </style>
 
 
@@ -5815,6 +5843,22 @@ body.aby-study-fullscreen .studying-mode-switch{
       <input id="laterTaskColorInput" type="color" value="#D6D7D9" aria-label="Tasks for Later color">
     </div>
 
+    <div class="week-start-setting">
+      <div>
+        <strong>Week starts on</strong>
+        <span>Choose when weekly habit progress and History begin a new week.</span>
+      </div>
+      <select id="weekStartDayInput" aria-label="Day the week starts">
+        <option value="0">Sunday</option>
+        <option value="1">Monday</option>
+        <option value="2">Tuesday</option>
+        <option value="3">Wednesday</option>
+        <option value="4">Thursday</option>
+        <option value="5">Friday</option>
+        <option value="6">Saturday</option>
+      </select>
+    </div>
+
     <div class="task-sort-setting">
       <div>
         <strong>Order tasks by due date</strong>
@@ -6066,10 +6110,11 @@ function localDateKey(d=new Date()){
   const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
   return `${y}-${m}-${day}`;
 }
-function weekKey(d=new Date()){
+function weekKey(d=new Date(),startDay=1){
   const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());
-  const mondayOffset=(x.getDay()+6)%7;
-  x.setDate(x.getDate()-mondayOffset);
+  const normalizedStart=((Number(startDay)%7)+7)%7;
+  const offset=(x.getDay()-normalizedStart+7)%7;
+  x.setDate(x.getDate()-offset);
   return localDateKey(x);
 }
 const THEME_HABIT_COLORS={
@@ -6146,7 +6191,7 @@ function defaultHabitColor(theme,index=0){
 const defaults={
   name:'You',
   habits:[{id:'habit-1',name:'What do you want to work on?',goal:7,color:'#D6D7D9'}],
-  goal:7,theme:'fantasy',militaryTime:false,autoSortTasksByDue:false,pomodoroEnabled:true,pomodoroAutoStart:false,pomodoroFocusMinutes:25,pomodoroShortBreakMinutes:5,pomodoroLongBreakMinutes:15,pomodoroRounds:4,focusTimerMinutes:45,
+  goal:7,theme:'fantasy',weekStartDay:1,militaryTime:false,autoSortTasksByDue:false,pomodoroEnabled:true,pomodoroAutoStart:false,pomodoroFocusMinutes:25,pomodoroShortBreakMinutes:5,pomodoroLongBreakMinutes:15,pomodoroRounds:4,focusTimerMinutes:45,
   pulls:[],weekKey:weekKey(),history:[],
   rewardClaimed:false,pendingRewards:[],
   pullsSinceLarge:0,pityTarget:80,guaranteePending:false,
@@ -6200,6 +6245,7 @@ function load(){
       state.pullsSinceLarge=Math.max(0,+state.pullsSinceLarge||0);
       state.pityTarget=(+state.pityTarget>=75&&+state.pityTarget<=85)?+state.pityTarget:randomPityTarget();
       state.guaranteePending=!!state.guaranteePending;
+      state.weekStartDay=Number.isInteger(+state.weekStartDay)?Math.min(6,Math.max(0,+state.weekStartDay)):1;
       state.militaryTime=!!state.militaryTime;
       state.autoSortTasksByDue=!!state.autoSortTasksByDue;
       state.pomodoroEnabled=state.pomodoroEnabled!==false;
@@ -6229,7 +6275,7 @@ function load(){
       state.dailyTasks.lockedTaskIds=Array.isArray(state.dailyTasks.lockedTaskIds)?state.dailyTasks.lockedTaskIds.filter(Boolean):[];
       state.dailyTasks.drawn=Math.max(0,Math.floor(+state.dailyTasks.drawn||0));
       state.dailyTasks.allocationApplied=!!state.dailyTasks.allocationApplied;
-      if(!state.weekKey) state.weekKey=weekKey();
+      if(!state.weekKey) state.weekKey=weekKey(new Date(),state.weekStartDay);
     }else{
       state.pityTarget=randomPityTarget();
     }
@@ -6288,14 +6334,14 @@ function closeOutWeek(){
   state.pulls=[];
   state.rewardClaimed=false;
   state.weeklyDailyTaskSlots=0;
-  state.weekKey=weekKey();
+  state.weekKey=weekKey(new Date(),state.weekStartDay);
 
   if(state.pullsSinceLarge>=state.pityTarget){
     state.guaranteePending=true;
   }
 }
 function ensureCurrentWeek(){
-  const nowKey=weekKey();
+  const nowKey=weekKey(new Date(),state.weekStartDay);
   if(state.weekKey!==nowKey){
     closeOutWeek();
     save();
@@ -7514,6 +7560,7 @@ function openSettings(){
   renderHabitEditor();
   if($('dailyTaskColorInput')) $('dailyTaskColorInput').value=state.dailyTaskColor||'#D6D7D9';
   if($('laterTaskColorInput')) $('laterTaskColorInput').value=state.laterTaskColor||'#D6D7D9';
+  if($('weekStartDayInput')) $('weekStartDayInput').value=String(state.weekStartDay ?? 1);
   if($('militaryTimeInput')) $('militaryTimeInput').checked=!!state.militaryTime;
   if($('autoSortTasksInput')) $('autoSortTasksInput').checked=!!state.autoSortTasksByDue;
   if($('pomodoroEnabledInput')) $('pomodoroEnabledInput').checked=state.pomodoroEnabled!==false;
@@ -7573,8 +7620,15 @@ $('saveSettings').onclick=()=>{
     toast('Your new weekly total is below the pulls already used. Reset the week first.');
     return;
   }
+  const previousWeekStart=state.weekStartDay ?? 1;
+  const newWeekStart=Math.min(6,Math.max(0,Math.floor(+$('weekStartDayInput')?.value||0)));
   state.name=$('nameInput').value.trim()||'You';
   state.habits=cleaned;
+  state.weekStartDay=newWeekStart;
+  if(newWeekStart!==previousWeekStart){
+    // Keep the user's current progress, but re-anchor the active week to the new chosen start day.
+    state.weekKey=weekKey(new Date(),newWeekStart);
+  }
   state.dailyTaskColor=$('dailyTaskColorInput')?.value||state.dailyTaskColor||'#D6D7D9';
   state.laterTaskColor=$('laterTaskColorInput')?.value||state.laterTaskColor||'#D6D7D9';
   state.militaryTime=!!$('militaryTimeInput')?.checked;
@@ -8029,7 +8083,7 @@ $('confirmReset').onclick=()=>{
   state.pulls=[];
   state.rewardClaimed=false;
   state.weeklyDailyTaskSlots=0;
-  state.weekKey=weekKey();
+  state.weekKey=weekKey(new Date(),state.weekStartDay);
 
   $('resetModal').classList.remove('open');
   render();
