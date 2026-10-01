@@ -88,6 +88,7 @@ body[data-theme="cottage"] .hero{background:rgba(42,64,43,.76)}
 .sw-fantasy{background-image:url(assets/image-06-94b28d3359b5.jpg)} .sw-celestial{background-image:url(assets/image-07-e12d8d9e3498.jpg)} .sw-cottage{background-image:url(assets/image-08-1e652e99c231.jpg)} .sw-nocturne{background-image:url(assets/image-09-cccc16dc9e46.jpg)} .sw-tidal{background-image:url(assets/image-10-499454177227.jpg)}
 
 .modal-backdrop{position:fixed;inset:0;background:rgba(7,10,8,.65);display:none;place-items:center;z-index:80;padding:20px} .modal-backdrop.open{display:grid} .modal{width:min(430px,100%);background:#f6eddf;border:1px solid #bda986;border-radius:18px;padding:22px;box-shadow:0 30px 90px rgba(0,0,0,.4)} .modal h3{font:600 28px var(--serif);margin:0 0 7px} .modal p{font:16px var(--serif);color:#62594d} .modal label{display:block;font:15px var(--serif);margin-top:11px} .modal input{width:100%;border:1px solid #c8b89e;border-radius:8px;background:#fffaf0;padding:10px;margin-top:5px;font-family:var(--serif);font-size:16px} .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:17px} .modal-actions button{border-radius:8px;padding:9px 13px;font-family:var(--serif);border:1px solid #9e927e} .save{background:#52604d;color:white} .danger{background:#8f5c52;color:white;border-color:#8f5c52!important}
+.reward-tier-choice-grid{display:grid;grid-template-columns:1fr;gap:9px;margin-top:16px}.reward-tier-choice{width:100%;text-align:left;border:1px solid var(--edge);background:var(--surface-soft);color:var(--text);border-radius:12px;padding:12px 14px;font:600 16px var(--theme-font)}.reward-tier-choice:hover{transform:translateY(-1px);box-shadow:0 7px 18px color-mix(in srgb,var(--glow) 45%,transparent)}#rewardTierChoiceModal .reward-choice-note{margin:12px 0 0;font-size:14px;line-height:1.45}#rewardTierChoiceModal .modal-actions{margin-top:14px}
 .toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);opacity:0;background:#17251d;color:#f6ebd7;border:1px solid rgba(255,255,255,.14);padding:11px 16px;border-radius:999px;z-index:90;font:16px var(--serif);transition:.25s;pointer-events:none;box-shadow:0 12px 32px rgba(0,0,0,.3)} .toast.show{opacity:1;transform:translate(-50%,0)}
 
 @media (max-width:1050px){.dashboard{grid-template-columns:1fr} .rightcol{display:grid;grid-template-columns:1fr 1fr} .theme-grid{grid-template-columns:repeat(3,1fr)}}
@@ -463,6 +464,8 @@ body[data-theme="fantasy"] .world, body[data-theme="fantasy"] .clock-page {
 }
 .pull-ritual.color-win .pull-ring{border-color:#ffe477;box-shadow:0 0 55px #ffc83d}
 .pull-ritual.color-loss .pull-ring{border-color:#aeb7dc;box-shadow:0 0 48px rgba(147,160,210,.72)}
+
+
 
 </style>
 
@@ -1276,8 +1279,8 @@ body[data-theme="tidal"] .backup-panel{
 .feedback-field textarea{min-height:92px}
 .feedback-field input:focus,.feedback-field textarea:focus{border-color:rgba(182,154,98,.65);box-shadow:0 0 0 3px rgba(182,154,98,.10)}
 .feedback-submit-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:2px}
-.feedback-submit{border:1px solid var(--line);border-radius:14px;padding:12px 18px;background:var(--forest);color:var(--white);font-weight:700;opacity:.62;cursor:not-allowed}
-.feedback-status{font-size:12px;opacity:.58}
+.feedback-submit{border:1px solid var(--line);border-radius:14px;padding:12px 18px;background:var(--forest);color:var(--white);font-weight:700;cursor:pointer;transition:transform .16s ease,opacity .16s ease,filter .16s ease}.feedback-submit:hover{transform:translateY(-1px);filter:brightness(1.04)}.feedback-submit:disabled{opacity:.62;cursor:wait;transform:none}
+.feedback-status{font-size:12px;opacity:.72;min-height:1.2em}.feedback-status.success{opacity:1}.feedback-status.error{opacity:1}
 @media(max-width:700px){
   .coffee-shell{width:min(100% - 24px,940px)}
   .coffee-hero,.coffee-card{padding:24px 22px}
@@ -5540,7 +5543,7 @@ body.aby-study-fullscreen .studying-mode-switch{
                 <strong>How Weekly Habits Work</strong>
                 <span>Each habit’s weekly goal is also the number of pulls available for that habit. For example, a goal of 4 times per week gives that habit 4 pulls.</span>
                 <span>Each time you complete the habit, click <b>Earn the Pull</b> to use 1 of those pulls.</span>
-                <span>The total number of Weekly Habit pulls determines how many Lucky pulls are needed for each reward tier.</span>
+                <span>The total number of Weekly Habit Pulls determines how many Lucky Pulls are needed for each Reward Tier.</span>
                 <span>In Settings, you can add or remove habits and change each habit’s name, times per week, and color.</span>
               </div>
             </div>
@@ -5559,15 +5562,15 @@ body.aby-study-fullscreen .studying-mode-switch{
                   <button type="button" class="daily-help-btn" aria-label="How daily task pulls work">?</button>
                   <div class="daily-help-tip" role="tooltip">
                     <strong>How Today's Tasks Work</strong>
-                    <span>Add the tasks you want to complete today. Finish the locked tasks to earn bonus pulls: 1–4 tasks = 1 pull, 5–8 tasks = 2 pulls, and 9+ tasks = 3 pulls.</span>
-                    <span>Checking your first task locks the tasks that count toward today’s bonus pulls. Tasks added or moved here afterward do not count.</span>
+                    <span>Add the tasks you want to complete today. Finish the locked tasks to earn Bonus Pulls: 1–4 tasks = 1 pull, 5–8 tasks = 2 pulls, and 9+ tasks = 3 pulls.</span>
+                    <span>Checking your first task locks the tasks that count toward today’s Bonus Pulls. Tasks added or moved here afterward do not count.</span>
                     <span>Unfinished tasks carry over to the next day. Completed tasks are removed the next day.</span>
                     <span>Click the calendar to set an optional due date and time. Click the three-line button to delete a task. Click and drag the three-line button to reorder a task or move it between Today’s Tasks and Tasks for Later.</span>
                     <span>In Settings, turn on <b>Order tasks by due date</b> to place tasks due soonest first automatically. Leave it off to arrange them yourself.</span>
                   </div>
                 </div>
               </div>
-              <p class="daily-tasks-sub">Finish your list to earn bonus pulls.</p>
+              <p class="daily-tasks-sub">Finish your list to earn Bonus Pulls.</p>
             </div>
             <div class="daily-pull-badge" id="dailyPullBadge">0 pulls</div>
           </div>
@@ -5621,7 +5624,7 @@ body.aby-study-fullscreen .studying-mode-switch{
                 <div class="weekly-help-tip" role="tooltip">
                   <strong>How Weekly Pulls Work</strong>
                   <span>This box tracks all pulls for the week. Empty circles are pulls you can still earn; filled circles are pulls you have already used.</span>
-                  <span>Each pull is either <b>Lucky</b> or <b>Next Time</b>. Lucky pulls count toward your reward tier.</span>
+                  <span>Each pull is either <b>Lucky</b> or <b>Next Time</b>. Lucky Pulls count toward your Reward Tier.</span>
                   <span>Hover over a filled circle and click <b>×</b> to undo an accidental pull.</span>
                   <span>Click <b>Reset Week</b> when you are ready to clear the current week and start a new one.</span>
                 </div>
@@ -5642,10 +5645,10 @@ body.aby-study-fullscreen .studying-mode-switch{
     </div>
   </div>
 
-  <section class="section" id="rewards"><h2>Prize Tiers</h2><p>Reward thresholds are based on your Weekly Habits. Daily task pulls are bonus chances and never raise the number of wins you need.</p><div class="prize-cols">
-    <div class="prize-col" data-prize-tier="small"><h3>Small Reward</h3><div class="tier-range-inline" id="smallRule">3 banked winners</div><ul class="prize-list" id="smallList"></ul><div class="add-row"><input id="smallInput" placeholder="Add small prize"><button data-add="small">Add</button></div></div>
-    <div class="prize-col" data-prize-tier="medium"><h3>Medium Reward</h3><div class="tier-range-inline" id="mediumRule">5 banked winners</div><ul class="prize-list" id="mediumList"></ul><div class="add-row"><input id="mediumInput" placeholder="Add medium prize"><button data-add="medium">Add</button></div></div>
-    <div class="prize-col" data-prize-tier="large"><h3>Big Reward</h3><div class="tier-range-inline" id="largeRule">7 banked winners</div><ul class="prize-list" id="largeList"></ul><div class="add-row"><input id="largeInput" placeholder="Add big prize"><button data-add="large">Add</button></div></div>
+  <section class="section" id="rewards"><h2>Reward Tiers</h2><p>Reward Tier thresholds are based on your Weekly Habits. Daily Task Bonus Pulls give you extra chances at Lucky Pulls and never raise the number of Lucky Pulls you need.</p><div class="prize-cols">
+    <div class="prize-col" data-prize-tier="small"><h3>Small Reward</h3><div class="tier-range-inline" id="smallRule">3 Lucky Pulls</div><ul class="prize-list" id="smallList"></ul><div class="add-row"><input id="smallInput" placeholder="Add small reward"><button data-add="small">Add</button></div></div>
+    <div class="prize-col" data-prize-tier="medium"><h3>Medium Reward</h3><div class="tier-range-inline" id="mediumRule">5 Lucky Pulls</div><ul class="prize-list" id="mediumList"></ul><div class="add-row"><input id="mediumInput" placeholder="Add medium reward"><button data-add="medium">Add</button></div></div>
+    <div class="prize-col" data-prize-tier="large"><h3>Large Reward</h3><div class="tier-range-inline" id="largeRule">7 Lucky Pulls</div><ul class="prize-list" id="largeList"></ul><div class="add-row"><input id="largeInput" placeholder="Add large reward"><button data-add="large">Add</button></div></div>
   </div><div class="draw-wrap"><button class="primary" id="drawPrizeBtn">Draw My Reward</button></div></section>
 </main>
 
@@ -5716,34 +5719,38 @@ body.aby-study-fullscreen .studying-mode-switch{
       <section class="card coffee-card">
         <h2>Have a thought? ✧</h2>
         <p class="feedback-intro">Do you like it? Is there something that feels a little off? Have an idea you wish it could do? I would genuinely love to hear what is working, what could be better, or what little feature you would love to see appear next.</p>
-        <form class="feedback-form" id="coffeeFeedbackForm">
+        <form class="feedback-form" id="coffeeFeedbackForm" novalidate>
+          <input type="hidden" name="access_key" value="fd09be81-e0d7-420c-a2bf-939a5a573f5c">
+          <input type="hidden" name="subject" value="New Bloom by Bit feedback">
+          <input type="hidden" name="from_name" value="Bloom by Bit Feedback">
+          <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
           <div class="feedback-field">
             <label for="feedbackThoughts">What do you think of Bloom by Bit?</label>
-            <textarea id="feedbackThoughts" placeholder="A few thoughts..."></textarea>
+            <textarea id="feedbackThoughts" name="Overall thoughts" placeholder="A few thoughts..."></textarea>
           </div>
           <div class="feedback-grid">
             <div class="feedback-field">
               <label for="feedbackBetter">Anything that could be better?</label>
-              <textarea id="feedbackBetter" placeholder="Something that feels a little off..."></textarea>
+              <textarea id="feedbackBetter" name="Could be better" placeholder="Something that feels a little off..."></textarea>
             </div>
             <div class="feedback-field">
               <label for="feedbackFeature">Anything you would love to see added?</label>
-              <textarea id="feedbackFeature" placeholder="A tiny feature wish..."></textarea>
+              <textarea id="feedbackFeature" name="Feature request" placeholder="A tiny feature wish..."></textarea>
             </div>
           </div>
           <div class="feedback-grid">
             <div class="feedback-field">
               <label for="feedbackName">Name <span style="font-weight:400;opacity:.62">(optional)</span></label>
-              <input id="feedbackName" type="text" placeholder="Your name">
+              <input id="feedbackName" name="Name" type="text" placeholder="Your name" autocomplete="name">
             </div>
             <div class="feedback-field">
               <label for="feedbackEmail">Email <span style="font-weight:400;opacity:.62">(optional)</span></label>
-              <input id="feedbackEmail" type="email" placeholder="you@example.com">
+              <input id="feedbackEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email">
             </div>
           </div>
           <div class="feedback-submit-row">
-            <button class="feedback-submit" type="button" disabled aria-disabled="true">Send a little note ✧</button>
-            <span class="feedback-status">This is still a work in progress, but it will be up and running soon. ✧</span>
+            <button class="feedback-submit" type="submit">Send a little note ✧</button>
+            <span class="feedback-status" id="feedbackStatus" role="status" aria-live="polite"></span>
           </div>
         </form>
       </section>
@@ -5810,9 +5817,17 @@ body.aby-study-fullscreen .studying-mode-switch{
   <div class="settings-tab-panel active" data-settings-panel="basic" role="tabpanel">
     <label>Your name<input id="nameInput" value="You"></label>
 
+    <div class="tutorial-setting">
+      <div>
+        <strong>Tutorial</strong>
+        <span>Walk through Bloom by Bit step by step and try the main features.</span>
+      </div>
+      <button type="button" class="secondary" id="replayTutorialBtn">View Tutorial</button>
+    </div>
+
     <div class="backup-panel">
       <strong>Backup &amp; Restore</strong>
-      <span>Save your progress, prizes, settings, and theme to a backup file. Restore it later on this or another computer.</span>
+      <span>Save your progress, rewards, settings, and theme to a backup file. Restore it later on this or another computer.</span>
       <div class="backup-actions">
         <button type="button" class="secondary" id="backupDataBtn">Save Backup</button>
         <button type="button" class="secondary" id="restoreDataBtn">Restore Backup</button>
@@ -5830,7 +5845,7 @@ body.aby-study-fullscreen .studying-mode-switch{
     <div class="daily-task-color-setting">
       <div>
         <strong>Today's task color</strong>
-        <span>Used for task bonus pulls and task accents.</span>
+        <span>Used for Task Bonus Pulls and task accents.</span>
       </div>
       <input id="dailyTaskColorInput" type="color" value="#D6D7D9" aria-label="Today's task color">
     </div>
@@ -5939,12 +5954,111 @@ body.aby-study-fullscreen .studying-mode-switch{
   <div class="creator-credit">Bloom by Bit · Created by Sana Virani</div>
   <div class="modal-actions"><button id="closeSettings">Cancel</button><button class="save" id="saveSettings">Save Changes</button></div>
 </div></div>
+<style>
+.tutorial-setting{margin-top:18px;padding:15px 16px;border:1px solid var(--line);border-radius:14px;display:flex;align-items:center;justify-content:space-between;gap:16px;background:rgba(255,255,255,.18)}
+.tutorial-setting>div{display:grid;gap:4px}.tutorial-setting span{font-size:13px;opacity:.72}.tutorial-setting button{white-space:nowrap}
+.tutorial-modal{max-width:560px;text-align:center}.tutorial-kicker{font-size:11px;letter-spacing:.2em;font-weight:750;opacity:.6;margin-bottom:8px}.tutorial-icon{font-size:32px;line-height:1;margin:8px 0 12px}.tutorial-modal h3{margin-bottom:10px}.tutorial-copy{display:grid;align-content:start;gap:8px}.tutorial-copy p{margin:0;line-height:1.55}.tutorial-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px}.tutorial-actions .tutorial-right{display:flex;gap:8px}.tutorial-actions button{min-width:86px}
+#tutorialSpotlight{display:none!important}
+#tutorialCoach{position:fixed;z-index:10020;left:auto;top:auto;right:22px;bottom:22px;width:min(390px,calc(100vw - 44px));max-height:calc(100vh - 28px);overflow:auto;padding:17px 18px;border:1px solid var(--edge);border-radius:18px;background:var(--surface-strong);color:var(--text);box-shadow:0 18px 60px rgba(0,0,0,.35);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(12px) scale(.988);transition:opacity .34s ease,box-shadow .42s ease;will-change:opacity,transform}
+#tutorialCoach.open{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0) scale(1)}
+#tutorialCoach.explore-mode{width:min(390px,calc(100vw - 28px));padding:17px 18px;border-radius:18px}
+#tutorialCoach.mini-ready{overflow:visible}
+#tutorialCoach.mini-ready.minimized{width:68px!important;height:68px!important;min-width:68px!important;max-height:68px!important;padding:0!important;border-radius:0!important;overflow:visible!important;display:grid;place-items:center;background:transparent!important;border:none!important;box-shadow:none!important}
+#tutorialCoach.mini-ready.minimized .tutorial-coach-step,#tutorialCoach.mini-ready.minimized .tutorial-coach-title,#tutorialCoach.mini-ready.minimized .tutorial-coach-text,#tutorialCoach.mini-ready.minimized .tutorial-coach-hint,#tutorialCoach.mini-ready.minimized .tutorial-minimize-tip,#tutorialCoach.mini-ready.minimized .tutorial-coach-actions{display:none!important}
+#tutorialCoachMinimize{display:none;position:absolute;right:8px;top:8px;width:42px;height:42px;min-width:42px;padding:0;border:0;background:transparent;color:var(--button);font-size:29px;line-height:1;align-items:center;justify-content:center;cursor:grab;text-shadow:0 0 6px color-mix(in srgb,var(--button) 88%,white),0 0 14px color-mix(in srgb,var(--button) 58%,transparent);-webkit-text-stroke:.65px color-mix(in srgb,var(--text) 68%,transparent);filter:drop-shadow(0 1px 1px color-mix(in srgb,var(--surface-strong) 95%,transparent))}
+#tutorialCoach.mini-ready #tutorialCoachMinimize{display:flex}
+#tutorialCoach.mini-ready.minimized #tutorialCoachMinimize{position:static;width:68px;height:68px;min-width:68px;border:none;background:transparent;color:var(--button);font-size:50px;cursor:grab;text-shadow:0 0 7px color-mix(in srgb,var(--button) 92%,white),0 0 16px color-mix(in srgb,var(--button) 68%,transparent),0 0 27px color-mix(in srgb,var(--button) 42%,transparent);-webkit-text-stroke:.8px color-mix(in srgb,var(--text) 72%,transparent);filter:drop-shadow(0 1px 1px color-mix(in srgb,var(--surface-strong) 95%,transparent))}
+#tutorialCoach.mini-ready:not(.minimized){padding-top:56px}
+#tutorialCoach.dragging{transition:none!important;cursor:grabbing!important;user-select:none!important}
+#tutorialCoach.dragging #tutorialCoachMinimize{cursor:grabbing!important}
+#tutorialCoach.explore-mode .tutorial-coach-title{font-size:22px;margin-bottom:7px}
+#tutorialCoach.explore-mode .tutorial-coach-text{font-size:13px;line-height:1.5}
+#tutorialCoach.explore-mode .tutorial-coach-hint{font-size:12px;line-height:1.4;margin-top:9px;padding:8px 10px}
+#tutorialCoach.explore-mode .tutorial-coach-actions{margin-top:14px}
+#tutorialCoach.explore-mode .tutorial-coach-actions button{padding:8px 12px}
+#tutorialCoach.final-mode{width:min(430px,calc(100vw - 40px));max-width:430px;text-align:center;padding:22px;border-radius:18px;overflow:visible}
+#tutorialCoach.final-mode .tutorial-coach-step{font-size:11px;letter-spacing:.2em;font-weight:750;opacity:.6;margin-bottom:8px}
+#tutorialCoach.final-mode .tutorial-coach-title{font-family:var(--theme-font);font-size:28px;font-weight:600;line-height:1.15;margin:0 0 10px}
+#tutorialCoach.final-mode .tutorial-coach-title:before{content:"✦";display:block;font-family:inherit;font-size:32px;line-height:1;margin:8px 0 12px;color:var(--text);text-shadow:none}
+#tutorialCoach.final-mode .tutorial-coach-text{font-family:var(--theme-font);font-size:16px;line-height:1.55;color:var(--muted);display:grid;gap:8px}
+#tutorialCoach.final-mode .tutorial-coach-hint{margin-top:8px;padding:0;background:transparent;border:0;font-family:var(--theme-font);font-size:16px;line-height:1.55;color:var(--muted)}
+#tutorialCoach.final-mode .tutorial-coach-actions{margin-top:18px}
+#tutorialCoach.final-mode .tutorial-coach-actions button{font-family:var(--theme-font);font-size:16px;padding:9px 13px}
+body[data-theme="fantasy"] #tutorialCoach.final-mode .tutorial-coach-step{font-size:12px!important}
+body[data-theme="fantasy"] #tutorialCoach.final-mode .tutorial-coach-title{font-size:30px!important;line-height:1.15!important}
+body[data-theme="fantasy"] #tutorialCoach.final-mode .tutorial-coach-text,body[data-theme="fantasy"] #tutorialCoach.final-mode .tutorial-coach-hint{font-size:17px!important;line-height:1.55!important}
+body[data-theme="fantasy"] #tutorialCoach.final-mode .tutorial-coach-actions button{font-size:17px!important}
+body.tutorial-running{user-select:none}
+body.tutorial-running #tutorialCoach,body.tutorial-running .tutorial-focus{user-select:auto}
+#tutorialCoach.changing{pointer-events:none}
+#tutorialCoachContent{position:relative;will-change:opacity,transform,filter}
+#tutorialCoach.tutorial-morphing{overflow:hidden!important}
+.tutorial-old-content{position:absolute;pointer-events:none;z-index:2;margin:0!important}
+#tutorialCoachContent.tutorial-new-content{position:relative;z-index:1}
+#tutorialCoach.changing #tutorialCoachContent{opacity:.82}
+.tutorial-focus{outline:3px solid var(--button)!important;outline-offset:4px!important;border-radius:12px;transition:outline-color .25s ease,outline-offset .25s ease,box-shadow .25s ease;box-shadow:0 0 0 5px color-mix(in srgb,var(--button) 18%,transparent)!important}
+.tutorial-coach-step{font-size:10px;font-weight:800;letter-spacing:.16em;opacity:.58;margin-bottom:5px}.tutorial-coach-title{font-family:var(--theme-font);font-size:22px;font-weight:700;line-height:1.1;margin-bottom:7px}.tutorial-coach-text{font-size:13px;line-height:1.5;color:var(--muted)}.tutorial-coach-text b{color:var(--text)}.tutorial-coach-hint{margin-top:9px;padding:8px 10px;border-radius:10px;background:var(--surface-soft);font-size:12px;line-height:1.4}.tutorial-coach-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:14px}.tutorial-coach-actions>div{display:flex;gap:7px}.tutorial-coach-actions button{padding:8px 12px;min-width:0}.tutorial-coach-actions button[disabled]{opacity:.45;cursor:not-allowed}
+
+#tutorialExamplePanel{position:fixed;z-index:10018;width:min(470px,calc(100vw - 32px));padding:16px;border:1px solid var(--edge);border-radius:18px;background:var(--surface-strong);color:var(--text);box-shadow:0 18px 55px rgba(0,0,0,.34);opacity:0;visibility:hidden;transform:translateY(10px) scale(.99);transition:opacity .35s ease,transform .45s cubic-bezier(.22,1,.36,1);pointer-events:none}
+#tutorialExamplePanel.open{opacity:1;visibility:visible;transform:none}
+body.tutorial-running .tutorial-explore-root{pointer-events:auto!important}
+.tutorial-example-kicker{font-size:10px;font-weight:800;letter-spacing:.16em;opacity:.58;margin-bottom:6px}.tutorial-example-title{font-family:var(--theme-font);font-size:21px;font-weight:700;margin-bottom:4px}.tutorial-example-sub{font-size:12px;color:var(--muted);line-height:1.45;margin-bottom:10px}.tutorial-example-list{display:grid;gap:7px}.tutorial-example-row{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:9px;align-items:center;padding:9px 10px;border:1px solid var(--edge);border-radius:12px;background:var(--surface-soft)}.tutorial-example-check{width:25px;height:25px;border:1.5px solid var(--edge);border-radius:8px;display:grid;place-items:center;font-weight:800}.tutorial-example-row.locked .tutorial-example-check{background:var(--button);color:var(--buttonText);border-color:var(--button)}.tutorial-example-task{font-size:13px;font-weight:650}.tutorial-example-label{font-size:10px;font-weight:800;letter-spacing:.05em;padding:5px 7px;border-radius:999px;border:1px solid var(--edge);white-space:nowrap}.tutorial-example-row.locked .tutorial-example-label{color:var(--button)}.tutorial-example-divider{display:flex;align-items:center;gap:8px;margin:8px 0 6px;font-size:10px;font-weight:800;letter-spacing:.12em;color:var(--muted)}.tutorial-example-divider:before,.tutorial-example-divider:after{content:"";height:1px;background:var(--edge);flex:1}.tutorial-example-note{margin-top:9px;font-size:11px;line-height:1.45;color:var(--muted)}
+.tutorial-lock-demo-note{margin:8px 4px 2px;padding:9px 11px;border-radius:10px;background:var(--surface-soft);border:1px solid var(--edge);font-size:11px;line-height:1.45;color:var(--muted)}
+.tutorial-lock-demo-note b{color:var(--text)}
+#dailyTasksCard.tutorial-lock-demo .daily-task-row{pointer-events:none!important;cursor:default!important}
+/* Enchanted Library: tutorial readability */
+body[data-theme="fantasy"] #tutorialCoach .tutorial-coach-step{font-size:12px!important;line-height:1.35!important}
+body[data-theme="fantasy"] #tutorialCoach .tutorial-coach-title{font-size:27px!important;line-height:1.15!important}
+body[data-theme="fantasy"] #tutorialCoach .tutorial-coach-text{font-size:16px!important;line-height:1.55!important}
+body[data-theme="fantasy"] #tutorialCoach .tutorial-coach-hint{font-size:15px!important;line-height:1.5!important}
+body[data-theme="fantasy"] #tutorialCoach .tutorial-coach-actions button{font-size:17px!important;line-height:1.2!important;padding:10px 14px!important}
+body[data-theme="fantasy"] #tutorialCoach.explore-mode .tutorial-coach-title{font-size:27px!important}
+body[data-theme="fantasy"] #tutorialCoach.explore-mode .tutorial-coach-text{font-size:16px!important}
+body[data-theme="fantasy"] #tutorialCoach.explore-mode .tutorial-coach-hint{font-size:15px!important}
+body[data-theme="fantasy"] #tutorialModal .tutorial-kicker{font-size:12px!important}
+body[data-theme="fantasy"] #tutorialModal h3{font-size:30px!important;line-height:1.15!important}
+body[data-theme="fantasy"] #tutorialModal .tutorial-copy p{font-size:17px!important;line-height:1.55!important}
+body[data-theme="fantasy"] #tutorialModal .tutorial-actions button{font-size:17px!important}
+@media(max-width:760px){#tutorialCoach{left:14px;right:14px;bottom:84px;width:auto}.tutorial-setting{align-items:flex-start;flex-direction:column}.tutorial-setting button{width:100%}}
+</style>
+<div class="modal-backdrop" id="tutorialModal">
+  <div class="modal tutorial-modal" role="dialog" aria-modal="true" aria-labelledby="tutorialTitle">
+    <div class="tutorial-kicker">WELCOME TO BLOOM BY BIT</div>
+    <div class="tutorial-icon">✦</div>
+    <h3 id="tutorialTitle">Let’s get you set up.</h3>
+    <div class="tutorial-copy">
+      <p>We’ll set up a couple of habits and tasks together, then take a quick look around.</p>
+      <p><b>This is just a practice run.</b> Anything you add or change during the tutorial is temporary. When it ends, we’ll put your dashboard back the way it was before you started.</p>
+      <p><b>One more thing:</b> when you get to an <b>Explore</b> step, you can tap the ✦ to shrink the instructions out of the way. You can also drag the instruction box—or the ✦ itself—to a better spot.</p>
+    </div>
+    <div class="tutorial-actions">
+      <button type="button" id="tutorialSkip">Skip Tutorial</button>
+      <div class="tutorial-right"><button type="button" class="save" id="tutorialBegin">Begin Tour ✦</button></div>
+    </div>
+  </div>
+</div>
+<div id="tutorialSpotlight" aria-hidden="true"></div>
+<div id="tutorialCoach" role="dialog" aria-live="polite">
+  <button type="button" id="tutorialCoachMinimize" aria-label="Minimize tutorial instructions" title="Minimize tutorial instructions">✦</button>
+  <div id="tutorialCoachContent">
+    <div class="tutorial-coach-step" id="tutorialCoachStep"></div>
+    <div class="tutorial-coach-title" id="tutorialCoachTitle"></div>
+    <div class="tutorial-coach-text" id="tutorialCoachText"></div>
+    <div class="tutorial-coach-hint" id="tutorialCoachHint" hidden></div>
+    <div class="tutorial-coach-actions">
+      <button type="button" id="tutorialCoachSkip">End Tutorial</button>
+      <div><button type="button" id="tutorialCoachBack">Back</button><button type="button" class="save" id="tutorialCoachNext">Next</button></div>
+    </div>
+  </div>
+</div>
+<div id="tutorialExamplePanel" aria-hidden="true"></div>
 <div class="modal-backdrop" id="clearDataModal"><div class="modal">
   <h3>Start fresh?</h3>
-  <p>This will erase your saved name, habits, prizes, theme, pulls, weekly progress, and reward history on this browser. The website itself will not be deleted.</p>
+  <p>This will erase your saved name, habits, rewards, theme, pulls, weekly progress, and reward history on this browser. The website itself will not be deleted.</p>
   <div class="modal-actions"><button id="cancelClearData">Cancel</button><button class="danger" id="confirmClearData">Erase My Data</button></div>
 </div></div>
-<div class="modal-backdrop" id="resetModal"><div class="modal"><h3>Reset this week?</h3><p>This week’s pulls and progress will return to zero. Your prizes, theme, name, and habits will stay saved.</p><div class="modal-actions"><button id="cancelReset">Keep This Week</button><button class="danger" id="confirmReset">Reset Week</button></div></div></div>
+<div class="modal-backdrop" id="resetModal"><div class="modal"><h3>Reset this week?</h3><p>This week’s pulls and progress will return to zero. Lucky Pulls do not carry into the next week. Your rewards, theme, name, and habits will stay saved.</p><div class="modal-actions"><button id="cancelReset">Keep This Week</button><button class="danger" id="confirmReset">Reset Week</button></div></div></div>
+<div class="modal-backdrop" id="rewardTierChoiceModal"><div class="modal"><h3>Choose your Reward Tier</h3><p id="rewardTierChoiceText">You earned a reward. Choose which Reward Tier you want to draw from.</p><p class="reward-choice-note"><b>Lucky Pulls do not carry into the next week.</b> If you want to check your reward choices first, cancel and review the Reward Tiers.</p><div class="reward-tier-choice-grid" id="rewardTierChoiceGrid"></div><div class="modal-actions"><button id="cancelRewardTierChoice">Cancel</button></div></div></div>
 <div class="modal-backdrop" id="weekSummaryModal">
   <div class="modal week-summary-modal">
     <div class="week-summary-kicker">WEEK COMPLETE</div>
@@ -5995,6 +6109,13 @@ if(sidebarFab){
   });
 }
 
+// Escape is always available as a quick way to reveal navigation.
+// If the sidebar is already open, Escape leaves it open.
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  if(document.body.classList.contains('sidebar-collapsed')) setSidebarCollapsed(false);
+},true);
+
 
 /* ===== BACKUP / RESTORE ===== */
 function saveBetterYouBackup(){
@@ -6031,7 +6152,7 @@ function restoreBetterYouBackup(file){
       if(!payload || payload.app!=='Bloom by Bit' || !payload.state || typeof payload.state!=='object'){
         throw new Error('Invalid backup');
       }
-      localStorage.setItem('betterYou_v1',JSON.stringify(payload.state));
+      try{localStorage.setItem('betterYou_v1',JSON.stringify(payload.state))}catch(e){}
       toast('Backup restored — reloading');
       setTimeout(()=>location.reload(),650);
     }catch(e){
@@ -6066,8 +6187,9 @@ if(cancelClearData) cancelClearData.addEventListener('click',()=>{
   if(clearDataModal) clearDataModal.classList.remove('open');
 });
 if(confirmClearData) confirmClearData.addEventListener('click',()=>{
-  localStorage.removeItem('betterYou_v1');
-  localStorage.removeItem('betterYou_sidebarCollapsed');
+  try{localStorage.removeItem('betterYou_v1')}catch(e){}
+  try{localStorage.removeItem('betterYou_sidebarCollapsed')}catch(e){}
+  try{localStorage.removeItem('bloomByBit_tutorialSeen')}catch(e){}
   location.reload();
 });
 
@@ -6284,7 +6406,7 @@ function load(){
   }
   ensureCurrentWeek();
 }
-function save(){localStorage.setItem('betterYou_v1',JSON.stringify(state))}
+function save(){try{localStorage.setItem('betterYou_v1',JSON.stringify(state))}catch(e){}}
 
 function pullResult(p){return typeof p==='string'?p:p.result}
 function winnerCount(){return state.pulls.filter(p=>pullResult(p)==='win').length}
@@ -7188,9 +7310,9 @@ function render(){
   $('remainCount').textContent=rem;
   $('tierStat').textContent={none:'—',small:'Small',medium:'Medium',large:'Large'}[tier()];
 
-  if($('smallRule')) $('smallRule').textContent=`${t.small} wins`;
-  if($('mediumRule')) $('mediumRule').textContent=`${t.medium} wins`;
-  if($('largeRule')) $('largeRule').textContent=`${t.large} wins`;
+  if($('smallRule')) $('smallRule').textContent=`${t.small} Lucky Pulls`;
+  if($('mediumRule')) $('mediumRule').textContent=`${t.medium} Lucky Pulls`;
+  if($('largeRule')) $('largeRule').textContent=`${t.large} Lucky Pulls`;
 
   const dots=$('progressDots');dots.innerHTML='';
   const pendingTaskSlots=pendingDailyTaskSlots();
@@ -7593,8 +7715,40 @@ $('addHabitBtn').onclick=()=>{
   settingsHabits.push({id:newHabitId(),name:'New habit',goal:1,color:defaultHabitColor(state.theme,settingsHabits.length)});
   renderHabitEditor();
 };
-$('settingsNav').onclick=openSettings;
-$('closeSettings').onclick=()=>$('settingsModal').classList.remove('open');
+function syncExclusiveModalNav(){
+  // Keep the sidebar looking normal. Interaction outside an open Settings/Themes
+  // modal is blocked globally below rather than visually disabling nav items.
+  $('settingsNav')?.removeAttribute('aria-disabled');
+  $('themesNav')?.removeAttribute('aria-disabled');
+}
+
+// Settings and Themes are modal workspaces: while either is open, the user can
+// interact only with that open modal (plus tutorial controls when onboarding).
+// The sidebar may still be revealed with Escape, but its controls remain inert.
+document.addEventListener('click',e=>{
+  const settingsOpen=$('settingsModal')?.classList.contains('open');
+  const themesOpen=$('themesModal')?.classList.contains('open');
+  if(!settingsOpen && !themesOpen) return;
+  const openModal=settingsOpen?$('settingsModal'):$('themesModal');
+  if(openModal?.contains(e.target)) return;
+  // Allow controls inside a secondary confirmation dialog opened from Settings/Themes
+  // (for example Start Fresh -> Erase My Data / Cancel).
+  const activeDialog=e.target.closest?.('.modal-backdrop.open');
+  if(activeDialog && activeDialog!==openModal) return;
+  if(e.target.closest?.('#tutorialCoach')) return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+},true);
+function closeSettings(){
+  $('settingsModal').classList.remove('open');
+  syncExclusiveModalNav();
+}
+$('settingsNav').onclick=()=>{
+  if($('themesModal')?.classList.contains('open')) return;
+  openSettings();
+  syncExclusiveModalNav();
+};
+$('closeSettings').onclick=closeSettings;
 $('saveSettings').onclick=()=>{
   syncHabitEditor();
   const cleaned=settingsHabits.map(h=>({
@@ -7787,12 +7941,12 @@ function runPullAnimation(pull){
 
         setTimeout(()=>{
           r.classList.add('pre-reveal');
-        },220);
+        },320);
 
         setTimeout(()=>{
           $('pullResultLabel').textContent=win?'LUCKY PULL':'NEXT TIME';
           $('pullCaption').textContent=win
-            ?'A lucky pull!'
+            ?'A Lucky Pull!'
             :'Next time — your habit still counted.';
           r.classList.add('reveal');
         },520);
@@ -7848,8 +8002,8 @@ $('habitsDisplay').addEventListener('click',async e=>{
 
   if(finished){
     const k=tier();
-    if(k==='none') toast('Week complete — no prize this time');
-    else toast(`Week complete — ${k==='large'?'Large':k[0].toUpperCase()+k.slice(1)} prize earned!`);
+    if(k==='none') toast('Week complete — no reward this time');
+    else toast(`Week complete — ${k==='large'?'Large':k[0].toUpperCase()+k.slice(1)} reward earned!`);
   }else{
     toast(pull.result==='win'?'Winner!':'Next time — your habit still counted');
   }
@@ -8116,7 +8270,7 @@ document.querySelectorAll('[data-add]').forEach(b=>{
 });
 
 function launchCelebration(k,reward){
-  $('celebrationTier').textContent={small:'Small reward',medium:'Medium reward',large:'Big reward'}[k];
+  $('celebrationTier').textContent={small:'Small reward',medium:'Medium reward',large:'Large reward'}[k];
   $('rewardName').textContent=reward;
   const layer=$('confettiLayer');layer.innerHTML='';
   for(let i=0;i<42;i++){
@@ -8132,11 +8286,77 @@ function launchCelebration(k,reward){
 }
 $('closeCelebration').onclick=()=>$('celebration').classList.remove('open');
 $('celebration').addEventListener('click',e=>{if(e.target===$('celebration'))$('celebration').classList.remove('open')});
+let pendingRewardDrawContext=null;
+
+function rewardTierLabel(k){
+  return {small:'Small Reward',medium:'Medium Reward',large:'Large Reward'}[k]||'Reward';
+}
+
+function eligibleRewardTiers(maxTier){
+  if(maxTier==='large') return ['large','medium','small'];
+  if(maxTier==='medium') return ['medium','small'];
+  if(maxTier==='small') return ['small'];
+  return [];
+}
+
+function completeRewardDraw(k,context){
+  const pool=state.prizes[k];
+  if(!pool.length){
+    toast(`Add a ${rewardTierLabel(k).toLowerCase()} first`);
+    return false;
+  }
+
+  // Only close the current week once a reward can actually be drawn.
+  if(context.source==='current'){
+    state.rewardClaimed=true;
+    finalizeLargeIfEarned(context.maxTier);
+  }else if(context.source==='pending'){
+    state.pendingRewards.shift();
+  }
+
+  const reward=pool[Math.floor(Math.random()*pool.length)];
+  save();
+  render();
+  launchCelebration(k,reward);
+  return true;
+}
+
+function openRewardTierChoice(maxTier,source){
+  pendingRewardDrawContext={maxTier,source};
+  $('rewardTierChoiceText').textContent=`You earned a ${rewardTierLabel(maxTier)}. You can draw from that tier or choose any lower tier.`;
+  const grid=$('rewardTierChoiceGrid');
+  grid.innerHTML='';
+  eligibleRewardTiers(maxTier).forEach(k=>{
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='reward-tier-choice';
+    b.textContent=`Draw from ${rewardTierLabel(k)}`;
+    b.onclick=()=>{
+      const context=pendingRewardDrawContext;
+      if(!context)return;
+      if(completeRewardDraw(k,context)){
+        pendingRewardDrawContext=null;
+        $('rewardTierChoiceModal').classList.remove('open');
+      }
+    };
+    grid.appendChild(b);
+  });
+  $('rewardTierChoiceModal').classList.add('open');
+}
+
+$('cancelRewardTierChoice').onclick=()=>{
+  pendingRewardDrawContext=null;
+  $('rewardTierChoiceModal').classList.remove('open');
+};
+
 $('drawPrizeBtn').onclick=()=>{
-  // Preserve any reward earned in a prior week first.
-  let k=null;
+  let maxTier=null;
+  let source='current';
+
+  // Preserve compatibility with any reward already banked by an older version.
   if(state.pendingRewards.length){
-    k=state.pendingRewards.shift();
+    maxTier=state.pendingRewards[0];
+    source='pending';
   }else{
     if(state.rewardClaimed){
       toast('You already claimed this week’s reward');
@@ -8145,34 +8365,41 @@ $('drawPrizeBtn').onclick=()=>{
 
     // The weekly slot count is a maximum, not a minimum.
     // Users may close out the week with unused pulls.
-    k=tier();
+    maxTier=tier();
 
-    if(k==='none'){
-      toast('No prize earned from your pulls this week');
+    if(maxTier==='none'){
+      toast('No reward earned from your pulls this week');
       return;
     }
-
-    // Once a current-week reward is claimed, that week is closed:
-    // unused pull slots are forfeited so the user cannot claim and then keep pulling.
-    state.rewardClaimed=true;
-    finalizeLargeIfEarned(k);
   }
 
-  const pool=state.prizes[k];
-  if(!pool.length){
-    if(state.pendingRewards.length || !state.rewardClaimed) state.pendingRewards.unshift(k);
-    toast('Add a prize to this tier first');
+  // Medium and Large rewards may be exchanged for any lower reward tier.
+  // Small rewards have no lower tier, so they can draw immediately.
+  if(maxTier==='medium' || maxTier==='large'){
+    openRewardTierChoice(maxTier,source);
     return;
   }
 
-  const reward=pool[Math.floor(Math.random()*pool.length)];
-  save();
-  render();
-  launchCelebration(k,reward);
+  completeRewardDraw('small',{maxTier,source});
 };
 
-$('themesNav').onclick=()=>{$('themesModal').classList.add('open')};
-$('closeThemes').onclick=()=>$('themesModal').classList.remove('open');
+function openThemes(){
+  if($('settingsModal')?.classList.contains('open')) return;
+  $('themesModal').classList.add('open');
+  syncExclusiveModalNav();
+}
+function closeThemes(){
+  $('themesModal').classList.remove('open');
+  syncExclusiveModalNav();
+}
+$('themesNav').onclick=openThemes;
+$('closeThemes').onclick=closeThemes;
+for(const modalId of ['settingsModal','themesModal']){
+  const modal=$(modalId);
+  if(modal) new MutationObserver(syncExclusiveModalNav).observe(modal,{attributes:true,attributeFilter:['class']});
+}
+syncExclusiveModalNav();
+
 document.querySelectorAll('.theme-btn').forEach(b=>b.onclick=()=>{
   state.theme=b.dataset.theme;
   render();
@@ -8327,7 +8554,6 @@ function refreshDateAndQuote(){
 }
 load();refreshDateAndQuote();render();
 setInterval(()=>{ensureCurrentWeek();ensureCurrentDay();refreshDateAndQuote();render()},60000);
-})();
 setInterval(refreshDueCountdowns,30000);
 document.addEventListener('click',e=>{
   if(activeDuePicker && !e.target.closest('.custom-due-picker') && !e.target.closest('.task-due-btn')){
@@ -8340,6 +8566,53 @@ window.addEventListener('resize',()=>{
 window.addEventListener('scroll',()=>{
   if(activeDuePicker) positionDuePicker(activeDuePicker.panel,activeDuePicker.anchor);
 },true);
+
+// Tutorial-only helpers keep the practice habit editor deterministic even if
+// someone experiments during an earlier exploration step.
+function tutorialResetHabitEditor(count=1){
+  const desired=Math.max(1,Math.min(2,Number(count)||1));
+  settingsHabits=[];
+  for(let i=0;i<desired;i++){
+    settingsHabits.push({
+      id:newHabitId(),
+      name:'New habit',
+      goal:1,
+      color:defaultHabitColor(state.theme,i)
+    });
+  }
+  renderHabitEditor();
+}
+function tutorialResetHabitRow(index){
+  syncHabitEditor();
+  if(index<0)return;
+  while(settingsHabits.length<=index){
+    const i=settingsHabits.length;
+    settingsHabits.push({id:newHabitId(),name:'New habit',goal:1,color:defaultHabitColor(state.theme,i)});
+  }
+  settingsHabits[index]={...settingsHabits[index],name:'New habit',goal:1};
+  renderHabitEditor();
+}
+
+// Small public bridge used by the guided tutorial. Keeping the main app state
+// private avoids accidental globals while still allowing the tutorial runtime
+// to move between pages and restore the user's pre-tutorial state safely.
+window.BloomByBitApp={
+  getState:()=>state,
+  getDefaults:()=>structuredClone(defaults),
+  setState:value=>{state=value},
+  render,
+  openSettings,
+  setSettingsTab,
+  showHomePage,
+  showHistoryPage,
+  showCoffeePage,
+  closeClockPage,
+  setSidebarCollapsed,
+  tutorialResetHabitEditor,
+  tutorialResetHabitRow,
+  toast:typeof toast==='function'?toast:null
+};
+})();
 </script>
 
 <div class="clock-page studying-page" id="clockPage" aria-hidden="true">
@@ -8702,6 +8975,19 @@ body[data-theme="tidal"] .study-timer-card{border-radius:30px}
     clockTab.onclick=()=>setView('clock');timerTab.onclick=()=>setView('timer');
     startBtn.onclick=startPause;resetBtn.onclick=resetTimer;skipBtn.onclick=skipInterval;
 
+    // Small public bridge for the guided tutorial. Normal Studying behavior still
+    // uses the buttons above; the tutorial only uses this as a fallback if its
+    // interaction guard interferes with a click in an embedded/preview browser.
+    window.BloomByBitStudying={
+      setView,
+      startPause,
+      resetTimer,
+      skipInterval,
+      resetAndStop:()=>{running=false;stopTicker();completedFocusSessions=0;phase=config.pomodoroEnabled?'focus':'regular';remainingMs=durationMs();endAt=0;paintTimer();},
+      getView:()=>timerView.classList.contains('active')?'timer':'clock',
+      isRunning:()=>running
+    };
+
     const helpBtn=byId('studyTimerHelpBtn');
     const helpTip=byId('studyTimerHelpTip');
 
@@ -8862,7 +9148,7 @@ body[data-theme="tidal"] .study-timer-card{border-radius:30px}
       const collapsed=document.body.classList.contains('sidebar-collapsed');
       document.body.classList.toggle('sidebar-collapsed',!collapsed);
       try{
-        localStorage.setItem('betterYou_sidebarCollapsed',collapsed?'0':'1');
+        try{localStorage.setItem('betterYou_sidebarCollapsed',collapsed?'0':'1')}catch(e){}
       }catch(err){}
     },true);
 
@@ -8920,6 +9206,731 @@ body.clock-mode .world{
 }
 </style>
 
+
+<script id="guided-tutorial-runtime">
+(()=>{
+  const $=id=>document.getElementById(id);
+  const modal=$('tutorialModal'), coach=$('tutorialCoach');
+  const app=window.BloomByBitApp||{};
+  let stepIndex=0, practiceMode=false, focused=null, interactionRoot=null, cleanupStep=()=>{}, tutorialStateSnapshot=null, tutorialStorageSnapshot=null, tutorialSidebarSnapshot=null;
+  let coachMinimized=false, coachPinnedByUser=false, coachDragMoved=false, renderingStep=false;
+  const markSeen=()=>{try{localStorage.setItem('bloomByBit_tutorialSeen','1')}catch(e){}};
+  const isSeen=()=>{try{return localStorage.getItem('bloomByBit_tutorialSeen')==='1'}catch(e){return false}};
+  const safe=(fn)=>{try{return fn()}catch(err){console.error('Bloom by Bit tutorial:',err);return null}};
+  const clearFocus=()=>{if(focused){focused.classList.remove('tutorial-focus');focused=null}if(interactionRoot)interactionRoot.classList?.remove('tutorial-explore-root');interactionRoot=null};
+  function setCoachMinimized(value){
+    coachMinimized=!!value;
+    coach?.classList.toggle('minimized',coachMinimized);
+    const b=$('tutorialCoachMinimize');
+    if(b){
+      b.setAttribute('aria-label',coachMinimized?'Show tutorial instructions':'Minimize tutorial instructions');
+      b.title=coachMinimized?'Show tutorial instructions':'Minimize tutorial instructions';
+    }
+    if(!renderingStep) positionCoach();
+  }
+  const examplePanel=$('tutorialExamplePanel');
+  function hideTutorialExample(){if(examplePanel){examplePanel.classList.remove('open');examplePanel.innerHTML=''}}
+  let lockedDemoSnapshot=null;
+  function showLockedTaskExample(){
+    const st=app.getState?.();
+    if(!st?.dailyTasks)return ()=>{};
+    lockedDemoSnapshot=cloneTutorialData(st.dailyTasks);
+    st.dailyTasks={
+      ...st.dailyTasks,
+      items:[
+        {id:'tutorial-locked-1',text:'Finish reading',done:true,carried:false,dueAt:'',nextDayOnly:false},
+        {id:'tutorial-locked-2',text:'Email professor',done:false,carried:false,dueAt:'',nextDayOnly:false},
+        {id:'tutorial-locked-3',text:'Do laundry',done:false,carried:false,dueAt:'',nextDayOnly:false},
+        {id:'tutorial-after-1',text:'Call to make an appointment — added afterward',done:false,carried:false,dueAt:'',nextDayOnly:true}
+      ],
+      lockedPulls:1,
+      lockedTaskIds:['tutorial-locked-1','tutorial-locked-2','tutorial-locked-3'],
+      drawn:0,
+      allocationApplied:false
+    };
+    app.render?.();
+    const card=$('dailyTasksCard');
+    card?.classList.add('tutorial-lock-demo');
+    return ()=>{
+      const stateNow=app.getState?.();
+      if(stateNow && lockedDemoSnapshot){stateNow.dailyTasks=cloneTutorialData(lockedDemoSnapshot);app.render?.()}
+      lockedDemoSnapshot=null;
+      $('dailyTasksCard')?.classList.remove('tutorial-lock-demo');
+    };
+  }
+  function positionLockedExample(){
+    if(!examplePanel?.classList.contains('open'))return;
+    const margin=18,gap=18,vw=window.innerWidth,vh=window.innerHeight;
+    const ew=Math.min(examplePanel.offsetWidth||470,vw-margin*2);
+    const eh=Math.min(examplePanel.offsetHeight||420,vh-margin*2);
+    const cr=coach?.classList.contains('open')?coach.getBoundingClientRect():null;
+    const candidates=[
+      [vw-ew-margin,margin+58],
+      [vw-ew-margin,vh-eh-margin],
+      [margin+130,margin+58],
+      [margin+130,vh-eh-margin]
+    ];
+    const overlaps=(x,y,r)=>r && !(x+ew<r.left-gap||x>r.right+gap||y+eh<r.top-gap||y>r.bottom+gap);
+    const chosen=candidates.find(([x,y])=>!overlaps(x,y,cr))||candidates[0];
+    examplePanel.style.left=Math.round(clamp(chosen[0],margin,vw-ew-margin))+'px';
+    examplePanel.style.top=Math.round(clamp(chosen[1],margin,vh-eh-margin))+'px';
+    examplePanel.style.right='auto';examplePanel.style.bottom='auto';
+  }
+  function cloneTutorialData(value){
+    try{return JSON.parse(JSON.stringify(value))}catch(err){console.error('Bloom by Bit tutorial snapshot:',err);return null}
+  }
+  function snapshotTutorialState(){
+    tutorialStateSnapshot=cloneTutorialData(app.getState?.());
+    try{tutorialStorageSnapshot=window.localStorage?localStorage.getItem('betterYou_v1'):null}catch(e){tutorialStorageSnapshot=null}
+    try{tutorialSidebarSnapshot=window.localStorage?localStorage.getItem('betterYou_sidebarCollapsed'):null}catch(e){tutorialSidebarSnapshot=null}
+  }
+  function restoreTutorialState(){
+    if(!tutorialStateSnapshot)return;
+    const restored=cloneTutorialData(tutorialStateSnapshot);
+    if(restored)app.setState?.(restored);
+    try{
+      if(tutorialStorageSnapshot==null)localStorage.removeItem('betterYou_v1');
+      else localStorage.setItem('betterYou_v1',tutorialStorageSnapshot);
+      if(tutorialSidebarSnapshot==null)localStorage.removeItem('betterYou_sidebarCollapsed');
+      else localStorage.setItem('betterYou_sidebarCollapsed',tutorialSidebarSnapshot);
+    }catch(e){}
+    safe(()=>app.render?.());
+    safe(()=>{if(document.body.classList.contains('clock-mode'))app.closeClockPage?.()});
+    safe(()=>app.showHomePage?.());
+    document.querySelectorAll('.modal-backdrop.open').forEach(x=>x.classList.remove('open'));
+    document.querySelectorAll('.nav-btn').forEach(n=>n.classList.remove('active'));
+    document.querySelector('.nav-btn[data-target="home"]')?.classList.add('active');
+    safe(()=>app.setSidebarCollapsed?.(tutorialSidebarSnapshot==='1'));
+    window.scrollTo({top:0,left:0,behavior:'auto'});
+    tutorialStateSnapshot=null;tutorialStorageSnapshot=null;tutorialSidebarSnapshot=null;
+  }
+
+  // While the guided tutorial is running, only the current tutorial target
+  // and the tutorial controls themselves are interactive. This prevents
+  // accidental navigation or changes elsewhere on the dashboard.
+  function isTutorialAllowedTarget(target){
+    if(!document.body.classList.contains('tutorial-running'))return true;
+    if(!target || !(target instanceof Element))return false;
+    if(coach?.contains(target))return true;
+    if(examplePanel?.contains(target))return true;
+    const step=steps?.[stepIndex];
+    if(step?.explore && step.context==='studying'){
+      const studyPage=$('clockPage');
+      if(studyPage && studyPage.contains(target))return true;
+    }
+    if(interactionRoot && (target===interactionRoot || interactionRoot.contains(target)))return true;
+    if(focused && (target===focused || focused.contains(target)))return true;
+    if(step?.explore && step.context==='studying'){
+      const navAway=target.closest?.('.sidebar .nav-btn');
+      if(!navAway || navAway.id==='clockNav')return true;
+    }
+    if(step?.explore && step.context==='history' && target.closest?.('#historyPage'))return true;
+    if(step?.explore && step.context==='themes' && target.closest?.('#themesModal'))return true;
+    if(step?.explore && step.context==='coffee' && target.closest?.('#coffeePage'))return true;
+    if(step?.explore && step.context==='settings' && target.closest?.('#settingsModal'))return true;
+    return false;
+  }
+  function ensureStudyingTutorialAction(target){
+    const step=steps?.[stepIndex];
+    if(!(step?.explore && step.context==='studying'))return;
+    const study=window.BloomByBitStudying;
+    if(!study || !target?.closest)return;
+    const timer=target.closest('#studyTimerTab');
+    const clock=target.closest('#studyClockTab');
+    const start=target.closest('#studyTimerStart');
+    const reset=target.closest('#studyTimerReset');
+    const skip=target.closest('#studyTimerSkip');
+    if(timer){
+      setTimeout(()=>{if(timer.getAttribute('aria-selected')!=='true')safe(()=>study.setView?.('timer'))},0);
+    }else if(clock){
+      setTimeout(()=>{if(clock.getAttribute('aria-selected')!=='true')safe(()=>study.setView?.('clock'))},0);
+    }else if(start){
+      const before=start.textContent;
+      setTimeout(()=>{if(start.textContent===before)safe(()=>study.startPause?.())},0);
+    }else if(reset){
+      setTimeout(()=>safe(()=>study.resetTimer?.()),0);
+    }else if(skip){
+      setTimeout(()=>safe(()=>study.skipInterval?.()),0);
+    }
+  }
+  function blockOutsideTutorial(e){
+    if(!e.isTrusted)return; // do not block the tutorial's own programmatic actions
+    const step=steps?.[stepIndex];
+    if(step?.explore && step.context==='studying' && e.target?.closest?.('#clockPage')){
+      // Studying is fully interactive during its explore step. Do not replay the
+      // same action through the tutorial bridge; doing so can double-toggle the
+      // Pomodoro timer (Start -> Pause, Skip twice, etc.).
+      return;
+    }
+    if(isTutorialAllowedTarget(e.target))return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation?.();
+  }
+  ['pointerdown','mousedown','click','dblclick','contextmenu','dragstart','drop'].forEach(type=>{
+    document.addEventListener(type,blockOutsideTutorial,true);
+  });
+
+  document.addEventListener('keydown',e=>{
+    if(!document.body.classList.contains('tutorial-running') || !e.isTrusted)return;
+    if(isTutorialAllowedTarget(e.target))return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation?.();
+  },true);
+  document.addEventListener('focusin',e=>{
+    if(!document.body.classList.contains('tutorial-running') || !e.isTrusted)return;
+    if(e.key==='Escape')return;
+    if(isTutorialAllowedTarget(e.target))return;
+    safe(()=>e.target.blur?.());
+  },true);
+  const closeOtherModals=(keep=null)=>document.querySelectorAll('.modal-backdrop.open').forEach(x=>{if(x!==modal && x!==keep)x.classList.remove('open')});
+  const goHome=()=>safe(()=>document.querySelector('.nav-btn[data-target="home"]')?.click());
+  const setNext=(enabled,label='Next')=>{const b=$('tutorialCoachNext');if(b){b.disabled=!enabled;b.textContent=label}};
+  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+  let lastCoachPos=null;
+  const coachPosByStep=new Map();
+  function setCoachPosition(x,y){
+    coach.style.right='auto';
+    coach.style.bottom='auto';
+    coach.style.left=Math.round(x)+'px';
+    coach.style.top=Math.round(y)+'px';
+    lastCoachPos={x,y};
+    coachPosByStep.set(stepIndex,{x,y});
+  }
+  function getCoachDestination(){
+    const margin=14,vw=window.innerWidth,vh=window.innerHeight;
+    const step=steps?.[stepIndex]||{};
+    // Resolve the intended width first so measurements are deterministic.
+    const widthPx=Math.min(step.coachWidth||390,vw-margin*2);
+    coach.style.width=widthPx+'px';
+    coach.style.height='auto';
+    coach.style.right='auto';
+    coach.style.bottom='auto';
+    // Measure natural height after content/styles are applied.
+    const ch=Math.min(coach.scrollHeight||coach.offsetHeight||220,vh-margin*2);
+    const cw=Math.min(coach.offsetWidth||widthPx,vw-margin*2);
+
+    if(step.centerCoach){
+      return {x:clamp((vw-cw)/2,margin,vw-cw-margin),y:clamp((vh-ch)/2,margin,vh-ch-margin),w:cw,h:ch};
+    }
+
+    if(step.explore && coachPinnedByUser && lastCoachPos){
+      return {x:clamp(lastCoachPos.x,margin,vw-cw-margin),y:clamp(lastCoachPos.y,margin,vh-ch-margin),w:cw,h:ch};
+    }
+
+    if(step.anchorToTarget && focused?.getBoundingClientRect){
+      const r=focused.getBoundingClientRect(),gap=20;
+      const candidates=[];
+      for(const side of (step.preferSides||['right','left','bottom','top'])){
+        if(side==='right') candidates.push([r.right+gap,r.top+(r.height-ch)/2]);
+        if(side==='left') candidates.push([r.left-gap-cw,r.top+(r.height-ch)/2]);
+        if(side==='bottom') candidates.push([r.left+(r.width-cw)/2,r.bottom+gap]);
+        if(side==='top') candidates.push([r.left+(r.width-cw)/2,r.top-gap-ch]);
+      }
+      const fits=([x,y])=>x>=margin&&y>=margin&&x+cw<=vw-margin&&y+ch<=vh-margin;
+      const chosen=candidates.find(fits)||[vw-cw-margin,vh-ch-margin];
+      return {x:clamp(chosen[0],margin,vw-cw-margin),y:clamp(chosen[1],margin,vh-ch-margin),w:cw,h:ch};
+    }
+
+    // Canonical default for every ordinary step: bottom-right.
+    return {x:vw-cw-margin,y:vh-ch-margin,w:cw,h:ch};
+  }
+
+  function positionCoach(){
+    if(!coach)return;
+    safe(()=>{
+      const d=getCoachDestination();
+      coach.style.right='auto';
+      coach.style.bottom='auto';
+      coach.style.left=Math.round(d.x)+'px';
+      coach.style.top=Math.round(d.y)+'px';
+      coach.style.width=Math.round(d.w)+'px';
+      coach.style.height='auto';
+      lastCoachPos={x:d.x,y:d.y};
+      coachPosByStep.set(stepIndex,{x:d.x,y:d.y});
+      if(examplePanel?.classList.contains('open')) requestAnimationFrame(positionLockedExample);
+    });
+  }
+
+  function focus(selector,scroll=false){
+    clearFocus();
+    const el=typeof selector==='function'?safe(selector):document.querySelector(selector);
+    if(!el)return null;
+    focused=el; interactionRoot=el; el.classList.add('tutorial-focus');
+    // During a guided tour, immediate scrolling is more predictable than a
+    // second asynchronous smooth-scroll animation fighting the coach card.
+    if(scroll)safe(()=>el.scrollIntoView({block:'center',inline:'nearest',behavior:'auto'}));
+    return el;
+  }
+  function focusForExplore(anchorSelector,rootSelector,scroll=false){
+    clearFocus();
+    const anchor=document.querySelector(anchorSelector);
+    const root=document.querySelector(rootSelector);
+    if(!anchor||!root)return null;
+    focused=anchor; interactionRoot=root; root.classList.add('tutorial-explore-root'); anchor.classList.add('tutorial-focus');
+    if(scroll)safe(()=>anchor.scrollIntoView({block:'nearest',inline:'nearest',behavior:'auto'}));
+    return root;
+  }
+  function setTutorialContext(context){
+    safe(()=>{
+      // Put the interface on the page that belongs to this step. This makes
+      // Back behave like a real tutorial Back button instead of only changing
+      // the instruction text while leaving the user stranded on another page.
+      if(context==='settings'){
+        if(document.body.classList.contains('clock-mode')){ safe(()=>window.BloomByBitStudying?.resetAndStop?.()); app.closeClockPage?.(); }
+        app.showHomePage?.();
+        const settings=$('settingsModal');
+        // Keep an already-open Settings modal alive between tutorial steps.
+        // Reopening it rebuilds the habit editor from saved state and would
+        // erase unsaved tutorial edits such as a newly added second habit.
+        closeOtherModals(settings?.classList.contains('open')?settings:null);
+        if(!settings?.classList.contains('open')) app.openSettings?.();
+        if(stepIndex>=2) app.setSettingsTab?.('tasks');
+      }else if(context==='home'){
+        if(document.body.classList.contains('clock-mode')){ safe(()=>window.BloomByBitStudying?.resetAndStop?.()); app.closeClockPage?.(); }
+        closeOtherModals();app.showHomePage?.();
+        document.querySelectorAll('.nav-btn').forEach(n=>n.classList.remove('active'));
+        document.querySelector('.nav-btn[data-target="home"]')?.classList.add('active');
+      }else if(context==='studying'){
+        closeOtherModals();
+        document.querySelector('#clockNav')?.click();
+      }else if(context==='history'){
+        closeOtherModals();app.showHistoryPage?.();
+      }else if(context==='themes'){
+        if(document.body.classList.contains('clock-mode')){ safe(()=>window.BloomByBitStudying?.resetAndStop?.()); app.closeClockPage?.(); }
+        app.showHistoryPage?.();
+        closeOtherModals();
+        $('themesModal')?.classList.add('open');
+      }else if(context==='coffee'){
+        closeOtherModals();app.showCoffeePage?.();
+      }
+    });
+  }
+
+  function finish(){
+    safe(cleanupStep); cleanupStep=()=>{}; clearFocus(); hideTutorialExample(); safe(()=>window.BloomByBitStudying?.resetAndStop?.()); coach?.classList.remove('open','changing','mini-ready','minimized','final-mode'); coachMinimized=false; coachPinnedByUser=false; coachDragMoved=false; modal?.classList.remove('open'); document.body.classList.remove('tutorial-running'); markSeen(); restoreTutorialState(); lastCoachPos=null;
+    app.toast?.('Tutorial complete ✦');
+  }
+  function next(){if(stepIndex<steps.length-1){stepIndex++;renderStep()}else finish()}
+  function rewindStepSideEffects(fromIndex,toIndex){
+    // If the user backs up from "Try a second habit" to "Add another habit",
+    // remove the tutorial-created second habit so that step is genuinely repeatable.
+    if(fromIndex===5 && toIndex===4){
+      const rows=[...document.querySelectorAll('#habitEditor .habit-edit-row')];
+      while(rows.length>1){
+        const row=rows.pop();
+        row?.querySelector('.remove-habit')?.click();
+      }
+    }
+  }
+  function back(){
+    if(stepIndex>0){
+      hideTutorialExample();
+      const from=stepIndex,to=stepIndex-1;
+      safe(()=>rewindStepSideEffects(from,to));
+      stepIndex=to;
+      renderStep();
+    }
+  }
+  function onOnce(el,event,fn){
+    if(!el)return;
+    const handler=(e)=>{safe(()=>fn?.(e)); setTimeout(next,70)};
+    el.addEventListener(event,handler,{once:true});
+    cleanupStep=()=>el.removeEventListener(event,handler);
+  }
+  function watchHabit(rowIndex){
+    const editor=$('habitEditor'); if(!editor){setNext(true);return}
+    const row=editor.querySelectorAll('.habit-edit-row')[rowIndex];
+    const name=row?.querySelector('.habit-edit-name');
+    const goal=row?.querySelector('.habit-edit-goal');
+    if(!name){setNext(true);return}
+    const startName=name.value.trim(), startGoal=goal?.value||'';
+    const check=()=>setNext(!practiceMode || (name.value.trim() && (name.value.trim()!==startName || (goal && goal.value!==startGoal))));
+    editor.addEventListener('input',check); check();
+    cleanupStep=()=>editor.removeEventListener('input',check);
+  }
+  function waitForTaskAdd(inputId,buttonId,listSelector,rowSelector){
+    if(!practiceMode){setNext(true);return}
+    const inp=$(inputId), btn=$(buttonId), list=document.querySelector(listSelector);
+    if(!list){setNext(true);return}
+    const countRows=()=>list.querySelectorAll(rowSelector).length;
+    const before=countRows();
+    let advanced=false;
+    setNext(false);
+    const check=()=>{
+      if(advanced)return;
+      if(countRows()>before){
+        advanced=true;
+        setTimeout(next,70);
+      }
+    };
+    const observer=new MutationObserver(()=>setTimeout(check,60));
+    observer.observe(list,{childList:true,subtree:true});
+    const clickHandler=()=>setTimeout(check,120);
+    const keyHandler=(e)=>{if(e.key==='Enter')setTimeout(check,120)};
+    btn?.addEventListener('click',clickHandler);
+    inp?.addEventListener('keydown',keyHandler);
+    cleanupStep=()=>{
+      observer.disconnect();
+      btn?.removeEventListener('click',clickHandler);
+      inp?.removeEventListener('keydown',keyHandler);
+    };
+  }
+
+  function waitForStudyingOpen(){
+    const nav=$('clockNav'), page=$('clockPage');
+    if(!nav||!page){setNext(true);return}
+    setNext(false);
+    let advanced=false;
+    const isOpen=()=>page.classList.contains('open') || page.getAttribute('aria-hidden')==='false';
+    const advance=()=>{
+      if(advanced||!isOpen())return;
+      advanced=true;
+      observer.disconnect();
+      document.removeEventListener('click',captureClick,true);
+      setTimeout(next,70);
+    };
+    const observer=new MutationObserver(()=>requestAnimationFrame(advance));
+    observer.observe(page,{attributes:true,attributeFilter:['class','aria-hidden']});
+    const captureClick=(e)=>{
+      if(e.target?.closest?.('#clockNav')) setTimeout(advance,80);
+    };
+    // Listen above the nav button because Studying's own click handler uses
+    // stopImmediatePropagation() on the button itself.
+    document.addEventListener('click',captureClick,true);
+    if(isOpen()) setTimeout(advance,80);
+    cleanupStep=()=>{
+      observer.disconnect();
+      document.removeEventListener('click',captureClick,true);
+    };
+  }
+
+  const steps=[
+    {context:'home',title:'Open Settings',text:'First, let’s set up the habits you want to work on this week.',hint:'Click <b>Settings</b> on the left.',enter(){goHome();const el=focus('#settingsNav');setNext(false);onOnce(el,'click')}} ,
+    {context:'settings',title:'Find Habits & Tasks',text:'This is where your weekly habits and task settings live.',hint:'Click <b>Habits & Tasks</b>.',enter(){if(!$('settingsModal')?.classList.contains('open'))safe(()=>app.openSettings?.());const el=focus('[data-settings-tab="tasks"]');setNext(false);onOnce(el,'click')}} ,
+    {context:'settings',title:'Take a look around',text:'Have a quick look through the Habits & Tasks settings so you know what you can change later.',hint:'Explore this section, then click <b>Next</b> when you are ready to set up your habits.',explore:true,enter(){focusForExplore('[data-settings-tab="tasks"]','[data-settings-panel="tasks"]');setNext(true)}} ,
+    {context:'settings',title:'Try adding your first habit',text:'Try out the habit setup with something simple so you can see how weekly habits work.',hint:'A few ideas: <b>read</b>, <b>exercise</b>, <b>study</b>, <b>drink more water</b>, or <b>practice a hobby</b>. Change the habit name, then choose how many times you want to do it this week.',enter(){safe(()=>app.tutorialResetHabitEditor?.(1));const editor=focus('#habitEditor'); if(!editor){setNext(true);return} watchHabit(0)}} ,
+    {context:'settings',title:'Add another habit',text:'Add a second one so you can see how multiple habits work together.',hint:'Click <b>+ Add another habit</b>.',enter(){const el=focus('#addHabitBtn');if(practiceMode){setNext(false);onOnce(el,'click')}else setNext(true)}} ,
+    {context:'settings',title:'Try a second habit',text:'Give the new habit a name and a weekly goal.',hint:'A few ideas: <b>read</b>, <b>exercise</b>, <b>study</b>, <b>drink more water</b>, or <b>practice a hobby</b>.',enter(){safe(()=>app.tutorialResetHabitRow?.(1));focus('#habitEditor');watchHabit(1)}} ,
+    {context:'settings',title:'Save your habits',text:'Save these changes so you can see how the habits appear on the dashboard.',hint:'Click <b>Save Changes</b>.',enter(){const el=focus('#saveSettings');if(practiceMode){setNext(false);onOnce(el,'click')}else setNext(true)}} ,
+    {context:'home',title:'Add something for today',text:'Today’s Tasks can earn Bonus Pulls. Add a quick example so you can see how it works.',hint:'A few ideas: <b>send an email</b>, <b>finish a reading</b>, <b>submit an assignment</b>, <b>do laundry</b>, or <b>make an appointment</b>. Type a task, then click <b>Add</b>.',avoidSelectors:['#dailyTaskList'],preferSides:['bottom','right','left','top'],enter(){goHome();focus('.daily-task-add',true);waitForTaskAdd('dailyTaskInput','dailyTaskAddBtn','#dailyTaskList','.daily-task-row')}} ,
+    {context:'home',title:'Park a task for later',text:'Tasks for Later is for things you do not need to tackle yet. Add another task here so you can try both boxes.',hint:'A few ideas: <b>send an email</b>, <b>finish a reading</b>, <b>submit an assignment</b>, <b>do laundry</b>, or <b>make an appointment</b>. Type a task, then click <b>Add</b>.',avoidSelectors:['#laterTaskList'],preferSides:['bottom','right','left','top'],enter(){focus('.later-task-add',true);waitForTaskAdd('laterTaskInput','laterTaskAddBtn','#laterTaskList','.later-task-row')}} ,
+    {context:'home',title:'How Locked Bonus Pulls Work',text:'The first time you check off a task in Today’s Tasks, every task already in that box becomes part of that day’s Locked Set. Those tasks get a small lock so you know exactly what must be finished to earn the Bonus Pulls.',hint:'The Today’s Tasks box is showing an example now. The three tasks with lock icons are the Locked Set. The task labeled <b>added afterward</b> has no lock, so it does not count toward that day’s Bonus Pulls. Finish every locked task to earn the Bonus Pulls shown for that set.',anchorToTarget:true,preferSides:['right','left','bottom','top'],enter(){const restoreDemo=showLockedTaskExample();cleanupStep=()=>{restoreDemo?.()};focus('#dailyTasksCard',true);setNext(true)}} ,
+    {context:'home',title:'Your pulls live here',text:'Habit completions fill these circles, and finishing your locked Today’s Tasks can add Bonus Pulls. When you use a pull, it reveals either <b>Lucky</b> or <b>Next Time</b>.',hint:'Only <b>Lucky Pulls</b> count toward your Reward Tier. <b>Next Time</b> uses that pull but does not add to your Lucky Pull total.',enter(){focus('#pullProgressCard',true);setNext(true)}} ,
+    {context:'home',title:'How Reward Tiers work',text:'Your Lucky Pulls determine which Reward Tier you unlock for the week: Small, Medium, or Large. The number needed scales with the weekly habit goals you set.',hint:'Daily Task Bonus Pulls give you extra chances to get Lucky Pulls, but they do <b>not</b> raise the threshold for your Reward Tiers. If you earn Medium or Large, you can choose that tier or a lower one when you draw.',enter(){focus('#rewards',true);setNext(true)}} ,
+    {context:'home',title:'Open Studying',text:'Studying has your clock, focus timer, and study tools.',hint:'Click <b>Studying</b>.',enter(){focus('#clockNav');waitForStudyingOpen()}} ,
+    {context:'studying',title:'Explore Studying',text:'Take a minute to look around. Try the clock controls, switch to the Timer, start or pause it, or see how sessions are tracked.',hint:'Explore this page, then click <b>Next</b> when you are ready to keep going.',explore:true,avoidSelectors:['.studying-mode-switch','.study-timer-controls','.clock-content'],enter(){focusForExplore('.studying-mode-switch','#clockPage');setNext(true)}} ,
+    {context:'studying',title:'See your History',text:'History keeps your completed weeks together so you can look back at your progress.',hint:'Click <b>History</b>.',enter(){const el=focus('#historyNav');setNext(false);onOnce(el,'click')}} ,
+    {context:'history',title:'Explore your History',text:'See where completed weeks, habit progress, and task history build up over time.',hint:'Explore, then click <b>Next</b> when you are ready.',explore:true,enter(){focusForExplore('#historyPage h1','#historyPage');setCoachMinimized(false);setNext(true)}} ,
+    {context:'history',title:'Open Themes',text:'Themes change the whole atmosphere without changing how anything works.',hint:'Click <b>Themes</b>.',enter(){const el=focus('#themesNav');setNext(false);onOnce(el,'click')}} ,
+    {context:'themes',title:'Explore the themes',text:'Try a few worlds and see how they change the dashboard.',hint:'Explore the themes, then click <b>Next</b> when you are ready to move on.',explore:true,enter(){focusForExplore('#themesModal h3','#themesModal .theme-grid');setCoachMinimized(false);setNext(true)}} ,
+    {context:'history',title:'Open Coffee',text:'Coffee is where you can read the story behind Bloom by Bit, leave feedback, and support the project once that is available.',hint:'Click <b>Coffee</b> on the left.',enter(){closeOtherModals();const el=focus('#coffeeBtn');setNext(false);onOnce(el,'click')}} ,
+    {context:'coffee',title:'Explore Coffee',text:'Look around the Coffee page, where you can learn about Bloom by Bit and send feedback.',hint:'Explore, then click <b>Next</b> when you are ready.',explore:true,enter(){focusForExplore('#coffeePage h1, #coffeePage h2','#coffeePage');setCoachMinimized(false);setNext(true)}} ,
+    {context:'home',title:'You’re all set.',text:'That’s it. Build your habits, earn pulls, and make the dashboard feel like yours.<br><br>Whenever you need a quick reminder, hover over the small <b>?</b> symbols around Bloom by Bit for a short explanation.',hint:'You can replay the tour anytime from <b>Settings → Basic → Tutorial</b>.',centerCoach:true,enter(){goHome();clearFocus();setNext(true,'Finish ✦')}}
+  ];
+
+  function stripIds(node){
+    if(!node)return;
+    if(node.nodeType===1){node.removeAttribute('id');node.querySelectorAll?.('[id]').forEach(el=>el.removeAttribute('id'));}
+  }
+
+  function animateCoachStepChange(fromRect,oldContentClone){
+    if(!coach)return;
+    try{coach.getAnimations().forEach(a=>a.cancel())}catch(e){}
+
+    // Lay out the new step once, measure its exact destination, then animate
+    // the card itself from the old rectangle to the new rectangle. This avoids
+    // the visual "snap then glide" caused by transform-only FLIP on a card
+    // whose height changes from step to step.
+    const d=getCoachDestination();
+    const to={left:d.x,top:d.y,width:d.w,height:d.h};
+    const from={left:fromRect?.left??to.left,top:fromRect?.top??to.top,width:fromRect?.width??to.width,height:fromRect?.height??to.height};
+
+    coach.classList.add('tutorial-morphing');
+    coach.style.right='auto'; coach.style.bottom='auto';
+    coach.style.left=Math.round(from.left)+'px';
+    coach.style.top=Math.round(from.top)+'px';
+    coach.style.width=Math.round(from.width)+'px';
+    coach.style.height=Math.round(from.height)+'px';
+
+    const content=$('tutorialCoachContent');
+    if(content){
+      content.classList.add('tutorial-new-content');
+      content.style.opacity='0';
+      content.style.transform='translateY(8px)';
+      content.style.filter='';
+    }
+
+    if(oldContentClone){
+      oldContentClone.classList.add('tutorial-old-content');
+      coach.appendChild(oldContentClone);
+    }
+
+    const samePlace=Math.abs(from.left-to.left)<1.5&&Math.abs(from.top-to.top)<1.5&&Math.abs(from.width-to.width)<1.5&&Math.abs(from.height-to.height)<1.5;
+    const duration=samePlace?520:980;
+    const cardAnim=coach.animate([
+      {left:from.left+'px',top:from.top+'px',width:from.width+'px',height:from.height+'px'},
+      {left:to.left+'px',top:to.top+'px',width:to.width+'px',height:to.height+'px'}
+    ],{duration,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'});
+    cardAnim.id='tutorial-step-motion';
+
+    // Keep the two sets of words from ever sitting on top of each other.
+    // The old copy fades away early, the card finishes most of its movement,
+    // then the new copy appears near the end. This avoids the muddy double-text
+    // effect during the morph.
+    if(oldContentClone){
+      oldContentClone.animate([
+        {opacity:1,transform:'translateY(0)'},
+        {opacity:1,transform:'translateY(0)',offset:.08},
+        {opacity:0,transform:'translateY(-5px)',offset:.30},
+        {opacity:0,transform:'translateY(-5px)'}
+      ],{duration,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'});
+    }
+    if(content){
+      content.animate([
+        {opacity:0,transform:'translateY(6px)'},
+        {opacity:0,transform:'translateY(6px)',offset:.66},
+        {opacity:1,transform:'translateY(0)',offset:.94},
+        {opacity:1,transform:'translateY(0)'}
+      ],{duration,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'});
+    }
+
+    cardAnim.onfinish=()=>{
+      coach.style.left=Math.round(to.left)+'px';
+      coach.style.top=Math.round(to.top)+'px';
+      coach.style.width=Math.round(to.width)+'px';
+      coach.style.height='auto';
+      coach.classList.remove('tutorial-morphing');
+      oldContentClone?.remove();
+      if(content){content.style.opacity='';content.style.transform='';content.style.filter='';content.classList.remove('tutorial-new-content');}
+      lastCoachPos={x:to.left,y:to.top};
+      coachPosByStep.set(stepIndex,lastCoachPos);
+      try{cardAnim.cancel()}catch(e){}
+      if(examplePanel?.classList.contains('open')) positionLockedExample();
+    };
+  }
+
+  function renderStep(){
+    safe(cleanupStep); cleanupStep=()=>{}; clearFocus(); hideTutorialExample();
+    const s=steps[stepIndex]; if(!s)return finish();
+
+    const wasOpen=!!(coach&&coach.classList.contains('open'));
+    const previousCoachRect=wasOpen?coach.getBoundingClientRect():null;
+    let oldContentClone=null;
+    if(wasOpen){
+      const old=$('tutorialCoachContent');
+      if(old){
+        const oldRect=old.getBoundingClientRect();
+        oldContentClone=old.cloneNode(true);
+        stripIds(oldContentClone);
+        // Preserve the old copy in the exact same place inside the coach while
+        // it fades. Without this, an absolutely positioned clone jumps to the
+        // coach's top-left corner for a frame, which makes the words look like
+        // they are being shoved upward before disappearing.
+        oldContentClone.style.left=Math.round(oldRect.left-previousCoachRect.left)+'px';
+        oldContentClone.style.top=Math.round(oldRect.top-previousCoachRect.top)+'px';
+        oldContentClone.style.width=Math.round(oldRect.width)+'px';
+        oldContentClone.style.height=Math.round(oldRect.height)+'px';
+      }
+    }
+
+    coachPinnedByUser=false;
+    coachPosByStep.delete(stepIndex);
+    document.body.classList.remove('tutorial-theme-clearance');
+
+    renderingStep=true;
+    safe(()=>{
+      coach?.classList.toggle('mini-ready',!!s.explore);
+      coach?.classList.toggle('final-mode',!!s.centerCoach);
+      coach?.classList.toggle('explore-mode',!!s.explore);
+      setCoachMinimized(false);
+      if(coach) coach.style.width=(s.coachWidth||390)+'px';
+
+      $('tutorialCoachStep').textContent=s.centerCoach?'TOUR COMPLETE':(s.explore?`EXPLORE · STEP ${stepIndex+1} OF ${steps.length}`:`STEP ${stepIndex+1} OF ${steps.length}`);
+      $('tutorialCoachTitle').textContent=s.title;
+      $('tutorialCoachText').innerHTML=s.text;
+      const hint=$('tutorialCoachHint');hint.innerHTML=s.hint||'';hint.hidden=!s.hint;
+      $('tutorialCoachBack').style.visibility=stepIndex===0?'hidden':'visible';
+      setNext(true,stepIndex===steps.length-1?'Finish ✦':'Next');
+      if(s.context)setTutorialContext(s.context);
+      s.enter?.();
+    });
+    renderingStep=false;
+
+    coach?.classList.add('open');
+    if(previousCoachRect) animateCoachStepChange(previousCoachRect,oldContentClone);
+    else positionCoach();
+  }
+
+  function startGuidedTour(){
+    try{
+      // Always run the tutorial against the same clean first-use dashboard.
+      // Existing users get their real dashboard back exactly as it was when
+      // they finish or end the tutorial.
+      snapshotTutorialState();
+      const cleanStart=cloneTutorialData(app.getDefaults?.());
+      if(cleanStart){
+        app.setState?.(cleanStart);
+        safe(()=>app.render?.());
+      }
+      safe(()=>app.setSidebarCollapsed?.(false));
+      safe(()=>app.showHomePage?.());
+      modal?.classList.remove('open');
+      closeOtherModals();
+      document.body.classList.add('tutorial-running');
+      practiceMode=true;
+      stepIndex=0;
+      lastCoachPos=null;
+      coachPosByStep.clear();
+      coach?.classList.remove('open','changing','mini-ready','minimized','final-mode');
+      coachMinimized=false;
+      coachPinnedByUser=false;
+      coachDragMoved=false;
+      setTimeout(()=>{try{renderStep()}catch(err){console.error('Bloom by Bit tutorial start:',err);document.body.classList.remove('tutorial-running');coach?.classList.remove('open','changing');modal?.classList.add('open');app.toast?.('Tutorial could not start. Please try again.')}},80);
+    }catch(err){
+      console.error('Bloom by Bit tutorial start:',err);
+      document.body.classList.remove('tutorial-running');
+      coach?.classList.remove('open','changing');
+      modal?.classList.add('open');
+      app.toast?.('Tutorial could not start. Please try again.');
+    }
+  }
+  function openTutorial(){safe(cleanupStep);clearFocus();coach?.classList.remove('open','changing');closeOtherModals();modal?.classList.add('open')}
+  $('tutorialBegin')?.addEventListener('click',startGuidedTour);
+  $('tutorialSkip')?.addEventListener('click',()=>{markSeen();modal?.classList.remove('open')});
+  $('tutorialCoachNext')?.addEventListener('click',next);
+  $('tutorialCoachBack')?.addEventListener('click',back);
+  $('tutorialCoachSkip')?.addEventListener('click',finish);
+
+  // The tutorial coach can be dragged by its card or by the sparkle. Once the
+  // user places it somewhere, that position is respected for the rest of the tour.
+  let dragState=null;
+  const dragBlockedTarget=target=>!!target?.closest?.('button,a,input,textarea,select,label');
+  coach?.addEventListener('pointerdown',e=>{
+    if(!steps?.[stepIndex]?.explore)return;
+    if(e.button!==0 || dragBlockedTarget(e.target))return;
+    const r=coach.getBoundingClientRect();
+    dragState={id:e.pointerId,startX:e.clientX,startY:e.clientY,left:r.left,top:r.top,moved:false};
+    coachDragMoved=false;
+    coach.classList.add('dragging');
+    safe(()=>coach.setPointerCapture?.(e.pointerId));
+    e.preventDefault();
+  });
+  coach?.addEventListener('pointermove',e=>{
+    if(!dragState || dragState.id!==e.pointerId)return;
+    const dx=e.clientX-dragState.startX,dy=e.clientY-dragState.startY;
+    if(!dragState.moved && Math.hypot(dx,dy)<4)return;
+    dragState.moved=true;coachDragMoved=true;coachPinnedByUser=true;
+    const margin=10,cw=coach.offsetWidth||58,ch=coach.offsetHeight||58;
+    const x=clamp(dragState.left+dx,margin,window.innerWidth-cw-margin);
+    const y=clamp(dragState.top+dy,margin,window.innerHeight-ch-margin);
+    coach.style.right='auto';coach.style.bottom='auto';coach.style.left=Math.round(x)+'px';coach.style.top=Math.round(y)+'px';
+    lastCoachPos={x,y};coachPosByStep.set(stepIndex,{x,y});
+  });
+  const endCoachDrag=e=>{
+    if(!dragState || (e?.pointerId!=null && dragState.id!==e.pointerId))return;
+    safe(()=>coach.releasePointerCapture?.(dragState.id));
+    coach.classList.remove('dragging');
+    const moved=dragState.moved;dragState=null;
+    if(moved)setTimeout(()=>{coachDragMoved=false},0);
+  };
+  coach?.addEventListener('pointerup',endCoachDrag);
+  coach?.addEventListener('pointercancel',endCoachDrag);
+  const minimizeBtn=$('tutorialCoachMinimize');
+  let sparkleDrag=null;
+  minimizeBtn?.addEventListener('pointerdown',e=>{
+    if(!steps?.[stepIndex]?.explore)return;
+    if(e.button!==0)return;
+    const r=coach.getBoundingClientRect();
+    sparkleDrag={id:e.pointerId,startX:e.clientX,startY:e.clientY,left:r.left,top:r.top,moved:false};
+    safe(()=>minimizeBtn.setPointerCapture?.(e.pointerId));
+    e.preventDefault();
+    e.stopPropagation();
+  });
+  minimizeBtn?.addEventListener('pointermove',e=>{
+    if(!sparkleDrag||sparkleDrag.id!==e.pointerId)return;
+    const dx=e.clientX-sparkleDrag.startX,dy=e.clientY-sparkleDrag.startY;
+    if(!sparkleDrag.moved&&Math.hypot(dx,dy)<5)return;
+    sparkleDrag.moved=true;coachDragMoved=true;coachPinnedByUser=true;
+    const margin=10,cw=coach.offsetWidth||58,ch=coach.offsetHeight||58;
+    const x=clamp(sparkleDrag.left+dx,margin,window.innerWidth-cw-margin);
+    const y=clamp(sparkleDrag.top+dy,margin,window.innerHeight-ch-margin);
+    coach.style.right='auto';coach.style.bottom='auto';coach.style.left=Math.round(x)+'px';coach.style.top=Math.round(y)+'px';
+    lastCoachPos={x,y};coachPosByStep.set(stepIndex,{x,y});
+    e.preventDefault();e.stopPropagation();
+  });
+  const endSparkleDrag=e=>{
+    if(!sparkleDrag||(e?.pointerId!=null&&sparkleDrag.id!==e.pointerId))return;
+    safe(()=>minimizeBtn.releasePointerCapture?.(sparkleDrag.id));
+    const moved=sparkleDrag.moved;sparkleDrag=null;
+    if(!moved)setCoachMinimized(!coachMinimized);
+    setTimeout(()=>{coachDragMoved=false},0);
+    e?.preventDefault?.();e?.stopPropagation?.();
+  };
+  minimizeBtn?.addEventListener('pointerup',endSparkleDrag);
+  minimizeBtn?.addEventListener('pointercancel',endSparkleDrag);
+  $('replayTutorialBtn')?.addEventListener('click',openTutorial);
+  window.addEventListener('resize',positionCoach,{passive:true});
+  window.addEventListener('scroll',positionCoach,{passive:true,capture:true});
+  window.openBloomTutorial=openTutorial;
+  if(!isSeen())setTimeout(openTutorial,350);
+})();
+</script>
+
+<script>
+(() => {
+  const form = document.getElementById('coffeeFeedbackForm');
+  if (!form) return;
+  const button = form.querySelector('.feedback-submit');
+  const status = document.getElementById('feedbackStatus');
+  const messageFields = [
+    document.getElementById('feedbackThoughts'),
+    document.getElementById('feedbackBetter'),
+    document.getElementById('feedbackFeature')
+  ];
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    status.className = 'feedback-status';
+    const hasMessage = messageFields.some(field => field && field.value.trim());
+    if (!hasMessage) {
+      status.textContent = 'Add at least one thought before sending. ✧';
+      status.classList.add('error');
+      messageFields[0]?.focus();
+      return;
+    }
+    const email = document.getElementById('feedbackEmail');
+    if (email && email.value && !email.checkValidity()) {
+      status.textContent = 'That email address does not look quite right.';
+      status.classList.add('error');
+      email.focus();
+      return;
+    }
+    const original = button.textContent;
+    button.disabled = true;
+    button.textContent = 'Sending…';
+    status.textContent = '';
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(Object.fromEntries(new FormData(form)))
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || 'Submission failed');
+      form.reset();
+      status.textContent = 'Your note made it through ✧ Thank you for helping Bloom by Bit grow.';
+      status.classList.add('success');
+    } catch (error) {
+      status.textContent = 'Your note did not send. Please try again in a moment.';
+      status.classList.add('error');
+    } finally {
+      button.disabled = false;
+      button.textContent = original;
+    }
+  });
+})();
+</script>
 </body></html>
 <style id="bonus-dot-center-remove">
 .dot.task-bonus-slot::before{
