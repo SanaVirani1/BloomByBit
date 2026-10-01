@@ -310,6 +310,11 @@ body[data-theme="tidal"]{--reset-bg:#438c8a;--reset-text:#efffff;--pull-loss:#7f
   border-color:color-mix(in srgb,var(--reset-bg) 75%,#000)!important;
   box-shadow:0 8px 22px color-mix(in srgb,var(--reset-bg) 35%,transparent)!important;
 }
+#clearDataModal .danger{
+  background:var(--reset-bg)!important;color:var(--reset-text)!important;
+  border-color:color-mix(in srgb,var(--reset-bg) 75%,#000)!important;
+  box-shadow:0 8px 22px color-mix(in srgb,var(--reset-bg) 35%,transparent)!important;
+}
 
 /* Gacha-style completion pull: comet -> flash -> chip reveal. */
 .pull-ritual{position:fixed;inset:0;z-index:125;display:none;overflow:hidden;background:radial-gradient(circle at 50% 60%,rgba(31,34,55,.55),rgba(4,6,14,.96) 68%);isolation:isolate;--trail-accent:#dcecff;--pull-accent:#eef6ff;--pull-glow:rgba(224,240,255,.52);--pull-chip-bg1:#f7fbff;--pull-chip-bg2:#62778f}
@@ -5721,8 +5726,8 @@ body.aby-study-fullscreen .studying-mode-switch{
         <p class="feedback-intro">Do you like it? Is there something that feels a little off? Have an idea you wish it could do? I would genuinely love to hear what is working, what could be better, or what little feature you would love to see appear next.</p>
         <form class="feedback-form" id="coffeeFeedbackForm" novalidate>
           <input type="hidden" name="access_key" value="fd09be81-e0d7-420c-a2bf-939a5a573f5c">
-          <input type="hidden" name="subject" value="New Bloom by Bit feedback">
-          <input type="hidden" name="from_name" value="Bloom by Bit Feedback">
+          <input type="hidden" name="subject" value="Bloom by Bit — Leave a Thought">
+          <input type="hidden" name="from_name" value="Bloom by Bit">
           <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
           <div class="feedback-field">
             <label for="feedbackThoughts">What do you think of Bloom by Bit?</label>
@@ -5758,6 +5763,21 @@ body.aby-study-fullscreen .studying-mode-switch{
   </div>
 </main>
 </div>
+
+
+<!-- Bloom by Bit Help -->
+<button type="button" id="bloomHelpLauncher" aria-label="Open Bloom by Bit help" title="Need a little help?">✦</button>
+<section id="bloomHelpPanel" aria-hidden="true" aria-label="Bloom by Bit help">
+  <div class="bloom-help-head">
+    <div>
+      <div class="bloom-help-kicker">A LITTLE GUIDING LIGHT ✦</div>
+      <h2 id="bloomHelpTitle">What can I help you find?</h2>
+    </div>
+    <button type="button" id="bloomHelpClose" aria-label="Close help" title="Close help">✦</button>
+  </div>
+  <div id="bloomHelpBody" class="bloom-help-body"></div>
+  <div class="bloom-help-footer" id="bloomHelpFooter"></div>
+</section>
 
 
 <div class="modal-backdrop" id="themesModal"><div class="modal themes-modal"><h3>Choose Your World</h3><p>Pick the atmosphere you want around your dashboard.</p><div class="theme-grid">
@@ -5965,10 +5985,12 @@ body.aby-study-fullscreen .studying-mode-switch{
 #tutorialCoach.mini-ready{overflow:visible}
 #tutorialCoach.mini-ready.minimized{width:68px!important;height:68px!important;min-width:68px!important;max-height:68px!important;padding:0!important;border-radius:0!important;overflow:visible!important;display:grid;place-items:center;background:transparent!important;border:none!important;box-shadow:none!important}
 #tutorialCoach.mini-ready.minimized .tutorial-coach-step,#tutorialCoach.mini-ready.minimized .tutorial-coach-title,#tutorialCoach.mini-ready.minimized .tutorial-coach-text,#tutorialCoach.mini-ready.minimized .tutorial-coach-hint,#tutorialCoach.mini-ready.minimized .tutorial-minimize-tip,#tutorialCoach.mini-ready.minimized .tutorial-coach-actions{display:none!important}
-#tutorialCoachMinimize{display:none;position:absolute;right:8px;top:8px;width:42px;height:42px;min-width:42px;padding:0;border:0;background:transparent;color:var(--button);font-size:29px;line-height:1;align-items:center;justify-content:center;cursor:grab;text-shadow:0 0 6px color-mix(in srgb,var(--button) 88%,white),0 0 14px color-mix(in srgb,var(--button) 58%,transparent);-webkit-text-stroke:.65px color-mix(in srgb,var(--text) 68%,transparent);filter:drop-shadow(0 1px 1px color-mix(in srgb,var(--surface-strong) 95%,transparent))}
+#tutorialCoachMinimize{display:none;position:absolute!important;right:14px!important;top:12px!important;left:auto!important;bottom:auto!important;margin:0!important;transform:none!important;z-index:4;width:42px;height:42px;min-width:42px;padding:0;border:0;background:transparent;color:var(--button);font-size:29px;line-height:1;align-items:center;justify-content:center;cursor:grab;text-shadow:0 0 6px color-mix(in srgb,var(--button) 88%,white),0 0 14px color-mix(in srgb,var(--button) 58%,transparent);-webkit-text-stroke:.65px color-mix(in srgb,var(--text) 68%,transparent);filter:drop-shadow(0 1px 1px color-mix(in srgb,var(--surface-strong) 95%,transparent))}
 #tutorialCoach.mini-ready #tutorialCoachMinimize{display:flex}
-#tutorialCoach.mini-ready.minimized #tutorialCoachMinimize{position:static;width:68px;height:68px;min-width:68px;border:none;background:transparent;color:var(--button);font-size:50px;cursor:grab;text-shadow:0 0 7px color-mix(in srgb,var(--button) 92%,white),0 0 16px color-mix(in srgb,var(--button) 68%,transparent),0 0 27px color-mix(in srgb,var(--button) 42%,transparent);-webkit-text-stroke:.8px color-mix(in srgb,var(--text) 72%,transparent);filter:drop-shadow(0 1px 1px color-mix(in srgb,var(--surface-strong) 95%,transparent))}
-#tutorialCoach.mini-ready:not(.minimized){padding-top:56px}
+#tutorialCoach.mini-ready.minimized #tutorialCoachMinimize{position:static!important;right:auto!important;top:auto!important;left:auto!important;bottom:auto!important;width:68px;height:68px;min-width:68px;border:none;background:transparent;color:var(--button);font-size:50px;cursor:grab;text-shadow:0 0 7px color-mix(in srgb,var(--button) 92%,white),0 0 16px color-mix(in srgb,var(--button) 68%,transparent),0 0 27px color-mix(in srgb,var(--button) 42%,transparent);-webkit-text-stroke:.8px color-mix(in srgb,var(--text) 72%,transparent);filter:drop-shadow(0 1px 1px color-mix(in srgb,var(--surface-strong) 95%,transparent))}
+body[data-theme="fantasy"] #tutorialCoachMinimize{color:#e3b94f;text-shadow:0 0 5px rgba(255,252,221,1),0 0 12px rgba(246,205,96,1),0 0 22px rgba(227,185,79,.95),0 0 36px rgba(227,185,79,.68);-webkit-text-stroke:.8px #6b5421;filter:drop-shadow(0 0 3px rgba(255,224,128,.9))}
+body[data-theme="fantasy"] #tutorialCoach.mini-ready.minimized #tutorialCoachMinimize{color:#d4ad55;text-shadow:0 0 6px rgba(255,248,211,1),0 0 14px rgba(231,190,92,.98),0 0 25px rgba(212,173,85,.9),0 0 38px rgba(212,173,85,.58);-webkit-text-stroke:1px #5b4a24}
+#tutorialCoach.mini-ready:not(.minimized){padding-top:17px}
 #tutorialCoach.dragging{transition:none!important;cursor:grabbing!important;user-select:none!important}
 #tutorialCoach.dragging #tutorialCoachMinimize{cursor:grabbing!important}
 #tutorialCoach.explore-mode .tutorial-coach-title{font-size:22px;margin-bottom:7px}
@@ -7736,6 +7758,9 @@ document.addEventListener('click',e=>{
   const activeDialog=e.target.closest?.('.modal-backdrop.open');
   if(activeDialog && activeDialog!==openModal) return;
   if(e.target.closest?.('#tutorialCoach')) return;
+  // The help guide remains closable and usable even if Settings or Themes
+  // was opened while it is on screen.
+  if(e.target.closest?.('#bloomHelpPanel') || e.target.closest?.('#bloomHelpLauncher')) return;
   e.preventDefault();
   e.stopImmediatePropagation();
 },true);
@@ -9206,6 +9231,128 @@ body.clock-mode .world{
 }
 </style>
 
+<style id="bloom-help-hub-styles">
+/* The old scattered ? helpers now live in one organized help hub. */
+.habit-help,.daily-help,.later-help,.weekly-help,.study-timer-help{display:none!important}
+
+#bloomHelpLauncher{
+  position:fixed;right:22px;bottom:22px;z-index:9990;
+  width:58px;height:58px;border:0;background:transparent;padding:0;
+  display:grid;place-items:center;cursor:pointer;color:var(--button);
+  font-size:42px;line-height:1;
+  text-shadow:0 0 7px color-mix(in srgb,var(--button) 90%,white),0 0 18px color-mix(in srgb,var(--button) 62%,transparent),0 0 30px color-mix(in srgb,var(--button) 36%,transparent);
+  -webkit-text-stroke:.8px color-mix(in srgb,var(--text) 64%,transparent);
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.24));
+  transition:transform .28s ease,filter .28s ease,opacity .2s ease;
+}
+#bloomHelpLauncher:hover,#bloomHelpLauncher:focus-visible{transform:translateY(-2px) scale(1.08);filter:drop-shadow(0 3px 9px rgba(0,0,0,.28))}
+body[data-theme="fantasy"] #bloomHelpLauncher{color:#e3b94f;text-shadow:0 0 6px #fff8cf,0 0 16px rgba(236,194,86,.95),0 0 30px rgba(212,173,85,.68);-webkit-text-stroke:.9px #5b4a24}
+body.tutorial-running #bloomHelpLauncher{display:none}
+
+#bloomHelpPanel{
+  position:fixed;right:22px;bottom:22px;z-index:10010;
+  width:min(430px,calc(100vw - 32px));max-height:min(680px,calc(100vh - 44px));
+  display:flex;flex-direction:column;overflow:hidden;
+  border:1px solid var(--edge);border-radius:22px;background:var(--surface-strong);color:var(--text);
+  box-shadow:0 24px 80px rgba(0,0,0,.38);
+  opacity:0;visibility:hidden;pointer-events:none;transform:translateY(12px) scale(.985);
+  transition:opacity .25s ease,transform .38s cubic-bezier(.2,.78,.25,1),visibility 0s linear .38s;
+}
+#bloomHelpPanel[aria-hidden="false"]{opacity:1;visibility:visible;pointer-events:auto;transform:none;transition-delay:0s}
+.bloom-help-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:21px 22px 15px;border-bottom:1px solid var(--line)}
+.bloom-help-kicker{font-size:10px;font-weight:800;letter-spacing:.19em;opacity:.58;margin-bottom:5px}
+.bloom-help-head h2{margin:0;font-size:25px;line-height:1.16}
+#bloomHelpClose{width:36px;height:36px;min-width:36px;border-radius:999px;padding:0;font-size:24px;line-height:1;background:transparent}
+.bloom-help-body{padding:17px 20px;overflow:auto;overscroll-behavior:contain;display:grid;gap:11px}
+.bloom-help-intro{margin:0 0 2px;color:var(--muted);line-height:1.5}
+.bloom-help-path{font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.58;margin-bottom:2px}
+.bloom-help-list{display:grid;gap:9px}
+.bloom-help-choice{width:100%;text-align:left;padding:12px 14px;border-radius:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:color-mix(in srgb,var(--surface) 72%,transparent)}
+.bloom-help-choice span:last-child{opacity:.58;font-size:18px}
+.bloom-help-answer{padding:15px 16px;border:1px solid var(--line);border-radius:15px;background:color-mix(in srgb,var(--surface) 70%,transparent);line-height:1.55}
+.bloom-help-answer p{margin:0 0 10px}.bloom-help-answer p:last-child{margin-bottom:0}
+.bloom-help-footer{padding:0 20px 18px;display:flex;flex-wrap:wrap;gap:9px}
+.bloom-help-footer:empty{display:none}
+.bloom-help-footer button{flex:1 1 auto}
+.bloom-help-question-form{display:grid;gap:11px}
+.bloom-help-question-form label{display:grid;gap:6px;font-weight:700}
+.bloom-help-question-form input,.bloom-help-question-form textarea{width:100%;font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 11px}
+.bloom-help-question-form textarea{min-height:112px;resize:vertical}
+.bloom-help-question-form small{font-weight:400;color:var(--muted);line-height:1.4}
+.bloom-help-status{min-height:20px;font-size:13px;line-height:1.4;color:var(--muted)}
+.bloom-help-status.error{color:#9b3939}.bloom-help-status.success{color:var(--button)}
+@media(max-width:620px){#bloomHelpLauncher{right:14px;bottom:14px}#bloomHelpPanel{right:10px;bottom:10px;width:calc(100vw - 20px);max-height:calc(100vh - 20px)}}
+
+/* Keep the help guide readable in every world, independent of surrounding theme text colors. */
+#bloomHelpPanel{
+  --help-bg:#f5efdf;--help-soft:#fffaf0;--help-text:#2d3028;--help-muted:#6f695e;--help-edge:#cfc3aa;--help-accent:#9b7a35;
+  --help-btn-bg:#efe7d6;--help-btn-text:#2d3028;--help-btn-border:#b9ab8d;
+  --help-primary-bg:#9b7a35;--help-primary-text:#fffaf0;
+  background:var(--help-bg)!important;color:var(--help-text)!important;border-color:var(--help-edge)!important;
+}
+body[data-theme="fantasy"] #bloomHelpPanel{
+  --help-bg:#d8d3c9;--help-soft:#e7e3da;--help-text:#292b27;--help-muted:#605f59;--help-edge:#9e998d;--help-accent:#c89b36;
+  --help-btn-bg:#e4e0d7;--help-btn-text:#292b27;--help-btn-border:#969084;
+  --help-primary-bg:#9a7834;--help-primary-text:#fff9ea
+}
+body[data-theme="celestial"] #bloomHelpPanel{
+  --help-bg:#121a37;--help-soft:#1b2548;--help-text:#f7f4ff;--help-muted:#c9caea;--help-edge:#50608f;--help-accent:#91a5ff;
+  --help-btn-bg:#253158;--help-btn-text:#f7f4ff;--help-btn-border:#6475a4;
+  --help-primary-bg:#91a5ff;--help-primary-text:#11172f
+}
+body[data-theme="cottage"] #bloomHelpPanel{
+  --help-bg:#d9d8bf;--help-soft:#e9e6cf;--help-text:#2b332b;--help-muted:#5f6759;--help-edge:#aaa78b;--help-accent:#758961;
+  --help-btn-bg:#e4e2c9;--help-btn-text:#2b332b;--help-btn-border:#9c9b80;
+  --help-primary-bg:#758961;--help-primary-text:#f7f5e9
+}
+body[data-theme="nocturne"] #bloomHelpPanel{
+  --help-bg:#171022;--help-soft:#24152f;--help-text:#fff3ff;--help-muted:#d8bddf;--help-edge:#714b78;--help-accent:#ff72e6;
+  --help-btn-bg:#2d1a39;--help-btn-text:#fff3ff;--help-btn-border:#82598a;
+  --help-primary-bg:#ff72e6;--help-primary-text:#24102b
+}
+body[data-theme="tidal"] #bloomHelpPanel{
+  --help-bg:#0d343b;--help-soft:#154750;--help-text:#efffff;--help-muted:#c6e8e5;--help-edge:#4b8386;--help-accent:#8ee1da;
+  --help-btn-bg:#1a4f58;--help-btn-text:#efffff;--help-btn-border:#5d9194;
+  --help-primary-bg:#8ee1da;--help-primary-text:#073139
+}
+body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelpPanel{box-shadow:0 22px 58px rgba(0,0,0,.34)!important}
+#bloomHelpPanel .bloom-help-head{border-color:var(--help-edge)!important}
+#bloomHelpPanel .bloom-help-kicker,#bloomHelpPanel .bloom-help-intro,#bloomHelpPanel .bloom-help-path,#bloomHelpPanel .bloom-help-status,#bloomHelpPanel .bloom-help-question-form small{color:var(--help-muted)!important;opacity:1}
+#bloomHelpPanel h2,#bloomHelpPanel label,#bloomHelpPanel .bloom-help-answer,#bloomHelpPanel .bloom-help-choice{color:var(--help-text)!important}
+#bloomHelpPanel .bloom-help-choice,#bloomHelpPanel .bloom-help-answer{background:var(--help-soft)!important;border-color:var(--help-edge)!important}
+#bloomHelpPanel .bloom-help-question-form input,#bloomHelpPanel .bloom-help-question-form textarea{background:var(--help-soft)!important;color:var(--help-text)!important;border-color:var(--help-edge)!important}
+#bloomHelpPanel .bloom-help-question-form input::placeholder,#bloomHelpPanel .bloom-help-question-form textarea::placeholder{color:color-mix(in srgb,var(--help-muted) 82%,transparent)!important}
+#bloomHelpClose{
+  width:42px!important;height:42px!important;min-width:42px!important;border:0!important;background:transparent!important;padding:0!important;border-radius:0!important;
+  display:grid!important;place-items:center!important;color:var(--help-accent)!important;font-size:34px!important;line-height:1!important;cursor:pointer!important;
+  text-shadow:0 0 6px color-mix(in srgb,var(--help-accent) 85%,white),0 0 16px color-mix(in srgb,var(--help-accent) 62%,transparent)!important;
+  -webkit-text-stroke:.7px color-mix(in srgb,var(--help-text) 68%,transparent)!important;
+  transition:transform .24s ease,filter .24s ease!important;
+}
+#bloomHelpClose:hover,#bloomHelpClose:focus-visible{transform:scale(1.1) rotate(8deg);filter:brightness(1.08)}
+#bloomHelpPanel .bloom-help-footer button{
+  background:var(--help-btn-bg)!important;
+  color:var(--help-btn-text)!important;
+  border-color:var(--help-btn-border)!important;
+  box-shadow:none!important;
+}
+#bloomHelpPanel .bloom-help-footer button:hover:not(:disabled),
+#bloomHelpPanel .bloom-help-footer button:focus-visible:not(:disabled){
+  filter:brightness(1.045);
+}
+#bloomHelpPanel .bloom-help-footer button.save{
+  background:var(--help-primary-bg)!important;
+  color:var(--help-primary-text)!important;
+  border-color:color-mix(in srgb,var(--help-primary-bg) 72%,var(--help-text))!important;
+}
+#bloomHelpPanel .bloom-help-footer button:disabled{opacity:.5!important;color:var(--help-btn-text)!important}
+
+
+/* Tutorial cards only scroll when their real content cannot fit in the viewport. */
+#tutorialCoach{max-height:none!important;overflow:visible!important}
+#tutorialCoach.tutorial-needs-scroll{max-height:calc(100vh - 28px)!important;overflow-y:auto!important;overflow-x:hidden!important}
+#tutorialCoach.mini-ready.minimized{overflow:visible!important}
+</style>
 
 <script id="guided-tutorial-runtime">
 (()=>{
@@ -9226,7 +9373,14 @@ body.clock-mode .world{
       b.setAttribute('aria-label',coachMinimized?'Show tutorial instructions':'Minimize tutorial instructions');
       b.title=coachMinimized?'Show tutorial instructions':'Minimize tutorial instructions';
     }
-    if(!renderingStep) positionCoach();
+    if(!renderingStep){ positionCoach(); requestAnimationFrame(updateCoachOverflow); }
+  }
+  function updateCoachOverflow(){
+    if(!coach)return;
+    coach.classList.remove('tutorial-needs-scroll');
+    if(coach.classList.contains('minimized'))return;
+    const limit=Math.max(220,window.innerHeight-28);
+    if(coach.scrollHeight>limit+12)coach.classList.add('tutorial-needs-scroll');
   }
   const examplePanel=$('tutorialExamplePanel');
   function hideTutorialExample(){if(examplePanel){examplePanel.classList.remove('open');examplePanel.innerHTML=''}}
@@ -9325,7 +9479,7 @@ body.clock-mode .world{
       if(!navAway || navAway.id==='clockNav')return true;
     }
     if(step?.explore && step.context==='history' && target.closest?.('#historyPage'))return true;
-    if(step?.explore && step.context==='themes' && target.closest?.('#themesModal'))return true;
+    if(step?.explore && step.context==='themes'){ if(target.closest?.('#closeThemes')) return false; if(target.closest?.('#themesModal')) return true; }
     if(step?.explore && step.context==='coffee' && target.closest?.('#coffeePage'))return true;
     if(step?.explore && step.context==='settings' && target.closest?.('#settingsModal'))return true;
     return false;
@@ -9412,7 +9566,14 @@ body.clock-mode .world{
     const cw=Math.min(coach.offsetWidth||widthPx,vw-margin*2);
 
     if(step.centerCoach){
-      return {x:clamp((vw-cw)/2,margin,vw-cw-margin),y:clamp((vh-ch)/2,margin,vh-ch-margin),w:cw,h:ch};
+      // Match the opening tutorial modal: on desktop with the sidebar open,
+      // center inside the usable content area to the right of the sidebar.
+      const sidebarOpen=!document.body.classList.contains('sidebar-collapsed') && vw>760;
+      const cssSide=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--side-w'))||0;
+      const sideOffset=sidebarOpen?cssSide:0;
+      const usableWidth=Math.max(0,vw-sideOffset);
+      const centeredX=sideOffset+(usableWidth-cw)/2;
+      return {x:clamp(centeredX,margin,vw-cw-margin),y:clamp((vh-ch)/2,margin,vh-ch-margin),w:cw,h:ch};
     }
 
     if(step.explore && coachPinnedByUser && lastCoachPos){
@@ -9441,12 +9602,21 @@ body.clock-mode .world{
     if(!coach)return;
     safe(()=>{
       const d=getCoachDestination();
-      coach.style.right='auto';
-      coach.style.bottom='auto';
-      coach.style.left=Math.round(d.x)+'px';
-      coach.style.top=Math.round(d.y)+'px';
+      const step=steps?.[stepIndex]||{};
+      const dockBottomRight=!step.centerCoach && !step.anchorToTarget && !(step.explore && coachPinnedByUser);
       coach.style.width=Math.round(d.w)+'px';
       coach.style.height='auto';
+      if(dockBottomRight){
+        coach.style.left='auto';
+        coach.style.top='auto';
+        coach.style.right='14px';
+        coach.style.bottom='14px';
+      }else{
+        coach.style.right='auto';
+        coach.style.bottom='auto';
+        coach.style.left=Math.round(d.x)+'px';
+        coach.style.top=Math.round(d.y)+'px';
+      }
       lastCoachPos={x:d.x,y:d.y};
       coachPosByStep.set(stepIndex,{x:d.x,y:d.y});
       if(examplePanel?.classList.contains('open')) requestAnimationFrame(positionLockedExample);
@@ -9624,10 +9794,10 @@ body.clock-mode .world{
     {context:'studying',title:'See your History',text:'History keeps your completed weeks together so you can look back at your progress.',hint:'Click <b>History</b>.',enter(){const el=focus('#historyNav');setNext(false);onOnce(el,'click')}} ,
     {context:'history',title:'Explore your History',text:'See where completed weeks, habit progress, and task history build up over time.',hint:'Explore, then click <b>Next</b> when you are ready.',explore:true,enter(){focusForExplore('#historyPage h1','#historyPage');setCoachMinimized(false);setNext(true)}} ,
     {context:'history',title:'Open Themes',text:'Themes change the whole atmosphere without changing how anything works.',hint:'Click <b>Themes</b>.',enter(){const el=focus('#themesNav');setNext(false);onOnce(el,'click')}} ,
-    {context:'themes',title:'Explore the themes',text:'Try a few worlds and see how they change the dashboard.',hint:'Explore the themes, then click <b>Next</b> when you are ready to move on.',explore:true,enter(){focusForExplore('#themesModal h3','#themesModal .theme-grid');setCoachMinimized(false);setNext(true)}} ,
+    {context:'themes',title:'Explore the themes',text:'Try a few worlds and see how they change the dashboard.',hint:'Explore the themes, then click <b>Next</b> when you are ready to move on.',explore:true,enter(){focusForExplore('#themesModal h3','#themesModal .theme-grid');setCoachMinimized(false);const done=$('closeThemes');if(done){done.disabled=true;done.setAttribute('aria-disabled','true')}cleanupStep=()=>{if(done){done.disabled=false;done.removeAttribute('aria-disabled')}};setNext(true)}} ,
     {context:'history',title:'Open Coffee',text:'Coffee is where you can read the story behind Bloom by Bit, leave feedback, and support the project once that is available.',hint:'Click <b>Coffee</b> on the left.',enter(){closeOtherModals();const el=focus('#coffeeBtn');setNext(false);onOnce(el,'click')}} ,
     {context:'coffee',title:'Explore Coffee',text:'Look around the Coffee page, where you can learn about Bloom by Bit and send feedback.',hint:'Explore, then click <b>Next</b> when you are ready.',explore:true,enter(){focusForExplore('#coffeePage h1, #coffeePage h2','#coffeePage');setCoachMinimized(false);setNext(true)}} ,
-    {context:'home',title:'You’re all set.',text:'That’s it. Build your habits, earn pulls, and make the dashboard feel like yours.<br><br>Whenever you need a quick reminder, hover over the small <b>?</b> symbols around Bloom by Bit for a short explanation.',hint:'You can replay the tour anytime from <b>Settings → Basic → Tutorial</b>.',centerCoach:true,enter(){goHome();clearFocus();setNext(true,'Finish ✦')}}
+    {context:'home',title:'You’re all set.',text:'That’s it. Build your habits, earn pulls, and make the dashboard feel like yours.<br><br>After the tour, the little <b>✦</b> in the bottom-right corner is your help guide whenever you need a quick answer.',hint:'You can replay the tour anytime from <b>Settings → Basic → Tutorial</b>.',centerCoach:true,enter(){goHome();clearFocus();setNext(true,'Finish ✦')}}
   ];
 
   function stripIds(node){
@@ -9639,74 +9809,92 @@ body.clock-mode .world{
     if(!coach)return;
     try{coach.getAnimations().forEach(a=>a.cancel())}catch(e){}
 
-    // Lay out the new step once, measure its exact destination, then animate
-    // the card itself from the old rectangle to the new rectangle. This avoids
-    // the visual "snap then glide" caused by transform-only FLIP on a card
-    // whose height changes from step to step.
-    const d=getCoachDestination();
-    const to={left:d.x,top:d.y,width:d.w,height:d.h};
+    const step=steps?.[stepIndex]||{};
+    const dockBottomRight=!step.centerCoach && !step.anchorToTarget && !(step.explore && coachPinnedByUser);
+    const margin=14;
+
+    // First lay out the NEW card at its true final geometry. For ordinary steps,
+    // bottom/right are the source of truth from the start so there is never a
+    // second "correction" after the animation ends.
+    coach.style.height='auto';
+    coach.style.width=Math.min(step.coachWidth||390,window.innerWidth-margin*2)+'px';
+    if(dockBottomRight){
+      coach.style.left='auto';coach.style.top='auto';coach.style.right=margin+'px';coach.style.bottom=margin+'px';
+    }else{
+      const d=getCoachDestination();
+      coach.style.right='auto';coach.style.bottom='auto';coach.style.left=Math.round(d.x)+'px';coach.style.top=Math.round(d.y)+'px';
+    }
+    const natural=coach.getBoundingClientRect();
+    const to={left:natural.left,top:natural.top,width:natural.width,height:natural.height};
     const from={left:fromRect?.left??to.left,top:fromRect?.top??to.top,width:fromRect?.width??to.width,height:fromRect?.height??to.height};
 
     coach.classList.add('tutorial-morphing');
-    coach.style.right='auto'; coach.style.bottom='auto';
-    coach.style.left=Math.round(from.left)+'px';
-    coach.style.top=Math.round(from.top)+'px';
-    coach.style.width=Math.round(from.width)+'px';
-    coach.style.height=Math.round(from.height)+'px';
-
     const content=$('tutorialCoachContent');
     if(content){
       content.classList.add('tutorial-new-content');
       content.style.opacity='0';
-      content.style.transform='translateY(8px)';
-      content.style.filter='';
+      content.style.transform='translateY(5px)';
     }
+    if(oldContentClone){oldContentClone.classList.add('tutorial-old-content');coach.appendChild(oldContentClone)}
 
-    if(oldContentClone){
-      oldContentClone.classList.add('tutorial-old-content');
-      coach.appendChild(oldContentClone);
+    // Keep ordinary bottom-right steps anchored in place. But if we are
+    // returning FROM an anchored/centered step (for example the Locked Bonus
+    // Pulls explanation), glide the whole card back to the bottom-right instead
+    // of snapping there first. That gives the coach one continuous path in both
+    // directions.
+    let cardAnim;
+    const travelDistance=Math.hypot((from.left||0)-(to.left||0),(from.top||0)-(to.top||0));
+    const needsTravel=travelDistance>8;
+    const fairyEase='cubic-bezier(.16,.84,.26,1)';
+    if(dockBottomRight && !needsTravel){
+      coach.style.left='auto';coach.style.top='auto';coach.style.right=margin+'px';coach.style.bottom=margin+'px';
+      coach.style.width=Math.round(from.width)+'px';coach.style.height=Math.round(from.height)+'px';
+      cardAnim=coach.animate([
+        {width:from.width+'px',height:from.height+'px'},
+        {width:to.width+'px',height:to.height+'px'}
+      ],{duration:900,easing:fairyEase,fill:'forwards'});
+    }else{
+      coach.style.right='auto';coach.style.bottom='auto';coach.style.left=Math.round(from.left)+'px';coach.style.top=Math.round(from.top)+'px';coach.style.width=Math.round(from.width)+'px';coach.style.height=Math.round(from.height)+'px';
+      cardAnim=coach.animate([
+        {left:from.left+'px',top:from.top+'px',width:from.width+'px',height:from.height+'px'},
+        {left:to.left+'px',top:to.top+'px',width:to.width+'px',height:to.height+'px'}
+      ],{duration:1500,easing:fairyEase,fill:'forwards'});
     }
-
-    const samePlace=Math.abs(from.left-to.left)<1.5&&Math.abs(from.top-to.top)<1.5&&Math.abs(from.width-to.width)<1.5&&Math.abs(from.height-to.height)<1.5;
-    const duration=samePlace?520:980;
-    const cardAnim=coach.animate([
-      {left:from.left+'px',top:from.top+'px',width:from.width+'px',height:from.height+'px'},
-      {left:to.left+'px',top:to.top+'px',width:to.width+'px',height:to.height+'px'}
-    ],{duration,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'});
     cardAnim.id='tutorial-step-motion';
 
-    // Keep the two sets of words from ever sitting on top of each other.
-    // The old copy fades away early, the card finishes most of its movement,
-    // then the new copy appears near the end. This avoids the muddy double-text
-    // effect during the morph.
     if(oldContentClone){
       oldContentClone.animate([
         {opacity:1,transform:'translateY(0)'},
-        {opacity:1,transform:'translateY(0)',offset:.08},
-        {opacity:0,transform:'translateY(-5px)',offset:.30},
-        {opacity:0,transform:'translateY(-5px)'}
-      ],{duration,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'});
+        {opacity:0,transform:'translateY(-3px)'}
+      ],{duration:260,easing:'ease-out',fill:'forwards'});
     }
     if(content){
       content.animate([
-        {opacity:0,transform:'translateY(6px)'},
-        {opacity:0,transform:'translateY(6px)',offset:.66},
-        {opacity:1,transform:'translateY(0)',offset:.94},
-        {opacity:1,transform:'translateY(0)'}
-      ],{duration,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'});
+        {opacity:0,transform:'translateY(5px)',offset:0},
+        {opacity:0,transform:'translateY(5px)',offset:.48},
+        {opacity:1,transform:'translateY(0)',offset:1}
+      ] ,{duration:980,easing:'cubic-bezier(.16,.84,.26,1)',fill:'forwards'});
     }
 
     cardAnim.onfinish=()=>{
-      coach.style.left=Math.round(to.left)+'px';
-      coach.style.top=Math.round(to.top)+'px';
+      // Finalize at the SAME geometry used as the animation destination.
+      // No re-measure/re-dock pass here: that was the source of the visible
+      // bottom-right jump after a step transition.
+      if(dockBottomRight){
+        coach.style.left='auto';coach.style.top='auto';coach.style.right=margin+'px';coach.style.bottom=margin+'px';
+      }else{
+        coach.style.right='auto';coach.style.bottom='auto';coach.style.left=Math.round(to.left)+'px';coach.style.top=Math.round(to.top)+'px';
+      }
       coach.style.width=Math.round(to.width)+'px';
       coach.style.height='auto';
       coach.classList.remove('tutorial-morphing');
       oldContentClone?.remove();
-      if(content){content.style.opacity='';content.style.transform='';content.style.filter='';content.classList.remove('tutorial-new-content');}
-      lastCoachPos={x:to.left,y:to.top};
+      if(content){content.style.opacity='';content.style.transform='';content.style.filter='';content.classList.remove('tutorial-new-content')}
+      const finalRect=coach.getBoundingClientRect();
+      lastCoachPos={x:finalRect.left,y:finalRect.top};
       coachPosByStep.set(stepIndex,lastCoachPos);
       try{cardAnim.cancel()}catch(e){}
+      updateCoachOverflow();
       if(examplePanel?.classList.contains('open')) positionLockedExample();
     };
   }
@@ -9735,6 +9923,18 @@ body.clock-mode .world{
       }
     }
 
+    // Freeze the CURRENT card rectangle before changing any text/classes.
+    // Otherwise the browser lays out the new content for one frame first,
+    // which creates the visible bottom-right jump before the morph starts.
+    if(previousCoachRect){
+      coach.classList.add('tutorial-morphing');
+      coach.style.right='auto';coach.style.bottom='auto';
+      coach.style.left=Math.round(previousCoachRect.left)+'px';
+      coach.style.top=Math.round(previousCoachRect.top)+'px';
+      coach.style.width=Math.round(previousCoachRect.width)+'px';
+      coach.style.height=Math.round(previousCoachRect.height)+'px';
+    }
+
     coachPinnedByUser=false;
     coachPosByStep.delete(stepIndex);
     document.body.classList.remove('tutorial-theme-clearance');
@@ -9760,7 +9960,7 @@ body.clock-mode .world{
 
     coach?.classList.add('open');
     if(previousCoachRect) animateCoachStepChange(previousCoachRect,oldContentClone);
-    else positionCoach();
+    else { positionCoach(); requestAnimationFrame(updateCoachOverflow); }
   }
 
   function startGuidedTour(){
@@ -9838,43 +10038,191 @@ body.clock-mode .world{
   coach?.addEventListener('pointerup',endCoachDrag);
   coach?.addEventListener('pointercancel',endCoachDrag);
   const minimizeBtn=$('tutorialCoachMinimize');
-  let sparkleDrag=null;
+  let sparkleDrag=null,lastSparkleToggleAt=0,suppressSparkleClickUntil=0;
   minimizeBtn?.addEventListener('pointerdown',e=>{
-    if(!steps?.[stepIndex]?.explore)return;
-    if(e.button!==0)return;
+    if(!steps?.[stepIndex]?.explore || e.button!==0)return;
     const r=coach.getBoundingClientRect();
     sparkleDrag={id:e.pointerId,startX:e.clientX,startY:e.clientY,left:r.left,top:r.top,moved:false};
     safe(()=>minimizeBtn.setPointerCapture?.(e.pointerId));
-    e.preventDefault();
     e.stopPropagation();
   });
   minimizeBtn?.addEventListener('pointermove',e=>{
     if(!sparkleDrag||sparkleDrag.id!==e.pointerId)return;
     const dx=e.clientX-sparkleDrag.startX,dy=e.clientY-sparkleDrag.startY;
-    if(!sparkleDrag.moved&&Math.hypot(dx,dy)<5)return;
+    if(!sparkleDrag.moved&&Math.hypot(dx,dy)<6)return;
     sparkleDrag.moved=true;coachDragMoved=true;coachPinnedByUser=true;
-    const margin=10,cw=coach.offsetWidth||58,ch=coach.offsetHeight||58;
+    const margin=10,cw=coach.offsetWidth||68,ch=coach.offsetHeight||68;
     const x=clamp(sparkleDrag.left+dx,margin,window.innerWidth-cw-margin);
     const y=clamp(sparkleDrag.top+dy,margin,window.innerHeight-ch-margin);
     coach.style.right='auto';coach.style.bottom='auto';coach.style.left=Math.round(x)+'px';coach.style.top=Math.round(y)+'px';
     lastCoachPos={x,y};coachPosByStep.set(stepIndex,{x,y});
     e.preventDefault();e.stopPropagation();
   });
-  const endSparkleDrag=e=>{
+  const endSparkleGesture=e=>{
     if(!sparkleDrag||(e?.pointerId!=null&&sparkleDrag.id!==e.pointerId))return;
+    const moved=sparkleDrag.moved;
     safe(()=>minimizeBtn.releasePointerCapture?.(sparkleDrag.id));
-    const moved=sparkleDrag.moved;sparkleDrag=null;
-    if(!moved)setCoachMinimized(!coachMinimized);
-    setTimeout(()=>{coachDragMoved=false},0);
+    sparkleDrag=null;
+    if(moved){
+      // A drag is movement only. Suppress the synthetic click that browsers
+      // often fire after pointerup so dragging can never open/close the coach.
+      const now=performance.now();
+      lastSparkleToggleAt=now;
+      suppressSparkleClickUntil=now+550;
+      setTimeout(()=>{coachDragMoved=false},0);
+    }else{
+      // A true click toggles the coach. Suppress the follow-up browser click so
+      // one click cannot toggle twice.
+      setCoachMinimized(!coachMinimized);
+      const now=performance.now();
+      lastSparkleToggleAt=now;
+      suppressSparkleClickUntil=now+550;
+    }
     e?.preventDefault?.();e?.stopPropagation?.();
   };
-  minimizeBtn?.addEventListener('pointerup',endSparkleDrag);
-  minimizeBtn?.addEventListener('pointercancel',endSparkleDrag);
+  minimizeBtn?.addEventListener('pointerup',endSparkleGesture);
+  minimizeBtn?.addEventListener('pointercancel',e=>{
+    if(!sparkleDrag)return;
+    safe(()=>minimizeBtn.releasePointerCapture?.(sparkleDrag.id));
+    sparkleDrag=null;coachDragMoved=false;
+  });
+  // Click fallback for browsers/previews that do not reliably deliver the
+  // pointer-up after capture. The timestamp prevents a normal pointer gesture
+  // from toggling twice.
+  minimizeBtn?.addEventListener('click',e=>{
+    if(!steps?.[stepIndex]?.explore)return;
+    const now=performance.now();
+    // Pointer gestures already handled above. This is only a fallback for
+    // environments that lose pointerup entirely. Never let a post-drag click
+    // toggle the coach.
+    if(now>=suppressSparkleClickUntil && now-lastSparkleToggleAt>500){
+      setCoachMinimized(!coachMinimized);
+      lastSparkleToggleAt=now;
+      suppressSparkleClickUntil=now+550;
+    }
+    e.preventDefault();e.stopPropagation();
+  });
   $('replayTutorialBtn')?.addEventListener('click',openTutorial);
-  window.addEventListener('resize',positionCoach,{passive:true});
+  window.addEventListener('resize',()=>{positionCoach();updateCoachOverflow()},{passive:true});
   window.addEventListener('scroll',positionCoach,{passive:true,capture:true});
   window.openBloomTutorial=openTutorial;
   if(!isSeen())setTimeout(openTutorial,350);
+})();
+</script>
+
+
+<script id="bloom-help-hub-runtime">
+(()=>{
+  const $=id=>document.getElementById(id);
+  const launcher=$('bloomHelpLauncher'),panel=$('bloomHelpPanel'),body=$('bloomHelpBody'),footer=$('bloomHelpFooter'),title=$('bloomHelpTitle'),closeBtn=$('bloomHelpClose');
+  if(!launcher||!panel||!body||!footer||!title||!closeBtn)return;
+  const ACCESS_KEY='fd09be81-e0d7-420c-a2bf-939a5a573f5c';
+  let view={type:'home'},history=[],resetOnClose=false;
+
+  const topics={
+    habits:{label:'Weekly Habits',intro:'Habits are the repeating things you want to keep showing up for each week.',items:[
+      ['habit-setup','How do I set up a habit?','Open Settings → Habits & Tasks. Add a habit, give it a name, choose how many times you want to do it each week, and pick its color. Save Changes when you are done.'],
+      ['habit-pulls','How do habit pulls work?','Each habit’s weekly goal is also the number of pulls available for that habit. A goal of 4 times per week gives that habit 4 pulls. Each completion lets you use one pull with Earn the Pull.'],
+      ['habit-thresholds','Why do my Reward Tiers change?','Your Weekly Habit goals determine the Lucky Pull thresholds for Small, Medium, and Large Rewards. Raising or lowering those weekly goals changes the thresholds. Daily Task Bonus Pulls give extra chances, but they do not raise the thresholds.']
+    ]},
+    today:{label:"Today's Tasks & Bonus Pulls",intro:'Today’s Tasks are for what you actually want to finish today—and they can earn Bonus Pulls.',items:[
+      ['today-add','How do Today’s Tasks work?','Add the tasks you want to complete today. Unfinished tasks carry over to the next day; completed tasks are removed the next day. You can also add an optional due date and time.'],
+      ['today-lock','What is the Locked Set?','The first time you check off a Today task, the tasks already in that box become the Locked Set for the day. Those tasks get a small lock. Tasks added or moved into Today’s Tasks afterward stay visible, but they do not change that day’s Locked Set.'],
+      ['today-bonus','How many Bonus Pulls can I earn?','Finish every task in the Locked Set to earn that day’s Bonus Pulls: 1–4 locked tasks = 1 pull, 5–8 = 2 pulls, and 9+ = 3 pulls.'],
+      ['today-organize','How do I reorder, move, or delete tasks?','Use the three-line handle on a task. Click it to delete, or click and drag it to reorder the task or move it between Today’s Tasks and Tasks for Later. In Settings, you can also turn on Order tasks by due date.']
+    ]},
+    later:{label:'Tasks for Later',intro:'A little parking spot for things you want to remember without making them part of today.',items:[
+      ['later-purpose','What belongs in Tasks for Later?','Add anything you want to remember but do not need to tackle today. Tasks here stay until you move or delete them, and they do not earn pulls.'],
+      ['later-organize','Can I move or reorder these tasks?','Yes. Use the three-line handle to reorder a task or drag it between Tasks for Later and Today’s Tasks. You can also add optional due dates.']
+    ]},
+    pulls:{label:'Pulls & Rewards',intro:'Pulls are the little chance moments you earn by showing up for your habits and tasks.',items:[
+      ['pull-results','What do Lucky and Next Time mean?','Every pull reveals either Lucky or Next Time. Lucky Pulls count toward your Reward Tier. Next Time still uses the pull, but it does not add to your Lucky Pull total.'],
+      ['pull-circles','What do the circles mean?','Empty circles are pulls you can still earn. Filled circles are pulls you have already used. If you make an accidental pull, hover over the filled circle and click × to undo it.'],
+      ['reward-tiers','How do Reward Tiers work?','Lucky Pulls unlock Small, Medium, or Large Reward Tiers. The thresholds scale with your Weekly Habit goals. If you unlock Medium or Large, you can choose that tier or a lower one when you draw.'],
+      ['reward-draw','How does Draw My Reward work?','Once you have earned a Reward Tier, Draw My Reward lets you choose an eligible tier and randomly picks one of the rewards you placed in that tier.'],
+      ['reset-week','What does Reset Week do?','Reset Week saves the finished week to History and starts a new week of habit progress and pulls. Lucky Pulls do not carry into the next week, while your habits, rewards, theme, and other saved setup stay.']
+    ]},
+    studying:{label:'Studying',intro:'The Studying page keeps a clock and focus tools close by without adding clutter to the dashboard.',items:[
+      ['study-clock','What is the Clock view?','Clock gives you a clean full-page time and date view while you study. Use the page controls to switch between Clock and Timer.'],
+      ['study-timer','How does the study timer work?','Pomodoro alternates focus sessions with short breaks, then gives you a long break after your chosen number of focus sessions. Regular Focus Timer runs one focus countdown with no break cycle.'],
+      ['study-controls','What do Start, Reset, and Skip do?','Start begins or pauses the timer. Reset restarts the current interval. Skip moves to the next Pomodoro interval. You can change timer lengths and automatic/manual Pomodoro transitions in Settings.']
+    ]},
+    history:{label:'History',intro:'History is where finished weeks collect so you can look back at your progress.',items:[
+      ['history-when','When does a week appear in History?','A week is saved to History when you use Reset Week. You can then look back at that week’s habit progress and task history.']
+    ]},
+    personalize:{label:'Themes & Settings',intro:'This is where you make Bloom by Bit work the way you like.',items:[
+      ['themes','How do Themes work?','Open Themes from the sidebar and choose a world. Themes change the atmosphere and styling, not how your habits, tasks, pulls, or rewards work.'],
+      ['week-start','Can I choose when my week starts?','Yes. In Settings → Habits & Tasks, choose the day your week starts. Weekly habit progress and History will follow that choice.'],
+      ['task-order','Can tasks sort themselves by due date?','Yes. In Settings → Habits & Tasks, turn on Order tasks by due date. Leave it off if you prefer to arrange tasks yourself.'],
+      ['tutorial-help','Can I replay the tutorial?','Yes. Open Settings → Basic → Tutorial and choose View Tutorial. The tutorial runs as a temporary practice version and returns your real dashboard afterward.']
+    ]}
+  };
+
+  function openPanel(){panel.setAttribute('aria-hidden','false');launcher.hidden=true;render()}
+  function closePanel(){panel.setAttribute('aria-hidden','true');launcher.hidden=false;if(resetOnClose){history=[];view={type:'home'};resetOnClose=false}}
+  function push(next){history.push(view);view=next;render()}
+  function back(){if(history.length){view=history.pop();render()}else{view={type:'home'};render()}}
+  function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+  function setFooter(buttons=[]){footer.innerHTML='';buttons.forEach(({label,kind='normal',action})=>{const b=document.createElement('button');b.type='button';b.textContent=label;if(kind==='primary')b.classList.add('save');b.addEventListener('click',action);footer.appendChild(b)})}
+  function choice(label,action){const b=document.createElement('button');b.type='button';b.className='bloom-help-choice';b.innerHTML=`<span>${escapeHtml(label)}</span><span>›</span>`;b.addEventListener('click',action);return b}
+  function askIfDone(){setFooter([
+    {label:'I need something else',action:()=>{view={type:'home'};history=[];render()}},
+    {label:"That’s all for today ✦",kind:'primary',action:()=>{view={type:'farewell'};render()}}
+  ])}
+  function render(){
+    body.innerHTML='';footer.innerHTML='';
+    if(view.type==='home'){
+      title.textContent='What can I help you find?';
+      body.innerHTML='<p class="bloom-help-intro">Pick a little path and we’ll find the answer together.</p><div class="bloom-help-list" id="bloomHelpList"></div>';
+      const list=$('bloomHelpList');
+      Object.entries(topics).forEach(([key,t])=>list.appendChild(choice(t.label,()=>push({type:'topic',key}))));
+      list.appendChild(choice('Questions — ask me directly',()=>push({type:'question'})));
+      return;
+    }
+    if(view.type==='topic'){
+      const t=topics[view.key];title.textContent=t.label;body.innerHTML=`<div class="bloom-help-path">Help → ${escapeHtml(t.label)}</div><p class="bloom-help-intro">${escapeHtml(t.intro)}</p><div class="bloom-help-list" id="bloomHelpList"></div>`;
+      const list=$('bloomHelpList');t.items.forEach(([id,label,answer])=>list.appendChild(choice(label,()=>push({type:'answer',topic:view.key,id,label,answer}))));
+      setFooter([{label:'← Back',action:back}]);return;
+    }
+    if(view.type==='answer'){
+      title.textContent=view.label;body.innerHTML=`<div class="bloom-help-path">Help → ${escapeHtml(topics[view.topic]?.label||'')}</div><div class="bloom-help-answer"><p>${view.answer}</p></div><p class="bloom-help-intro">Did that clear things up?</p>`;
+      askIfDone();return;
+    }
+    if(view.type==='question'){
+      title.textContent='Ask me a question';
+      body.innerHTML=`<p class="bloom-help-intro">Couldn’t find quite what you needed? Send it my way and I’ll respond soon. ✦</p>
+        <form class="bloom-help-question-form" id="bloomHelpQuestionForm" novalidate>
+          <label>Your question<textarea name="Question" id="bloomHelpQuestion" placeholder="What are you wondering about?" required></textarea></label>
+          <label>Email <input type="email" name="email" id="bloomHelpQuestionEmail" placeholder="you@example.com" autocomplete="email" required><small>I need this so I can respond to you.</small></label>
+          <label>Name <span style="font-weight:400;opacity:.6">(optional)</span><input type="text" name="Name" placeholder="Your name" autocomplete="name"></label>
+          <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
+          <div class="bloom-help-status" id="bloomHelpQuestionStatus" role="status" aria-live="polite"></div>
+        </form>`;
+      setFooter([{label:'← Back',action:back},{label:'Send question ✦',kind:'primary',action:submitQuestion}]);return;
+    }
+    if(view.type==='questionSent'){
+      title.textContent='Your question is on its way ✦';body.innerHTML='<div class="bloom-help-answer"><p>I got it. I’ll respond soon.</p></div><p class="bloom-help-intro">Is that all you needed for today?</p>';askIfDone();return;
+    }
+    if(view.type==='farewell'){
+      title.textContent='Glad I could help ✦';body.innerHTML='<div class="bloom-help-answer"><p>If another question wanders in later, just tap the sparkle and we’ll pick up from the beginning.</p></div>';
+      resetOnClose=true;setFooter([{label:'Close help',kind:'primary',action:closePanel}]);return;
+    }
+  }
+  async function submitQuestion(){
+    const form=$('bloomHelpQuestionForm'),q=$('bloomHelpQuestion'),email=$('bloomHelpQuestionEmail'),status=$('bloomHelpQuestionStatus');if(!form||!q||!email)return;
+    status.className='bloom-help-status';
+    if(!q.value.trim()){status.textContent='Add your question first. ✦';status.classList.add('error');q.focus();return}
+    if(!email.value.trim()||!email.checkValidity()){status.textContent='Add a valid email so I can respond to you.';status.classList.add('error');email.focus();return}
+    const sendBtn=[...footer.querySelectorAll('button')].find(b=>b.textContent.includes('Send question'));if(sendBtn){sendBtn.disabled=true;sendBtn.textContent='Sending…'}
+    try{
+      const payload=Object.fromEntries(new FormData(form));Object.assign(payload,{access_key:ACCESS_KEY,subject:'Bloom by Bit — Help Question',from_name:'Bloom by Bit Help'});
+      const response=await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)});const result=await response.json();
+      if(!response.ok||!result.success)throw new Error(result.message||'Submission failed');
+      view={type:'questionSent'};render();
+    }catch(err){status.textContent='That did not send. Try again in a moment.';status.classList.add('error');if(sendBtn){sendBtn.disabled=false;sendBtn.textContent='Send question ✦'}}
+  }
+  launcher.addEventListener('click',openPanel);closeBtn.addEventListener('click',closePanel);
+  render();
 })();
 </script>
 
