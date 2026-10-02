@@ -3939,7 +3939,7 @@ body.clock-mode .clock-page{
 /* Body-level popup prevents card/bottom clipping. */
 .custom-due-picker{
   position:fixed;
-  z-index:5000;
+  z-index:25000;
   box-sizing:border-box;
   padding:13px;
   border:1px solid color-mix(in srgb,var(--edge) 88%,transparent);
@@ -6684,6 +6684,11 @@ function openDuePicker(task,anchor){
   panel.className='custom-due-picker';
   panel.setAttribute('role','dialog');
   panel.setAttribute('aria-label','Set due date and time');
+  // Keep every calendar/time interaction inside the picker. This prevents the
+  // surrounding task-row drag/menu logic from stealing clicks or pointerups.
+  ['pointerdown','mousedown','mouseup','click','dblclick','contextmenu'].forEach(type=>{
+    panel.addEventListener(type,e=>e.stopPropagation());
+  });
 
   if(original){
     const current=document.createElement('div');
@@ -6803,6 +6808,9 @@ function openDuePicker(task,anchor){
   }
 
   timeRow.append(timeLabel,hour,colon,minute,period);
+  [hour,minute,period].forEach(sel=>{
+    ['pointerdown','mousedown','click','change'].forEach(type=>sel.addEventListener(type,e=>e.stopPropagation()));
+  });
 
   const actions=document.createElement('div');
   actions.className='due-picker-actions';
@@ -6864,7 +6872,9 @@ function openDuePicker(task,anchor){
       b.textContent=String(d);
       b.setAttribute('aria-label',new Date(y,m,d).toLocaleDateString());
 
-      b.addEventListener('click',()=>{
+      b.addEventListener('click',e=>{
+        e.preventDefault();
+        e.stopPropagation();
         selected.setFullYear(y,m,d);
         viewYear=y;
         viewMonth=m;
@@ -6884,30 +6894,42 @@ function openDuePicker(task,anchor){
     selected.setHours(h,+minute.value,0,0);
   }
 
-  prev.addEventListener('click',()=>{
+  prev.addEventListener('click',e=>{
+    e.preventDefault();
+    e.stopPropagation();
     viewMonth--;
     if(viewMonth<0){viewMonth=11;viewYear--;}
     renderCalendar();
     positionDuePicker(panel,anchor);
   });
 
-  next.addEventListener('click',()=>{
+  next.addEventListener('click',e=>{
+    e.preventDefault();
+    e.stopPropagation();
     viewMonth++;
     if(viewMonth>11){viewMonth=0;viewYear++;}
     renderCalendar();
     positionDuePicker(panel,anchor);
   });
 
-  clear.addEventListener('click',()=>{
+  clear.addEventListener('click',e=>{
+    e.preventDefault();
+    e.stopPropagation();
     task.dueAt='';
     save();
     closeDuePicker();
     render();
   });
 
-  cancel.addEventListener('click',closeDuePicker);
+  cancel.addEventListener('click',e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    closeDuePicker();
+  });
 
-  set.addEventListener('click',()=>{
+  set.addEventListener('click',e=>{
+    e.preventDefault();
+    e.stopPropagation();
     applyTime();
     task.dueAt=localDateTimeString(selected);
     save();
@@ -6944,7 +6966,14 @@ function buildDueControls(task,{source='later'}={}){
     }
   }
 
+  btn.addEventListener('pointerdown',e=>{
+    e.stopPropagation();
+  });
+  btn.addEventListener('mousedown',e=>{
+    e.stopPropagation();
+  });
   btn.addEventListener('click',e=>{
+    e.preventDefault();
     e.stopPropagation();
     openDuePicker(task,btn);
   });
@@ -7758,6 +7787,9 @@ document.addEventListener('click',e=>{
   const activeDialog=e.target.closest?.('.modal-backdrop.open');
   if(activeDialog && activeDialog!==openModal) return;
   if(e.target.closest?.('#tutorialCoach')) return;
+  // Due-date picker is rendered at body level, so explicitly allow it and its
+  // calendar trigger even while another modal guard exists.
+  if(e.target.closest?.('.custom-due-picker') || e.target.closest?.('.task-due-btn')) return;
   // The help guide remains closable and usable even if Settings or Themes
   // was opened while it is on screen.
   if(e.target.closest?.('#bloomHelpPanel') || e.target.closest?.('#bloomHelpLauncher')) return;
@@ -9467,6 +9499,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     if(!target || !(target instanceof Element))return false;
     if(coach?.contains(target))return true;
     if(examplePanel?.contains(target))return true;
+    if(target.closest?.('.custom-due-picker') || target.closest?.('.task-due-btn'))return true;
     const step=steps?.[stepIndex];
     if(step?.explore && step.context==='studying'){
       const studyPage=$('clockPage');
