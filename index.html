@@ -1273,7 +1273,9 @@ body[data-theme="tidal"] .backup-panel{
 .coffee-signature{font-family:var(--serif);font-size:19px!important;opacity:.92!important;margin-top:20px!important}
 .coffee-support-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center}
 .coffee-support-copy h2{margin-bottom:10px}
-.coffee-support-button{min-width:190px;border:1px solid var(--line);border-radius:16px;padding:14px 18px;background:rgba(255,255,255,.24);color:inherit;font-weight:700;cursor:default;opacity:.72}
+.coffee-support-button{min-width:190px;border:1px solid var(--line);border-radius:16px;padding:14px 18px;background:var(--forest);color:var(--white);font-weight:700;cursor:pointer;opacity:1;transition:transform .18s ease,filter .18s ease,opacity .18s ease}.coffee-support-button:hover{transform:translateY(-1px);filter:brightness(1.05)}.coffee-support-button:disabled{opacity:.62;cursor:wait;transform:none}.coffee-support-status{font-size:12px;opacity:.68;margin-top:9px;min-height:1.2em}.coffee-support-status.error{opacity:1}
+/* The official Buy Me a Coffee launcher stays hidden; Bloom by Bit's themed button opens the same on-page widget. */
+#bmc-wbtn{opacity:0!important;pointer-events:none!important;visibility:hidden!important;width:1px!important;height:1px!important;overflow:hidden!important;right:-9999px!important;bottom:-9999px!important}
 .coffee-support-note{font-size:12px;opacity:.58!important;margin-top:9px!important}
 .feedback-intro{max-width:680px}
 .feedback-form{display:grid;gap:14px;margin-top:22px}
@@ -3939,7 +3941,7 @@ body.clock-mode .clock-page{
 /* Body-level popup prevents card/bottom clipping. */
 .custom-due-picker{
   position:fixed;
-  z-index:25000;
+  z-index:5000;
   box-sizing:border-box;
   padding:13px;
   border:1px solid color-mix(in srgb,var(--edge) 88%,transparent);
@@ -5715,10 +5717,13 @@ body.aby-study-fullscreen .studying-mode-switch{
       <section class="card coffee-card coffee-support-card">
         <div class="coffee-support-copy">
           <h2>Buy me a coffee ☕</h2>
-          <p>If Bloom by Bit has made your day a bit easier, helped you stay on track, or simply made studying feel a little prettier, you will soon be able to leave a small tip here.</p>
+          <p>If Bloom by Bit has made your day a bit easier, helped you stay on track, or simply made studying feel a little prettier, you can leave a small tip here.</p>
           <p>Completely optional, always appreciated, and mostly going toward the continued pursuit of making this little place even nicer.</p>
         </div>
-        <button type="button" class="coffee-support-button" disabled aria-disabled="true">Support coming soon ✦</button>
+        <div>
+          <button type="button" class="coffee-support-button" id="coffeeSupportButton">Support Bloom by Bit ✦</button>
+          <div class="coffee-support-status" id="coffeeSupportStatus" role="status" aria-live="polite"></div>
+        </div>
       </section>
 
       <section class="card coffee-card">
@@ -6684,8 +6689,8 @@ function openDuePicker(task,anchor){
   panel.className='custom-due-picker';
   panel.setAttribute('role','dialog');
   panel.setAttribute('aria-label','Set due date and time');
-  // Keep every calendar/time interaction inside the picker. This prevents the
-  // surrounding task-row drag/menu logic from stealing clicks or pointerups.
+  // The picker is rendered at body level. Keep its interactions self-contained
+  // so task dragging, modal guards, and the tutorial do not steal its clicks.
   ['pointerdown','mousedown','mouseup','click','dblclick','contextmenu'].forEach(type=>{
     panel.addEventListener(type,e=>e.stopPropagation());
   });
@@ -8612,27 +8617,6 @@ function refreshDateAndQuote(){
 load();refreshDateAndQuote();render();
 setInterval(()=>{ensureCurrentWeek();ensureCurrentDay();refreshDateAndQuote();render()},60000);
 setInterval(refreshDueCountdowns,30000);
-// Capture due-date button clicks before task-row/menu handlers can swallow them.
-// This keeps an existing due date editable after it has already been set.
-document.addEventListener('click',e=>{
-  const dueBtn=e.target?.closest?.('.task-due-btn');
-  if(!dueBtn)return;
-
-  const row=dueBtn.closest('.daily-task-row,.later-task-row');
-  if(!row)return;
-
-  const id=row.dataset.taskId;
-  const source=row.dataset.taskSource;
-  const task=source==='today'
-    ? state.dailyTasks.items.find(t=>t.id===id)
-    : state.laterTasks.find(t=>t.id===id);
-  if(!task)return;
-
-  e.preventDefault();
-  e.stopImmediatePropagation();
-  openDuePicker(task,dueBtn);
-},true);
-
 document.addEventListener('click',e=>{
   if(activeDuePicker && !e.target.closest('.custom-due-picker') && !e.target.closest('.task-due-btn')){
     closeDuePicker();
@@ -9520,6 +9504,8 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     if(!target || !(target instanceof Element))return false;
     if(coach?.contains(target))return true;
     if(examplePanel?.contains(target))return true;
+    // The due-date picker lives directly under <body>, outside the highlighted
+    // task card, so it needs an explicit tutorial exception to stay interactive.
     if(target.closest?.('.custom-due-picker') || target.closest?.('.task-due-btn'))return true;
     const step=steps?.[stepIndex];
     if(step?.explore && step.context==='studying'){
@@ -9564,6 +9550,11 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
   function blockOutsideTutorial(e){
     if(!e.isTrusted)return; // do not block the tutorial's own programmatic actions
     const step=steps?.[stepIndex];
+    // During Explore Coffee, the Buy Me a Coffee widget is allowed to handle
+    // its own clicks/close controls without the tutorial capture guard
+    // swallowing them. The BMC controller keeps this true only while the
+    // external widget is opening or visibly open.
+    if(step?.explore && step.context==='coffee' && window.BloomByBitBmc?.isOpen?.()) return;
     if(step?.explore && step.context==='studying' && e.target?.closest?.('#clockPage')){
       // Studying is fully interactive during its explore step. Do not replay the
       // same action through the tutorial bridge; doing so can double-toggle the
@@ -9581,6 +9572,8 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
 
   document.addEventListener('keydown',e=>{
     if(!document.body.classList.contains('tutorial-running') || !e.isTrusted)return;
+    const step=steps?.[stepIndex];
+    if(step?.explore && step.context==='coffee' && window.BloomByBitBmc?.isOpen?.()) return;
     if(isTutorialAllowedTarget(e.target))return;
     e.preventDefault();
     e.stopPropagation();
@@ -10333,6 +10326,102 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
   });
 })();
 </script>
+<script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="sanavirani101" data-description="Support me on Buy me a coffee!" data-message="" data-color="#40DCA5" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
+<script>
+(() => {
+  const button = document.getElementById('coffeeSupportButton');
+  const status = document.getElementById('coffeeSupportStatus');
+  if (!button) return;
+
+  let bmcOpeningOrOpen = false;
+  let bmcWatchTimer = null;
+  let bmcEverVisible = false;
+  let bmcStartedAt = 0;
+
+  function elementIsVisible(el){
+    if(!el || !(el instanceof Element)) return false;
+    const cs = getComputedStyle(el);
+    if(cs.display==='none' || cs.visibility==='hidden' || Number(cs.opacity)===0) return false;
+    const r = el.getBoundingClientRect();
+    return r.width > 120 && r.height > 120 && r.bottom > 0 && r.right > 0 && r.top < innerHeight && r.left < innerWidth;
+  }
+
+  function bmcOverlayVisible(){
+    const candidates = [
+      ...document.querySelectorAll('iframe[src*="buymeacoffee" i], iframe[src*="bmc" i], [id*="bmc" i], [class*="bmc" i], [id*="buymeacoffee" i], [class*="buymeacoffee" i]')
+    ];
+    return candidates.some(el => {
+      if(el.id === 'bmc-wbtn' || el.closest?.('#bmc-wbtn')) return false;
+      return elementIsVisible(el);
+    });
+  }
+
+  function startBmcOpenWatch(){
+    bmcOpeningOrOpen = true;
+    bmcEverVisible = false;
+    bmcStartedAt = Date.now();
+    clearInterval(bmcWatchTimer);
+    bmcWatchTimer = setInterval(() => {
+      const visible = bmcOverlayVisible();
+      if(visible) bmcEverVisible = true;
+      // Once the widget has actually appeared, clear the tutorial bypass as
+      // soon as it closes. If it never appears, fail closed after 6 seconds.
+      if((bmcEverVisible && !visible) || (!bmcEverVisible && Date.now()-bmcStartedAt > 6000)){
+        bmcOpeningOrOpen = false;
+        clearInterval(bmcWatchTimer);
+        bmcWatchTimer = null;
+      }
+    }, 120);
+  }
+
+  window.BloomByBitBmc = {
+    isOpen(){ return bmcOpeningOrOpen || bmcOverlayVisible(); }
+  };
+
+  function getBmcLauncher(){
+    return document.getElementById('bmc-wbtn') || document.querySelector('[id^="bmc-wbtn"]');
+  }
+
+  function openBmcWidget(){
+    const launcher = getBmcLauncher();
+    if (!launcher) return false;
+    try {
+      launcher.dispatchEvent(new MouseEvent('click', {bubbles:true,cancelable:true,view:window}));
+      return true;
+    } catch (_) {
+      try { launcher.click(); return true; } catch (_) { return false; }
+    }
+  }
+
+  button.addEventListener('click', () => {
+    status.textContent = '';
+    if (openBmcWidget()) { startBmcOpenWatch(); return; }
+
+    button.disabled = true;
+    const original = button.textContent;
+    button.textContent = 'Opening…';
+    let tries = 0;
+    const timer = setInterval(() => {
+      tries += 1;
+      if (openBmcWidget()) {
+        startBmcOpenWatch();
+        clearInterval(timer);
+        button.disabled = false;
+        button.textContent = original;
+        return;
+      }
+      if (tries >= 20) {
+        clearInterval(timer);
+        button.disabled = false;
+        button.textContent = original;
+        status.textContent = 'The support window did not load. Try again in a moment. ✦';
+        status.classList.add('error');
+      }
+    }, 150);
+  });
+})();
+</script>
+
 </body></html>
 <style id="bonus-dot-center-remove">
 .dot.task-bonus-slot::before{
