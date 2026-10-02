@@ -5868,7 +5868,7 @@ body.aby-study-fullscreen .studying-mode-switch{
       <strong>Backup &amp; Restore</strong>
       <span>Save your progress, rewards, settings, and theme to a backup file. Restore it later on this or another computer.</span>
       <div class="backup-actions">
-        <button type="button" class="secondary" id="backupDataBtn">Save Backup</button>
+        <button type="button" class="secondary" id="backupDataBtn">Save Backup File</button>
         <button type="button" class="secondary" id="restoreDataBtn">Restore Backup</button>
         <button type="button" class="secondary clear-data-btn" id="clearDataBtn">Start Fresh</button>
         <input type="file" id="restoreDataInput" accept=".json,application/json" hidden>
@@ -6159,27 +6159,62 @@ document.addEventListener('keydown',e=>{
 
 
 /* ===== BACKUP / RESTORE ===== */
-function saveBetterYouBackup(){
+async function saveBetterYouBackup(){
+  const payload={
+    app:'Bloom by Bit',
+    version:2,
+    exportedAt:new Date().toISOString(),
+    state:state
+  };
+  const json=JSON.stringify(payload,null,2);
+  const d=new Date();
+  const stamp=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const filename=`bloom-by-bit-backup-${stamp}.json`;
+
   try{
-    const payload={
-      app:'Bloom by Bit',
-      version:2,
-      exportedAt:new Date().toISOString(),
-      state:state
-    };
-    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    // Preferred path on current Chrome/Edge: open a real Save As dialog and
+    // only report success after the bytes have actually been written.
+    if(typeof window.showSaveFilePicker==='function'){
+      const handle=await window.showSaveFilePicker({
+        suggestedName:filename,
+        types:[{
+          description:'Bloom by Bit backup',
+          accept:{'application/json':['.json']}
+        }]
+      });
+      const writable=await handle.createWritable();
+      await writable.write(new Blob([json],{type:'application/json;charset=utf-8'}));
+      await writable.close();
+      toast('Backup saved');
+      return;
+    }
+
+    // Fallback for browsers without the File System Access API.
+    const blob=new Blob([json],{type:'application/json;charset=utf-8'});
+
+    // Legacy Microsoft fallback.
+    if(navigator.msSaveOrOpenBlob){
+      navigator.msSaveOrOpenBlob(blob,filename);
+      toast('Backup saved');
+      return;
+    }
+
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
-    const d=new Date();
-    const stamp=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     a.href=url;
-    a.download=`bloom-by-bit-backup-${stamp}.json`;
+    a.download=filename;
+    a.style.position='fixed';
+    a.style.left='-9999px';
+    a.setAttribute('aria-hidden','true');
     document.body.appendChild(a);
     a.click();
     a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    setTimeout(()=>URL.revokeObjectURL(url),10000);
     toast('Backup saved');
   }catch(e){
+    // Closing the Save As dialog is not an error worth alarming the user about.
+    if(e && e.name==='AbortError') return;
+    console.error('Bloom by Bit backup save failed:',e);
     toast('Could not save backup');
   }
 }
@@ -6208,7 +6243,7 @@ const backupDataBtn=$('backupDataBtn');
 const restoreDataBtn=$('restoreDataBtn');
 const restoreDataInput=$('restoreDataInput');
 
-if(backupDataBtn) backupDataBtn.addEventListener('click',saveBetterYouBackup);
+if(backupDataBtn) backupDataBtn.onclick=saveBetterYouBackup;
 if(restoreDataBtn) restoreDataBtn.addEventListener('click',()=>restoreDataInput && restoreDataInput.click());
 if(restoreDataInput) restoreDataInput.addEventListener('change',()=>{
   const file=restoreDataInput.files && restoreDataInput.files[0];
@@ -9521,6 +9556,9 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     // The due-date picker lives directly under <body>, outside the highlighted
     // task card, so it needs an explicit tutorial exception to stay interactive.
     if(target.closest?.('.custom-due-picker') || target.closest?.('.task-due-btn'))return true;
+    // Backup/restore controls should always remain usable from Settings, even
+    // while the guided tutorial is running.
+    if(target.closest?.('#backupDataBtn') || target.closest?.('#restoreDataBtn') || target.closest?.('#restoreDataInput'))return true;
     const step=steps?.[stepIndex];
     if(step?.explore && step.context==='studying'){
       const studyPage=$('clockPage');
