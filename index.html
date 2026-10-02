@@ -1273,7 +1273,9 @@ body[data-theme="tidal"] .backup-panel{
 .coffee-signature{font-family:var(--serif);font-size:19px!important;opacity:.92!important;margin-top:20px!important}
 .coffee-support-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center}
 .coffee-support-copy h2{margin-bottom:10px}
-.coffee-support-button{min-width:190px;border:1px solid var(--line);border-radius:16px;padding:14px 18px;background:rgba(255,255,255,.24);color:inherit;font-weight:700;cursor:default;opacity:.72}
+.coffee-support-button{min-width:190px;border:1px solid var(--line);border-radius:16px;padding:14px 18px;background:var(--forest);color:var(--white);font-weight:700;cursor:pointer;opacity:1;transition:transform .18s ease,filter .18s ease,opacity .18s ease}.coffee-support-button:hover{transform:translateY(-1px);filter:brightness(1.05)}.coffee-support-button:disabled{opacity:.62;cursor:wait;transform:none}.coffee-support-status{font-size:12px;opacity:.68;margin-top:9px;min-height:1.2em}.coffee-support-status.error{opacity:1}
+/* The official Buy Me a Coffee launcher stays hidden; Bloom by Bit's themed button opens the same on-page widget. */
+#bmc-wbtn{opacity:0!important;pointer-events:none!important;visibility:hidden!important;width:1px!important;height:1px!important;overflow:hidden!important;right:-9999px!important;bottom:-9999px!important}
 .coffee-support-note{font-size:12px;opacity:.58!important;margin-top:9px!important}
 .feedback-intro{max-width:680px}
 .feedback-form{display:grid;gap:14px;margin-top:22px}
@@ -3939,7 +3941,7 @@ body.clock-mode .clock-page{
 /* Body-level popup prevents card/bottom clipping. */
 .custom-due-picker{
   position:fixed;
-  z-index:25000;
+  z-index:5000;
   box-sizing:border-box;
   padding:13px;
   border:1px solid color-mix(in srgb,var(--edge) 88%,transparent);
@@ -5715,10 +5717,13 @@ body.aby-study-fullscreen .studying-mode-switch{
       <section class="card coffee-card coffee-support-card">
         <div class="coffee-support-copy">
           <h2>Buy me a coffee ☕</h2>
-          <p>If Bloom by Bit has made your day a bit easier, helped you stay on track, or simply made studying feel a little prettier, you will soon be able to leave a small tip here.</p>
+          <p>If Bloom by Bit has made your day a bit easier, helped you stay on track, or simply made studying feel a little prettier, you can leave a small tip here.</p>
           <p>Completely optional, always appreciated, and mostly going toward the continued pursuit of making this little place even nicer.</p>
         </div>
-        <button type="button" class="coffee-support-button" disabled aria-disabled="true">Support coming soon ✦</button>
+        <div>
+          <button type="button" class="coffee-support-button" id="coffeeSupportButton">Support Bloom by Bit ✦</button>
+          <div class="coffee-support-status" id="coffeeSupportStatus" role="status" aria-live="polite"></div>
+        </div>
       </section>
 
       <section class="card coffee-card">
@@ -6684,11 +6689,6 @@ function openDuePicker(task,anchor){
   panel.className='custom-due-picker';
   panel.setAttribute('role','dialog');
   panel.setAttribute('aria-label','Set due date and time');
-  // Keep every calendar/time interaction inside the picker. This prevents the
-  // surrounding task-row drag/menu logic from stealing clicks or pointerups.
-  ['pointerdown','mousedown','mouseup','click','dblclick','contextmenu'].forEach(type=>{
-    panel.addEventListener(type,e=>e.stopPropagation());
-  });
 
   if(original){
     const current=document.createElement('div');
@@ -6808,9 +6808,6 @@ function openDuePicker(task,anchor){
   }
 
   timeRow.append(timeLabel,hour,colon,minute,period);
-  [hour,minute,period].forEach(sel=>{
-    ['pointerdown','mousedown','click','change'].forEach(type=>sel.addEventListener(type,e=>e.stopPropagation()));
-  });
 
   const actions=document.createElement('div');
   actions.className='due-picker-actions';
@@ -6872,9 +6869,7 @@ function openDuePicker(task,anchor){
       b.textContent=String(d);
       b.setAttribute('aria-label',new Date(y,m,d).toLocaleDateString());
 
-      b.addEventListener('click',e=>{
-        e.preventDefault();
-        e.stopPropagation();
+      b.addEventListener('click',()=>{
         selected.setFullYear(y,m,d);
         viewYear=y;
         viewMonth=m;
@@ -6894,42 +6889,30 @@ function openDuePicker(task,anchor){
     selected.setHours(h,+minute.value,0,0);
   }
 
-  prev.addEventListener('click',e=>{
-    e.preventDefault();
-    e.stopPropagation();
+  prev.addEventListener('click',()=>{
     viewMonth--;
     if(viewMonth<0){viewMonth=11;viewYear--;}
     renderCalendar();
     positionDuePicker(panel,anchor);
   });
 
-  next.addEventListener('click',e=>{
-    e.preventDefault();
-    e.stopPropagation();
+  next.addEventListener('click',()=>{
     viewMonth++;
     if(viewMonth>11){viewMonth=0;viewYear++;}
     renderCalendar();
     positionDuePicker(panel,anchor);
   });
 
-  clear.addEventListener('click',e=>{
-    e.preventDefault();
-    e.stopPropagation();
+  clear.addEventListener('click',()=>{
     task.dueAt='';
     save();
     closeDuePicker();
     render();
   });
 
-  cancel.addEventListener('click',e=>{
-    e.preventDefault();
-    e.stopPropagation();
-    closeDuePicker();
-  });
+  cancel.addEventListener('click',closeDuePicker);
 
-  set.addEventListener('click',e=>{
-    e.preventDefault();
-    e.stopPropagation();
+  set.addEventListener('click',()=>{
     applyTime();
     task.dueAt=localDateTimeString(selected);
     save();
@@ -6966,14 +6949,7 @@ function buildDueControls(task,{source='later'}={}){
     }
   }
 
-  btn.addEventListener('pointerdown',e=>{
-    e.stopPropagation();
-  });
-  btn.addEventListener('mousedown',e=>{
-    e.stopPropagation();
-  });
   btn.addEventListener('click',e=>{
-    e.preventDefault();
     e.stopPropagation();
     openDuePicker(task,btn);
   });
@@ -7787,9 +7763,6 @@ document.addEventListener('click',e=>{
   const activeDialog=e.target.closest?.('.modal-backdrop.open');
   if(activeDialog && activeDialog!==openModal) return;
   if(e.target.closest?.('#tutorialCoach')) return;
-  // Due-date picker is rendered at body level, so explicitly allow it and its
-  // calendar trigger even while another modal guard exists.
-  if(e.target.closest?.('.custom-due-picker') || e.target.closest?.('.task-due-btn')) return;
   // The help guide remains closable and usable even if Settings or Themes
   // was opened while it is on screen.
   if(e.target.closest?.('#bloomHelpPanel') || e.target.closest?.('#bloomHelpLauncher')) return;
@@ -9499,7 +9472,6 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     if(!target || !(target instanceof Element))return false;
     if(coach?.contains(target))return true;
     if(examplePanel?.contains(target))return true;
-    if(target.closest?.('.custom-due-picker') || target.closest?.('.task-due-btn'))return true;
     const step=steps?.[stepIndex];
     if(step?.explore && step.context==='studying'){
       const studyPage=$('clockPage');
@@ -10312,6 +10284,56 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
   });
 })();
 </script>
+<script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="sanavirani101" data-description="Support me on Buy me a coffee!" data-message="" data-color="#40DCA5" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
+<script>
+(() => {
+  const button = document.getElementById('coffeeSupportButton');
+  const status = document.getElementById('coffeeSupportStatus');
+  if (!button) return;
+
+  function getBmcLauncher(){
+    return document.getElementById('bmc-wbtn') || document.querySelector('[id^="bmc-wbtn"]');
+  }
+
+  function openBmcWidget(){
+    const launcher = getBmcLauncher();
+    if (!launcher) return false;
+    try {
+      launcher.dispatchEvent(new MouseEvent('click', {bubbles:true,cancelable:true,view:window}));
+      return true;
+    } catch (_) {
+      try { launcher.click(); return true; } catch (_) { return false; }
+    }
+  }
+
+  button.addEventListener('click', () => {
+    status.textContent = '';
+    if (openBmcWidget()) return;
+
+    button.disabled = true;
+    const original = button.textContent;
+    button.textContent = 'Opening…';
+    let tries = 0;
+    const timer = setInterval(() => {
+      tries += 1;
+      if (openBmcWidget()) {
+        clearInterval(timer);
+        button.disabled = false;
+        button.textContent = original;
+        return;
+      }
+      if (tries >= 20) {
+        clearInterval(timer);
+        button.disabled = false;
+        button.textContent = original;
+        status.textContent = 'The support window did not load. Try again in a moment. ✦';
+        status.classList.add('error');
+      }
+    }, 150);
+  });
+})();
+</script>
+
 </body></html>
 <style id="bonus-dot-center-remove">
 .dot.task-bonus-slot::before{
