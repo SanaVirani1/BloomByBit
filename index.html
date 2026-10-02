@@ -9515,6 +9515,11 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
   function blockOutsideTutorial(e){
     if(!e.isTrusted)return; // do not block the tutorial's own programmatic actions
     const step=steps?.[stepIndex];
+    // During Explore Coffee, the Buy Me a Coffee widget is allowed to handle
+    // its own clicks/close controls without the tutorial capture guard
+    // swallowing them. The BMC controller keeps this true only while the
+    // external widget is opening or visibly open.
+    if(step?.explore && step.context==='coffee' && window.BloomByBitBmc?.isOpen?.()) return;
     if(step?.explore && step.context==='studying' && e.target?.closest?.('#clockPage')){
       // Studying is fully interactive during its explore step. Do not replay the
       // same action through the tutorial bridge; doing so can double-toggle the
@@ -9532,6 +9537,8 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
 
   document.addEventListener('keydown',e=>{
     if(!document.body.classList.contains('tutorial-running') || !e.isTrusted)return;
+    const step=steps?.[stepIndex];
+    if(step?.explore && step.context==='coffee' && window.BloomByBitBmc?.isOpen?.()) return;
     if(isTutorialAllowedTarget(e.target))return;
     e.preventDefault();
     e.stopPropagation();
@@ -10291,6 +10298,51 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
   const status = document.getElementById('coffeeSupportStatus');
   if (!button) return;
 
+  let bmcOpeningOrOpen = false;
+  let bmcWatchTimer = null;
+  let bmcEverVisible = false;
+  let bmcStartedAt = 0;
+
+  function elementIsVisible(el){
+    if(!el || !(el instanceof Element)) return false;
+    const cs = getComputedStyle(el);
+    if(cs.display==='none' || cs.visibility==='hidden' || Number(cs.opacity)===0) return false;
+    const r = el.getBoundingClientRect();
+    return r.width > 120 && r.height > 120 && r.bottom > 0 && r.right > 0 && r.top < innerHeight && r.left < innerWidth;
+  }
+
+  function bmcOverlayVisible(){
+    const candidates = [
+      ...document.querySelectorAll('iframe[src*="buymeacoffee" i], iframe[src*="bmc" i], [id*="bmc" i], [class*="bmc" i], [id*="buymeacoffee" i], [class*="buymeacoffee" i]')
+    ];
+    return candidates.some(el => {
+      if(el.id === 'bmc-wbtn' || el.closest?.('#bmc-wbtn')) return false;
+      return elementIsVisible(el);
+    });
+  }
+
+  function startBmcOpenWatch(){
+    bmcOpeningOrOpen = true;
+    bmcEverVisible = false;
+    bmcStartedAt = Date.now();
+    clearInterval(bmcWatchTimer);
+    bmcWatchTimer = setInterval(() => {
+      const visible = bmcOverlayVisible();
+      if(visible) bmcEverVisible = true;
+      // Once the widget has actually appeared, clear the tutorial bypass as
+      // soon as it closes. If it never appears, fail closed after 6 seconds.
+      if((bmcEverVisible && !visible) || (!bmcEverVisible && Date.now()-bmcStartedAt > 6000)){
+        bmcOpeningOrOpen = false;
+        clearInterval(bmcWatchTimer);
+        bmcWatchTimer = null;
+      }
+    }, 120);
+  }
+
+  window.BloomByBitBmc = {
+    isOpen(){ return bmcOpeningOrOpen || bmcOverlayVisible(); }
+  };
+
   function getBmcLauncher(){
     return document.getElementById('bmc-wbtn') || document.querySelector('[id^="bmc-wbtn"]');
   }
@@ -10308,7 +10360,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
 
   button.addEventListener('click', () => {
     status.textContent = '';
-    if (openBmcWidget()) return;
+    if (openBmcWidget()) { startBmcOpenWatch(); return; }
 
     button.disabled = true;
     const original = button.textContent;
@@ -10317,6 +10369,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     const timer = setInterval(() => {
       tries += 1;
       if (openBmcWidget()) {
+        startBmcOpenWatch();
         clearInterval(timer);
         button.disabled = false;
         button.textContent = original;
