@@ -6474,8 +6474,25 @@ async function saveBetterYouBackup(){
   const filename=`bloom-by-bit-backup-${stamp}.json`;
 
   try{
-    // Preferred path on current Chrome/Edge: open a real Save As dialog and
-    // only report success after the bytes have actually been written.
+    // On a device explicitly set to Tablet or Phone, prefer the native share
+    // sheet so the backup can be saved to Files/Drive or sent to another device.
+    const selectedDevice=window.BloomDevice?.device;
+    const useNativeShare=selectedDevice==='tablet' || selectedDevice==='phone';
+    if(useNativeShare && typeof navigator.share==='function' && typeof File==='function'){
+      const file=new File([json],filename,{type:'application/json;charset=utf-8'});
+      let canShareFiles=true;
+      try{
+        if(typeof navigator.canShare==='function')canShareFiles=navigator.canShare({files:[file]});
+      }catch(e){canShareFiles=false;}
+      if(canShareFiles){
+        await navigator.share({files:[file],title:'Bloom by Bit backup'});
+        toast('Backup saved or shared');
+        return;
+      }
+    }
+
+    // Preferred laptop/desktop path on current Chrome/Edge: open a real Save As
+    // dialog and only report success after the bytes have actually been written.
     if(typeof window.showSaveFilePicker==='function'){
       const handle=await window.showSaveFilePicker({
         suggestedName:filename,
@@ -9494,8 +9511,7 @@ body[data-theme="tidal"] .study-timer-card{border-radius:30px}
 
     function preserveFullscreenBackground(){
       if(fullscreenBackgroundSnapshot)return;
-      const world=document.querySelector('.world');
-      const cs=getComputedStyle(world || page);
+      const cs=getComputedStyle(page);
       fullscreenBackgroundSnapshot={
         image:page.style.getPropertyValue('background-image'),
         imagePriority:page.style.getPropertyPriority('background-image'),
