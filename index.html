@@ -9495,7 +9495,7 @@ body[data-theme="tidal"] .study-timer-card{border-radius:30px}
     function preserveFullscreenBackground(){
       if(fullscreenBackgroundSnapshot)return;
       const world=document.querySelector('.world');
-      const source=world?getComputedStyle(world):getComputedStyle(page);
+      const cs=getComputedStyle(world || page);
       fullscreenBackgroundSnapshot={
         image:page.style.getPropertyValue('background-image'),
         imagePriority:page.style.getPropertyPriority('background-image'),
@@ -9506,14 +9506,13 @@ body[data-theme="tidal"] .study-timer-card{border-radius:30px}
         repeat:page.style.getPropertyValue('background-repeat'),
         repeatPriority:page.style.getPropertyPriority('background-repeat')
       };
-      // Normal Studying deliberately shows the single .world background through
-      // a transparent page. In native fullscreen that .world layer sits outside
-      // the fullscreen top layer, so copy that exact rendered image onto the
-      // Studying page only for the fullscreen session.
-      page.style.setProperty('background-image',source.backgroundImage,'important');
-      page.style.setProperty('background-position',source.backgroundPosition||'center center','important');
-      page.style.setProperty('background-size',source.backgroundSize||'cover','important');
-      page.style.setProperty('background-repeat',source.backgroundRepeat||'no-repeat','important');
+      // Safari/iPadOS can drop inherited theme backgrounds when the Studying
+      // element moves into the fullscreen top layer. Freeze the already-rendered
+      // background directly onto that element for the fullscreen session.
+      page.style.setProperty('background-image',cs.backgroundImage,'important');
+      page.style.setProperty('background-position',cs.backgroundPosition||'center center','important');
+      page.style.setProperty('background-size',cs.backgroundSize||'cover','important');
+      page.style.setProperty('background-repeat',cs.backgroundRepeat||'no-repeat','important');
     }
     function restoreFullscreenBackground(){
       if(!fullscreenBackgroundSnapshot)return;
@@ -11062,6 +11061,55 @@ html.bbb-study-fullscreen body.clock-mode #clockPage,
 html.bbb-study-fullscreen body.clock-mode #clockPage::before,
 #clockPage:fullscreen::before,#clockPage:-webkit-full-screen::before{
   position:absolute!important;inset:0!important;width:auto!important;height:auto!important;
+}
+</style>
+
+<style id="bbb-all-modes-final-fixes">
+/* 1) Start Fresh confirmation must always be above Settings in every mode. */
+#clearDataModal.open{
+  z-index:2147483646!important;
+  pointer-events:auto!important;
+  isolation:isolate!important;
+}
+#clearDataModal.open>.modal{
+  position:relative!important;
+  z-index:1!important;
+}
+
+/* 2) Studying fullscreen keeps the exact theme artwork in every mode.
+   Use explicit theme images so Safari/iPadOS cannot drop an inherited scene
+   when #clockPage enters the fullscreen top layer. */
+body[data-theme="fantasy"].aby-study-fullscreen #clockPage,
+body[data-theme="fantasy"] #clockPage:fullscreen,
+body[data-theme="fantasy"] #clockPage:-webkit-full-screen{
+  background-image:url("assets/image-11-fc7f3e2fe71f.png")!important;
+}
+body[data-theme="celestial"].aby-study-fullscreen #clockPage,
+body[data-theme="celestial"] #clockPage:fullscreen,
+body[data-theme="celestial"] #clockPage:-webkit-full-screen{
+  background-image:linear-gradient(rgba(6,12,9,.18),rgba(6,12,9,.28)),url("assets/image-02-945918c7fffe.jpg")!important;
+}
+body[data-theme="cottage"].aby-study-fullscreen #clockPage,
+body[data-theme="cottage"] #clockPage:fullscreen,
+body[data-theme="cottage"] #clockPage:-webkit-full-screen{
+  background-image:linear-gradient(rgba(6,12,9,.18),rgba(6,12,9,.28)),url("assets/image-03-d8a40fc3c61e.jpg")!important;
+}
+body[data-theme="nocturne"].aby-study-fullscreen #clockPage,
+body[data-theme="nocturne"] #clockPage:fullscreen,
+body[data-theme="nocturne"] #clockPage:-webkit-full-screen{
+  background-image:linear-gradient(rgba(6,12,9,.18),rgba(6,12,9,.28)),url("assets/image-04-ad3268b4379f.jpg")!important;
+}
+body[data-theme="tidal"].aby-study-fullscreen #clockPage,
+body[data-theme="tidal"] #clockPage:fullscreen,
+body[data-theme="tidal"] #clockPage:-webkit-full-screen{
+  background-image:linear-gradient(rgba(6,12,9,.18),rgba(6,12,9,.28)),url("assets/image-05-bb0af83ac3e5.jpg")!important;
+}
+body.aby-study-fullscreen #clockPage,
+#clockPage:fullscreen,
+#clockPage:-webkit-full-screen{
+  background-size:cover!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
 }
 </style>
 </body></html>
