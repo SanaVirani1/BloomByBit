@@ -9511,7 +9511,8 @@ body[data-theme="tidal"] .study-timer-card{border-radius:30px}
 
     function preserveFullscreenBackground(){
       if(fullscreenBackgroundSnapshot)return;
-      const cs=getComputedStyle(page);
+      const world=document.querySelector('.world');
+      const cs=getComputedStyle(world||page);
       fullscreenBackgroundSnapshot={
         image:page.style.getPropertyValue('background-image'),
         imagePriority:page.style.getPropertyPriority('background-image'),
@@ -9522,9 +9523,10 @@ body[data-theme="tidal"] .study-timer-card{border-radius:30px}
         repeat:page.style.getPropertyValue('background-repeat'),
         repeatPriority:page.style.getPropertyPriority('background-repeat')
       };
-      // Safari/iPadOS can drop inherited theme backgrounds when the Studying
-      // element moves into the fullscreen top layer. Freeze the already-rendered
-      // background directly onto that element for the fullscreen session.
+      // Normal Studying intentionally keeps #clockPage transparent so the shared
+      // .world artwork shows through. When #clockPage enters fullscreen, .world
+      // is no longer behind it, so copy that exact visible world background onto
+      // the fullscreen element for this session.
       page.style.setProperty('background-image',cs.backgroundImage,'important');
       page.style.setProperty('background-position',cs.backgroundPosition||'center center','important');
       page.style.setProperty('background-size',cs.backgroundSize||'cover','important');
