@@ -16,17 +16,21 @@
 (()=>{
   'use strict';
   const key='bloomByBit_devicePreference_v1';
+  const forceKey='bloomByBit_forceDevicePickerOnce';
   const allowed=new Set(['laptop','tablet','phone']);
   const root=document.documentElement;
+  let forcePicker=false;
+  try{forcePicker=sessionStorage.getItem(forceKey)==='1';}catch(error){}
   let saved=null;
   try{
-    const value=JSON.parse(localStorage.getItem(key)||'null');
+    if(forcePicker)localStorage.removeItem(key);
+    const value=forcePicker?null:JSON.parse(localStorage.getItem(key)||'null');
     if(value && allowed.has(value.device))saved={device:value.device,dontAskAgain:value.dontAskAgain===true};
   }catch(error){ /* Storage can be unavailable; the current visit still works. */ }
   let device=saved?.device||'laptop';
   let dontAskAgain=saved?.dontAskAgain===true;
   let hasChoice=!!saved;
-  let startupPending=!(hasChoice && dontAskAgain);
+  let startupPending=forcePicker || !(hasChoice && dontAskAgain);
   // The recovery dialog uses the visible viewport even when an accidental
   // laptop choice causes page content to be wider than a phone screen.
   function measureViewport(){
@@ -59,10 +63,12 @@
     return {ok:true,persisted};
   }
   function ready(){
-    startupPending=false;paint();
+    startupPending=false;
+    try{sessionStorage.removeItem(forceKey);}catch(error){}
+    paint();
     window.dispatchEvent(new Event('bloomdeviceready'));
   }
-  window.BloomDevice={key,choose,ready,
+  window.BloomDevice={key,forceKey,choose,ready,
     get device(){return device;},get phone(){return device==='phone';},
     get dontAskAgain(){return dontAskAgain;},get hasChoice(){return hasChoice;},
     get startupPending(){return startupPending;}
@@ -5701,6 +5707,81 @@ body.aby-study-fullscreen .studying-mode-switch{
 }
 </style>
 
+
+<style id="bbb-touch-controls-and-fullscreen-fix">
+/* Native button text can use the browser's link blue unless explicitly themed.
+   Keep this default low-specificity so primary, danger and icon colors win. */
+:where(button,input[type="button"],input[type="submit"]){
+  -webkit-appearance:none;
+  appearance:none;
+  color:var(--text,#252c24);
+}
+.modal-actions button:not(.save):not(.danger),
+.tutorial-actions button:not(.save):not(.danger),
+.tutorial-coach-actions button:not(.save):not(.danger),
+#settingsModal button.secondary:not(#bbbApplyDevice){
+  color:var(--text,#252c24);
+  background:var(--surface-soft,#f3eddf);
+  border-color:var(--edge,#c6bda7);
+}
+/* Touch is independent of the selected layout. Tablet still uses Laptop's
+   layout, but dragging its sparkle must not become a browser pan gesture. */
+#tutorialCoachMinimize,
+#tutorialCoach.explore-mode .tutorial-coach-title,
+#tutorialCoach.explore-mode .tutorial-coach-step{
+  touch-action:none!important;
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+}
+#tutorialCoach.explore-mode{overscroll-behavior:contain}
+/* Fullscreen-only geometry: no change to ordinary laptop/tablet/phone pages.
+   Background extends beneath safe areas; only controls are inset from them. */
+html.bbb-study-fullscreen,
+html.bbb-study-fullscreen body{
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  overscroll-behavior:none;
+}
+html.bbb-study-fullscreen body.clock-mode #clockPage{
+  position:fixed!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  box-sizing:border-box!important;
+  background-size:cover!important;
+  background-position:center!important;
+  overflow:hidden!important;
+}
+html.bbb-study-fullscreen body.clock-mode #clockPage::before{
+  inset:0!important;
+  width:auto!important;
+  height:auto!important;
+  background-size:cover!important;
+}
+html.bbb-study-fullscreen body #sidebar,
+html.bbb-study-fullscreen body #sidebarFab{display:none!important}
+html.bbb-study-fullscreen body.clock-mode #clockBack{
+  top:max(14px,env(safe-area-inset-top,0px))!important;
+  left:max(14px,env(safe-area-inset-left,0px))!important;
+}
+html.bbb-study-fullscreen body.clock-mode #clockPage .studying-mode-switch{
+  top:max(14px,env(safe-area-inset-top,0px))!important;
+}
+</style>
+
 </head>
 <body data-theme="fantasy">
 <div id="bbbDevicePicker" role="dialog" aria-modal="true" aria-labelledby="bbbDeviceTitle" aria-describedby="bbbDeviceIntro" hidden>
@@ -6484,9 +6565,13 @@ if(cancelClearData) cancelClearData.addEventListener('click',()=>{
   if(clearDataModal) clearDataModal.classList.remove('open');
 });
 if(confirmClearData) confirmClearData.addEventListener('click',()=>{
+  // Force a true first-run device choice after Start Fresh. sessionStorage is
+  // deliberately used as a one-reload handoff, then cleared after Continue.
+  try{sessionStorage.setItem('bloomByBit_forceDevicePickerOnce','1')}catch(e){}
   try{localStorage.removeItem('betterYou_v1')}catch(e){}
   try{localStorage.removeItem('betterYou_sidebarCollapsed')}catch(e){}
   try{localStorage.removeItem('bloomByBit_tutorialSeen')}catch(e){}
+  try{localStorage.removeItem('bloomByBit_devicePreference_v1')}catch(e){}
   location.reload();
 });
 
@@ -9396,109 +9481,108 @@ body[data-theme="tidal"] .study-timer-card{border-radius:30px}
     const fs=document.getElementById('clockFullscreen');
     const back=document.getElementById('clockBack');
     const page=document.getElementById('clockPage');
-    if(!fs || !back || !page) return;
-
-    /*
-      Replace both controls once. This removes any old listeners left over from
-      the original Clock implementation.
-    */
-    const fsNew=fs.cloneNode(true);
-    const backNew=back.cloneNode(true);
-    fs.replaceWith(fsNew);
-    back.replaceWith(backNew);
-
-    const fsBtn=fsNew;
-    const backBtn=backNew;
-
+    if(!fs || !back || !page)return;
+    // Replace the legacy controls once; keep one fullscreen owner/listener.
+    const fsBtn=fs.cloneNode(true),backBtn=back.cloneNode(true);
+    fs.replaceWith(fsBtn);back.replaceWith(backBtn);
+    const root=document.documentElement;
+    const viewport=document.querySelector('meta[name="viewport"]');
+    let viewportBeforeFullscreen;
+    let fullscreenRequested=false;
     const nativeFull=()=>!!(document.fullscreenElement || document.webkitFullscreenElement);
     const visualFull=()=>document.body.classList.contains('aby-study-fullscreen');
 
     function setVisual(on){
+      // Extend only this fullscreen session under the device's safe areas.
+      // Restore the original viewport setting on exit to preserve other pages.
+      if(on && viewport && viewportBeforeFullscreen===undefined){
+        viewportBeforeFullscreen=viewport.getAttribute('content');
+        const value=viewportBeforeFullscreen || 'width=device-width, initial-scale=1';
+        viewport.setAttribute('content',/viewport-fit\s*=/i.test(value)
+          ? value.replace(/viewport-fit\s*=\s*[^,;]+/i,'viewport-fit=cover')
+          : value+', viewport-fit=cover');
+      }
+      if(!on && viewport && viewportBeforeFullscreen!==undefined){
+        if(viewportBeforeFullscreen===null)viewport.removeAttribute('content');
+        else viewport.setAttribute('content',viewportBeforeFullscreen);
+        viewportBeforeFullscreen=undefined;
+      }
+      root.classList.toggle('bbb-study-fullscreen',on);
       document.body.classList.toggle('aby-study-fullscreen',on);
       document.body.classList.toggle('clock-browser-fullscreen',on);
       const label=document.getElementById('clockFullscreenLabel');
-      if(label) label.textContent=on ? 'Exit Full Screen' : 'Full Screen';
-      fsBtn.setAttribute('aria-label',on ? 'Exit full screen' : 'Enter full screen');
-      backBtn.setAttribute('aria-label',on ? 'Exit full screen' : 'Open or close navigation');
-      backBtn.title=on ? 'Exit full screen' : 'Open or close navigation';
+      if(label)label.textContent=on?'Exit Full Screen':'Full Screen';
+      fsBtn.setAttribute('aria-label',on?'Exit full screen':'Enter full screen');
+      backBtn.setAttribute('aria-label',on?'Exit full screen':'Open or close navigation');
+      backBtn.title=on?'Exit full screen':'Open or close navigation';
+      // Store the actual result separately from the page-filling fallback.
+      if(on)page.dataset.fullscreenMode=nativeFull()?'native':'page';
+      else delete page.dataset.fullscreenMode;
     }
-
+    function exitNative(){
+      try{
+        const exit=document.exitFullscreen || document.webkitExitFullscreen;
+        if(nativeFull() && exit){
+          const result=exit.call(document);
+          if(result && typeof result.catch==='function')result.catch(()=>{});
+        }
+      }catch(error){}
+    }
+    function nativeFinished(){
+      if(!fullscreenRequested){exitNative();return;}
+      if(nativeFull())setVisual(true);
+    }
     function enter(){
-      /*
-        The visual state is immediate and guaranteed.
-        Native browser fullscreen is then requested from the same click.
-      */
-      setVisual(true);
-
+      fullscreenRequested=true;setVisual(true);
       try{
-        const target=document.documentElement;
-        if(target.requestFullscreen){
-          const p=target.requestFullscreen();
-          if(p && typeof p.catch==='function') p.catch(()=>{});
-        }else if(target.webkitRequestFullscreen){
-          target.webkitRequestFullscreen();
+        // Hide is a browser request, not a guarantee about OS-owned controls.
+        if(page.requestFullscreen){
+          const result=page.requestFullscreen();
+          if(result && typeof result.then==='function'){
+            result.then(nativeFinished,()=>{
+              // Keep the existing page-filling fallback when native fullscreen
+              // is unavailable or denied. Do not claim native mode succeeded.
+              if(fullscreenRequested && visualFull())page.dataset.fullscreenMode='page';
+            });
+          }
+        }else if(page.webkitRequestFullscreen){
+          const result=page.webkitRequestFullscreen();
+          if(result && typeof result.then==='function')result.then(nativeFinished,()=>{});
         }
-      }catch(e){}
+      }catch(error){ /* Page-filling fallback remains usable. */ }
     }
-
     function leave(){
-      setVisual(false);
-
-      try{
-        if(document.fullscreenElement && document.exitFullscreen){
-          const p=document.exitFullscreen();
-          if(p && typeof p.catch==='function') p.catch(()=>{});
-        }else if(document.webkitFullscreenElement && document.webkitExitFullscreen){
-          document.webkitExitFullscreen();
-        }
-      }catch(e){}
+      fullscreenRequested=false;setVisual(false);exitNative();
     }
-
     fsBtn.addEventListener('click',e=>{
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      if(!visualFull() && !nativeFull()) enter();
-      else leave();
+      e.preventDefault();e.stopImmediatePropagation();
+      if(!visualFull() && !nativeFull())enter();else leave();
     },true);
-
     backBtn.addEventListener('click',e=>{
-      if(visualFull() || nativeFull()){
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        leave();
-        return;
-      }
-
-      /* Normal arrow behavior outside fullscreen. */
-      e.preventDefault();
-      e.stopImmediatePropagation();
+      e.preventDefault();e.stopImmediatePropagation();
+      if(visualFull() || nativeFull()){leave();return;}
       const collapsed=document.body.classList.contains('sidebar-collapsed');
       document.body.classList.toggle('sidebar-collapsed',!collapsed);
-      try{
-        try{localStorage.setItem('betterYou_sidebarCollapsed',collapsed?'0':'1')}catch(e){}
-      }catch(err){}
+      try{localStorage.setItem('betterYou_sidebarCollapsed',collapsed?'0':'1');}catch(error){}
     },true);
-
     function syncNative(){
-      if(nativeFull()) setVisual(true);
-      else if(!nativeFull() && visualFull() && document.visibilityState==='visible'){
-        /*
-          If Esc exits true browser fullscreen, also restore the normal site
-          layout. This does not run when browser fullscreen was never granted.
-        */
-        setVisual(false);
+      if(nativeFull()){
+        if(fullscreenRequested)setVisual(true);else exitNative();
+      }else if(visualFull()){
+        fullscreenRequested=false;setVisual(false);
       }
     }
-
     document.addEventListener('fullscreenchange',syncNative);
     document.addEventListener('webkitfullscreenchange',syncNative);
-
     document.addEventListener('keydown',e=>{
-      if(e.key==='Escape' && visualFull() && !nativeFull()) leave();
+      if(e.key==='Escape' && visualFull() && !nativeFull())leave();
     });
+    // Navigation/tutorial exits must not leave the rest of the site scroll-locked.
+    new MutationObserver(()=>{
+      if(visualFull() && !page.classList.contains('open'))leave();
+    }).observe(page,{attributes:true,attributeFilter:['class']});
   }
-
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
   else init();
 })();
 </script>
@@ -10485,8 +10569,8 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
   }
   coach?.addEventListener('pointerdown',e=>{
     if(!steps?.[stepIndex]?.explore)return;
-    if(e.button!==0 || dragBlockedTarget(e.target))return;
-    if(window.BloomPhone?.active && e.pointerType==='touch' && !e.target.closest('.tutorial-coach-title,.tutorial-coach-step'))return;
+    if(e.button!==0 || e.isPrimary===false || dragBlockedTarget(e.target))return;
+    if((e.pointerType==='touch' || e.pointerType==='pen') && !e.target.closest('.tutorial-coach-title,.tutorial-coach-step'))return;
     preparePhoneCoachGesture();
     const r=coach.getBoundingClientRect();
     dragState={id:e.pointerId,startX:e.clientX,startY:e.clientY,left:r.left,top:r.top,moved:false};
@@ -10512,24 +10596,44 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
   });
   const endCoachDrag=e=>{
     if(!dragState || (e?.pointerId!=null && dragState.id!==e.pointerId))return;
-    safe(()=>coach.releasePointerCapture?.(dragState.id));
+    const gesture=dragState;dragState=null;
+    safe(()=>coach.releasePointerCapture?.(gesture.id));
     coach.classList.remove('dragging');
-    const moved=dragState.moved;dragState=null;
+    const moved=gesture.moved;
     if(window.BloomPhone?.active)positionCoach();
     if(moved)setTimeout(()=>{coachDragMoved=false},0);
   };
   coach?.addEventListener('pointerup',endCoachDrag);
   coach?.addEventListener('pointercancel',endCoachDrag);
-  coach?.addEventListener('lostpointercapture',e=>{if(window.BloomPhone?.active)endCoachDrag(e);});
+  coach?.addEventListener('lostpointercapture',endCoachDrag);
   const minimizeBtn=$('tutorialCoachMinimize');
   let sparkleDrag=null,lastSparkleToggleAt=0,suppressSparkleClickUntil=0;
+  let sparkleScrollLock=null;
+  const holdSparklePage=()=>{
+    if(!sparkleScrollLock)return;
+    const scrolling=document.scrollingElement||document.documentElement;
+    if(scrolling){
+      if(scrolling.scrollLeft!==sparkleScrollLock.x)scrolling.scrollLeft=sparkleScrollLock.x;
+      if(scrolling.scrollTop!==sparkleScrollLock.y)scrolling.scrollTop=sparkleScrollLock.y;
+    }
+  };
+  // iPad Safari can still begin a page pan during a pointer-captured drag.
+  // Cancel the touch gesture itself while the sparkle owns it, and hold the
+  // page at the exact scroll position where the drag began.
+  minimizeBtn?.addEventListener('touchmove',e=>{
+    if(!sparkleDrag)return;
+    e.preventDefault();e.stopPropagation();holdSparklePage();
+  },{passive:false});
+  document.addEventListener('scroll',()=>{if(sparkleScrollLock)requestAnimationFrame(holdSparklePage)},{passive:true,capture:true});
   minimizeBtn?.addEventListener('pointerdown',e=>{
-    if(!steps?.[stepIndex]?.explore || e.button!==0)return;
+    if(!steps?.[stepIndex]?.explore || e.button!==0 || e.isPrimary===false)return;
     preparePhoneCoachGesture();
     const r=coach.getBoundingClientRect();
     sparkleDrag={id:e.pointerId,startX:e.clientX,startY:e.clientY,left:r.left,top:r.top,moved:false};
+    const scrolling=document.scrollingElement||document.documentElement;
+    sparkleScrollLock={x:scrolling?.scrollLeft||0,y:scrolling?.scrollTop||0};
     safe(()=>minimizeBtn.setPointerCapture?.(e.pointerId));
-    e.stopPropagation();
+    e.preventDefault();e.stopPropagation();
   });
   minimizeBtn?.addEventListener('pointermove',e=>{
     if(!sparkleDrag||sparkleDrag.id!==e.pointerId)return;
@@ -10537,13 +10641,15 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     if(!sparkleDrag.moved&&Math.hypot(dx,dy)<6)return;
     sparkleDrag.moved=true;coachDragMoved=true;coachPinnedByUser=true;
     moveCoachForGesture(sparkleDrag.left+dx,sparkleDrag.top+dy);
+    holdSparklePage();
     e.preventDefault();e.stopPropagation();
   });
   const endSparkleGesture=e=>{
     if(!sparkleDrag||(e?.pointerId!=null&&sparkleDrag.id!==e.pointerId))return;
-    const moved=sparkleDrag.moved;
-    safe(()=>minimizeBtn.releasePointerCapture?.(sparkleDrag.id));
-    sparkleDrag=null;
+    const gesture=sparkleDrag;sparkleDrag=null;
+    const moved=gesture.moved;
+    holdSparklePage();sparkleScrollLock=null;
+    safe(()=>minimizeBtn.releasePointerCapture?.(gesture.id));
     if(moved){
       if(window.BloomPhone?.active)positionCoach();
       // A drag is movement only. Suppress the synthetic click that browsers
@@ -10565,13 +10671,18 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
   minimizeBtn?.addEventListener('pointerup',endSparkleGesture);
   minimizeBtn?.addEventListener('pointercancel',e=>{
     if(!sparkleDrag)return;
-    safe(()=>minimizeBtn.releasePointerCapture?.(sparkleDrag.id));
-    sparkleDrag=null;coachDragMoved=false;
+    const gesture=sparkleDrag;sparkleDrag=null;coachDragMoved=false;
+    holdSparklePage();sparkleScrollLock=null;
+    suppressSparkleClickUntil=performance.now()+550;
+    safe(()=>minimizeBtn.releasePointerCapture?.(gesture.id));
     if(window.BloomPhone?.active)positionCoach();
   });
   minimizeBtn?.addEventListener('lostpointercapture',()=>{
-    if(!window.BloomPhone?.active || !sparkleDrag)return;
-    sparkleDrag=null;coachDragMoved=false;positionCoach();
+    if(!sparkleDrag)return;
+    sparkleDrag=null;coachDragMoved=false;
+    holdSparklePage();sparkleScrollLock=null;
+    suppressSparkleClickUntil=performance.now()+550;
+    positionCoach();
   });
   // Click fallback for browsers/previews that do not reliably deliver the
   // pointer-up after capture. The timestamp prevents a normal pointer gesture
@@ -10873,6 +10984,46 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
 })();
 </script>
 
+
+<style id="bbb-tablet-final-overrides">
+/* Final control theming: Safari must never fall back to its blue button skin. */
+.modal-actions button:not(.save):not(.danger),
+#closeThemes,
+#cancelClearData,
+#cancelRewardTierChoice,
+#closeWeekSummary:not(.save),
+.tutorial-actions button:not(.save):not(.danger),
+.tutorial-coach-actions button:not(.save):not(.danger){
+  -webkit-appearance:none!important;appearance:none!important;
+  color:var(--text)!important;
+  background:var(--surface-soft)!important;
+  border:1px solid var(--edge)!important;
+  -webkit-text-fill-color:var(--text)!important;
+}
+/* The real Studying surface owns every pixel while fullscreen is active. */
+html.bbb-study-fullscreen,html.bbb-study-fullscreen body{
+  background:transparent!important;
+  margin:0!important;padding:0!important;
+  width:100%!important;height:100%!important;
+  overflow:hidden!important;
+}
+html.bbb-study-fullscreen body.clock-mode #clockPage,
+#clockPage:fullscreen,#clockPage:-webkit-full-screen{
+  position:fixed!important;
+  inset:0!important;
+  width:auto!important;height:auto!important;
+  min-width:100%!important;min-height:100%!important;
+  max-width:none!important;max-height:none!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;
+  overflow:hidden!important;
+  background-color:inherit!important;
+  background-size:cover!important;background-position:center!important;
+}
+html.bbb-study-fullscreen body.clock-mode #clockPage::before,
+#clockPage:fullscreen::before,#clockPage:-webkit-full-screen::before{
+  position:absolute!important;inset:0!important;width:auto!important;height:auto!important;
+}
+</style>
 </body></html>
 <style id="bonus-dot-center-remove">
 .dot.task-bonus-slot::before{
@@ -11286,12 +11437,10 @@ html.bbb-phone body.tutorial-running #tutorialCoach.final-mode .tutorial-coach-t
     window.addEventListener('pointerdown',()=>{sparkleTouchRelease=false;},true);
     window.addEventListener('pointercancel',()=>{sparkleTouchRelease=false;},true);
     window.addEventListener('pointerup',event=>{
-      if(!phone.active)return;
       if(event.pointerType==='touch' && event.target instanceof Element &&
          event.target.closest('#tutorialCoachMinimize'))sparkleTouchRelease=true;
     },true);
     window.addEventListener('click',event=>{
-      if(!phone.active)return;
       if(!sparkleTouchRelease || !event.isTrusted || (event.detail===0 && event.pointerType!=='touch'))return;
       sparkleTouchRelease=false;
       event.preventDefault();event.stopImmediatePropagation();
