@@ -1,6 +1,206 @@
 <!doctype html>
 <html lang="en">
 <head>
+<style id="bbb-help-no-flash">
+/* Prevent the Help panel from briefly rendering before its full stylesheet loads. */
+#bloomHelpPanel[aria-hidden="true"]{
+  position:fixed !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+</style>
+<script id="bbb-device-preferences">
+/* Device choice is local to this browser. It is deliberately separate from
+   progress/backup data, so restoring a backup cannot select the wrong layout. */
+(()=>{
+  'use strict';
+  const key='bloomByBit_devicePreference_v1';
+  const allowed=new Set(['laptop','tablet','phone']);
+  const root=document.documentElement;
+  let saved=null;
+  try{
+    const value=JSON.parse(localStorage.getItem(key)||'null');
+    if(value && allowed.has(value.device))saved={device:value.device,dontAskAgain:value.dontAskAgain===true};
+  }catch(error){ /* Storage can be unavailable; the current visit still works. */ }
+  let device=saved?.device||'laptop';
+  let dontAskAgain=saved?.dontAskAgain===true;
+  let hasChoice=!!saved;
+  let startupPending=!(hasChoice && dontAskAgain);
+  // The recovery dialog uses the visible viewport even when an accidental
+  // laptop choice causes page content to be wider than a phone screen.
+  function measureViewport(){
+    const v=window.visualViewport;
+    root.style.setProperty('--device-chooser-w',(v?.width||innerWidth)+'px');
+    root.style.setProperty('--device-chooser-h',(v?.height||innerHeight)+'px');
+    root.style.setProperty('--device-chooser-x',(v?.offsetLeft||0)+'px');
+    root.style.setProperty('--device-chooser-y',(v?.offsetTop||0)+'px');
+  }
+  measureViewport();
+  window.addEventListener('resize',measureViewport,{passive:true});
+  window.visualViewport?.addEventListener('resize',measureViewport,{passive:true});
+  window.visualViewport?.addEventListener('scroll',measureViewport,{passive:true});
+  function paint(){
+    root.dataset.bbbDevice=device;
+    root.dataset.bbbLayout=device==='phone'?'phone':'laptop';
+    root.classList.toggle('bbb-phone',device==='phone');
+    root.classList.toggle('bbb-desktop',device!=='phone');
+    root.classList.toggle('bbb-device-pending',startupPending);
+  }
+  function choose(value,remember){
+    if(!allowed.has(value))return {ok:false,persisted:false};
+    const previous=device;
+    device=value;dontAskAgain=remember===true;hasChoice=true;
+    let persisted=true;
+    try{localStorage.setItem(key,JSON.stringify({version:1,device,dontAskAgain}));}
+    catch(error){persisted=false;}
+    paint();
+    window.dispatchEvent(new CustomEvent('bloomdevicechange',{detail:{device,previous,phone:device==='phone'}}));
+    return {ok:true,persisted};
+  }
+  function ready(){
+    startupPending=false;paint();
+    window.dispatchEvent(new Event('bloomdeviceready'));
+  }
+  window.BloomDevice={key,choose,ready,
+    get device(){return device;},get phone(){return device==='phone';},
+    get dontAskAgain(){return dontAskAgain;},get hasChoice(){return hasChoice;},
+    get startupPending(){return startupPending;}
+  };
+  paint();
+})();
+</script>
+<script id="bbb-phone-fit-detection">/* Phone layout is an explicit preference, not a device-size guess. */
+(()=>{
+  'use strict';
+  const root=document.documentElement;
+  let active=window.BloomDevice?.phone===true;
+  const clamp=(n,min,max)=>Math.max(min,Math.min(Math.max(min,max),n));
+  const bounds=()=>{
+    const v=window.visualViewport;
+    return {x:v?.offsetLeft||0,y:v?.offsetTop||0,w:v?.width||innerWidth,h:v?.height||innerHeight};
+  };
+  function variable(name,value){if(root.style.getPropertyValue(name)!==value)root.style.setProperty(name,value);}
+  function sync(){
+    if(!active)return;
+    const b=bounds();
+    variable('--bbb-vh',b.h+'px');variable('--bbb-vw',b.w+'px');
+    variable('--bbb-vtop',b.y+'px');variable('--bbb-vleft',b.x+'px');
+    variable('--bbb-vbottom',Math.max(0,innerHeight-b.y-b.h)+'px');
+  }
+  function positionDue(panel,anchor){
+    if(!active)return false;
+    const b=bounds(),r=anchor.getBoundingClientRect(),gap=8;
+    panel.style.width=Math.min(330,b.w-20)+'px';
+    panel.style.maxHeight=Math.max(80,b.h-20)+'px';
+    const h=panel.getBoundingClientRect().height;
+    let y=r.bottom+gap;
+    if(y+h>b.y+b.h-10)y=r.top-gap-h;
+    panel.style.left=Math.round(clamp(r.right-panel.offsetWidth,b.x+10,b.x+b.w-panel.offsetWidth-10))+'px';
+    panel.style.top=Math.round(clamp(y,b.y+10,b.y+b.h-h-10))+'px';
+    return true;
+  }
+  function coachDestination(coach,step,focused,pinned,last){
+    if(!active)return null;
+    const b=bounds(),wide=innerWidth>=620,mini=coach.classList.contains('minimized');
+    const centered=!!step.centerCoach;
+    coach.dataset.bbbCentered=String(centered);
+    let limit=mini?68:(centered||wide?b.h-20:Math.min(340,b.h*.46));
+    const landscape=b.w>b.h && b.w>=480;
+    // Landscape task cards sit side by side. Keep the guide beside the OTHER
+    // card, not over the input or demo the current step asks the user to use.
+    // Narrow the guide only to the free column; do not resize the task cards.
+    const taskCard=(wide||landscape) && !centered && !mini && !step.explore
+      ? focused?.closest?.('#dailyTasksCard,#laterTasksCard') : null;
+    const taskRect=taskCard?.getBoundingClientRect();
+    const leftOfTask=!!taskRect && taskRect.left+taskRect.width/2>b.x+b.w/2;
+    const sideSpace=taskRect
+      ? (leftOfTask?taskRect.left-b.x-22:b.x+b.w-taskRect.right-22) : 0;
+    const besideTask=!!taskRect && sideSpace>=200;
+    // Small landscape phones still have stacked task cards. Use a wide,
+    // shallow guide below the input rather than a one-line scrolling sliver.
+    const stackedTask=landscape && !!taskCard && !besideTask;
+    if(stackedTask)limit=Math.min(b.h-80,Math.max(160,b.h*.60));
+    variable('--bbb-coach-limit',Math.max(68,limit)+'px');
+    const preferredWidth=stackedTask?b.w-20:(centered && b.w>b.h ? 640 : (centered?390:350));
+    const width=mini?68:Math.min(preferredWidth,b.w-20,besideTask?sideSpace:Infinity);
+    coach.style.width=width+'px';coach.style.height='auto';
+    const h=Math.min(coach.offsetHeight||220,Math.max(68,limit));
+    const w=mini?68:Math.min(coach.offsetWidth||width,b.w-20);
+    variable('--bbb-coach-h',(h+20)+'px');variable('--bbb-coach-w',(w+20)+'px');
+    let x=b.x+b.w-w-10,y=b.y+b.h-h-10;
+    if(centered){x=b.x+(b.w-w)/2;y=b.y+(b.h-h)/2;}
+    else if(besideTask){x=leftOfTask?b.x+10:b.x+b.w-w-10;}
+    else if(step.explore && pinned && last){x=last.x;y=last.y;}
+    // On small phones a full-width coach can cover the navigation target.
+    // Move above/below that one target rather than hiding it under the guide.
+    if(!centered && !mini && !(step.explore && pinned) && focused?.closest?.('.sidebar')){
+      const r=focused.getBoundingClientRect();
+      if(x<r.right && x+w>r.left && y<r.bottom && y+h>r.top){
+        if(r.top-h-12>=b.y+10)y=r.top-h-12;
+        else if(r.bottom+12+h<=b.y+b.h-10)y=r.bottom+12;
+        else y=b.y+10;
+      }
+    }
+    if(stackedTask && focused?.matches?.('.daily-task-add,.later-task-add')){
+      const r=focused.getBoundingClientRect();
+      // This is a page scroll only: never refocus the task input or reopen its
+      // keyboard. The scroll event makes one final bounded positioning pass.
+      if(r.top<b.y+10 || r.bottom>y-10){
+        window.scrollBy({top:r.top-b.y-10,left:0,behavior:'auto'});
+      }
+    }
+    // Settings/Themes get their own free region beside/before the coach.
+    // Other targets scroll normally, with extra bottom room for the coach.
+    return {x:clamp(x,b.x+10,b.x+b.w-w-10),y:clamp(y,b.y+10,b.y+b.h-h-10),w,h};
+  }
+  // Use the visible viewport for every drag, including when browser chrome or
+  // the keyboard changes its size. Never let the guide leave the usable screen.
+  function constrainCoach(coach,x,y){
+    const b=bounds(),w=coach.offsetWidth||68,h=coach.offsetHeight||68;
+    return {x:clamp(x,b.x+10,b.x+b.w-w-10),
+            y:clamp(y,b.y+10,b.y+b.h-h-10)};
+  }
+  function syncTutorialSpace(coach){
+    if(!active || !document.body?.classList.contains('tutorial-running') ||
+       !coach?.classList.contains('open'))return;
+    const b=bounds(),r=coach.getBoundingClientRect(),gap=10;
+    let area={x:b.x,y:b.y,w:b.w,h:b.h};
+    if(!coach.classList.contains('minimized') && coach.dataset.bbbCentered!=='true'){
+      // Pick the largest usable region around the guide, not an assumed region
+      // above/right of it. Dragging the guide therefore frees real scroll space.
+      const candidates=[
+        {x:b.x,y:b.y,w:b.w,h:r.top-gap-b.y},
+        {x:b.x,y:r.bottom+gap,w:b.w,h:b.y+b.h-r.bottom-gap},
+        {x:b.x,y:b.y,w:r.left-gap-b.x,h:b.h},
+        {x:r.right+gap,y:b.y,w:b.x+b.w-r.right-gap,h:b.h}
+      ].filter(a=>a.w>=Math.min(240,b.w-20) && a.h>=80);
+      candidates.sort((a,c)=>c.w*c.h-a.w*a.h);
+      if(candidates.length)area=candidates[0];
+    }
+    variable('--bbb-tour-dialog-x',Math.round(area.x)+'px');
+    variable('--bbb-tour-dialog-y',Math.round(area.y)+'px');
+    variable('--bbb-tour-dialog-w',Math.max(1,Math.round(area.w))+'px');
+    variable('--bbb-tour-dialog-h',Math.max(1,Math.round(area.h))+'px');
+  }
+  window.BloomPhone={get active(){return active;},bounds,sync,positionDue,coachDestination,constrainCoach,syncTutorialSpace};
+  if(active){root.classList.add('bbb-phone');sync();}
+  let scheduled=false;
+  function changed(){if(!active || scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;if(!active)return;sync();window.dispatchEvent(new Event('bloomphoneviewport'));});}
+  window.addEventListener('bloomdevicechange',()=>{
+    active=window.BloomDevice?.phone===true;
+    root.classList.toggle('bbb-phone',active);
+    if(active)sync();
+    else [...root.style].filter(name=>name.startsWith('--bbb-')).forEach(name=>root.style.removeProperty(name));
+  });
+  addEventListener('resize',changed,{passive:true});
+  screen.orientation?.addEventListener?.('change',changed);
+  window.visualViewport?.addEventListener('resize',changed,{passive:true});
+  window.visualViewport?.addEventListener('scroll',changed,{passive:true});
+})();
+
+</script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" type="image/png" href="data:image/png;base64,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">
@@ -297,20 +497,12 @@ body[data-theme="tidal"]{--prize-card:#103d47;--prize-item:#174d57}
   image-rendering:-webkit-optimize-contrast;
 }
 
-/* Reset confirmation follows each world's palette. */
-#resetModal .modal-actions button:not(.danger){
-  background:var(--surface-soft)!important;color:var(--text)!important;border-color:var(--edge)!important;
-}
+/* Destructive-data confirmation follows each world's palette. */
 body[data-theme="fantasy"]{--reset-bg:#8d6653;--reset-text:#fff8ec;--pull-loss:#9baa88}
 body[data-theme="celestial"]{--reset-bg:#6270b5;--reset-text:#f7f8ff;--pull-loss:#8da0ed}
 body[data-theme="cottage"]{--reset-bg:#8b7458;--reset-text:#fff9e9;--pull-loss:#a9b995}
 body[data-theme="nocturne"]{--reset-bg:#b94aa6;--reset-text:#fff3ff;--pull-loss:#e95bd3}
 body[data-theme="tidal"]{--reset-bg:#438c8a;--reset-text:#efffff;--pull-loss:#7fd1cb}
-#resetModal .danger{
-  background:var(--reset-bg)!important;color:var(--reset-text)!important;
-  border-color:color-mix(in srgb,var(--reset-bg) 75%,#000)!important;
-  box-shadow:0 8px 22px color-mix(in srgb,var(--reset-bg) 35%,transparent)!important;
-}
 #clearDataModal .danger{
   background:var(--reset-bg)!important;color:var(--reset-text)!important;
   border-color:color-mix(in srgb,var(--reset-bg) 75%,#000)!important;
@@ -5511,6 +5703,24 @@ body.aby-study-fullscreen .studying-mode-switch{
 
 </head>
 <body data-theme="fantasy">
+<div id="bbbDevicePicker" role="dialog" aria-modal="true" aria-labelledby="bbbDeviceTitle" aria-describedby="bbbDeviceIntro" hidden>
+  <form id="bbbDeviceForm" class="bbb-device-dialog">
+    <div class="bbb-device-kicker">BLOOM BY BIT</div>
+    <h2 id="bbbDeviceTitle">What device are you using?</h2>
+    <p id="bbbDeviceIntro">Choose the device you are using. You can change it anytime in <strong>Settings &rarr; Basic &rarr; Device layout</strong>.</p>
+    <fieldset class="bbb-device-options">
+      <legend class="bbb-device-sr">Choose your device</legend>
+      <label class="bbb-device-option"><input type="radio" name="bbbDevice" value="laptop" required><span><strong>Laptop</strong></span></label>
+      <label class="bbb-device-option"><input type="radio" name="bbbDevice" value="tablet" required><span><strong>Tablet</strong></span></label>
+      <label class="bbb-device-option"><input type="radio" name="bbbDevice" value="phone" required><span><strong>Phone</strong></span></label>
+    </fieldset>
+    <label class="bbb-device-remember"><input type="checkbox" id="bbbDeviceRemember"><span>Don&rsquo;t ask me again on this browser</span></label>
+    <p class="bbb-device-footnote">Your choice is saved for this browser, not shared with your other devices.</p>
+    <p id="bbbDeviceStatus" class="bbb-device-status" role="status" aria-live="polite"></p>
+    <div class="bbb-device-actions"><button type="submit" id="bbbDeviceContinue" disabled>Continue</button></div>
+  </form>
+</div>
+
 <div class="world"></div>
 <div class="app">
 <aside class="sidebar" id="sidebar">
@@ -5647,7 +5857,6 @@ body.aby-study-fullscreen .studying-mode-switch{
                   <span>This box tracks all pulls for the week. Empty circles are pulls you can still earn; filled circles are pulls you have already used.</span>
                   <span>Each pull is either <b>Lucky</b> or <b>Next Time</b>. Lucky Pulls count toward your Reward Tier.</span>
                   <span>Hover over a filled circle and click <b>×</b> to undo an accidental pull.</span>
-                  <span>Click <b>Reset Week</b> when you are ready to clear the current week and start a new one.</span>
                 </div>
               </div>
             </div>
@@ -5661,7 +5870,6 @@ body.aby-study-fullscreen .studying-mode-switch{
           <div class="mini-stat"><strong id="remainCount">6</strong><span>Pulls Remaining</span></div>
           <div class="mini-stat"><strong id="tierStat">—</strong><span>Reward Tier</span></div>
         </div>
-        <button class="reset" id="resetBtn">Reset Week</button><div style="clear:both"></div>
       </section>
     </div>
   </div>
@@ -5702,7 +5910,7 @@ body.aby-study-fullscreen .studying-mode-switch{
         </div>
         <div class="history-list" id="historyList"></div>
         <div class="history-empty" id="historyEmpty">
-          Your completed weeks will appear here after you use <b>Reset Week</b>.
+          Your completed weeks will appear here automatically after each week ends.
         </div>
       </div>
     </section>
@@ -5855,6 +6063,20 @@ body.aby-study-fullscreen .studying-mode-switch{
 
   <div class="settings-tab-panel active" data-settings-panel="basic" role="tabpanel">
     <label>Your name<input id="nameInput" value="You"></label>
+
+    <section class="bbb-device-settings" id="bbbDeviceSettings" aria-labelledby="bbbDeviceSettingsTitle">
+      <strong id="bbbDeviceSettingsTitle">Device layout</strong>
+      <p class="settings-device-note">Bloom by Bit is best used on a laptop or tablet.</p>
+      <label for="bbbDeviceSetting">Device you are using</label>
+      <select id="bbbDeviceSetting">
+        <option value="laptop">Laptop</option>
+        <option value="tablet">Tablet</option>
+        <option value="phone">Phone</option>
+      </select>
+      <label class="bbb-device-remember"><input type="checkbox" id="bbbDeviceRememberSetting"><span>Don&rsquo;t ask me again on this browser</span></label>
+      <div class="bbb-device-setting-actions"><button type="button" id="bbbApplyDevice" class="secondary">Apply layout</button><span id="bbbDeviceSettingStatus" class="bbb-device-status" role="status" aria-live="polite"></span></div>
+      <p class="bbb-device-footnote">Applies immediately without reloading or changing your progress. Uncheck the box to show the device picker next time you open the site.</p>
+    </section>
 
     <div class="tutorial-setting">
       <div>
@@ -6098,7 +6320,6 @@ body[data-theme="fantasy"] #tutorialModal .tutorial-actions button{font-size:17p
   <p>This will erase your saved name, habits, rewards, theme, pulls, weekly progress, and reward history on this browser. The website itself will not be deleted.</p>
   <div class="modal-actions"><button id="cancelClearData">Cancel</button><button class="danger" id="confirmClearData">Erase My Data</button></div>
 </div></div>
-<div class="modal-backdrop" id="resetModal"><div class="modal"><h3>Reset this week?</h3><p>This week’s pulls and progress will return to zero. Lucky Pulls do not carry into the next week. Your rewards, theme, name, and habits will stay saved.</p><div class="modal-actions"><button id="cancelReset">Keep This Week</button><button class="danger" id="confirmReset">Reset Week</button></div></div></div>
 <div class="modal-backdrop" id="rewardTierChoiceModal"><div class="modal"><h3>Choose your Reward Tier</h3><p id="rewardTierChoiceText">You earned a reward. Choose which Reward Tier you want to draw from.</p><p class="reward-choice-note"><b>Lucky Pulls do not carry into the next week.</b> If you want to check your reward choices first, cancel and review the Reward Tiers.</p><div class="reward-tier-choice-grid" id="rewardTierChoiceGrid"></div><div class="modal-actions"><button id="cancelRewardTierChoice">Cancel</button></div></div></div>
 <div class="modal-backdrop" id="weekSummaryModal">
   <div class="modal week-summary-modal">
@@ -6700,6 +6921,7 @@ function closeDuePicker(){
 }
 
 function positionDuePicker(panel,anchor){
+  if(window.BloomPhone?.positionDue(panel,anchor))return;
   const rect=anchor.getBoundingClientRect();
   const gap=8;
   const panelWidth=Math.min(330,window.innerWidth-20);
@@ -7628,7 +7850,18 @@ document.addEventListener('drop',e=>{
 const laterTaskInput=$('laterTaskInput');
 const laterTaskAddBtn=$('laterTaskAddBtn');
 
-function addLaterTask(){
+// Phone Add must not reopen a keyboard the user has already dismissed.
+// Enter keeps the existing focus; a button tap releases it on phones only.
+function settleTaskInputAfterAdd(input,event){
+  if(!input)return;
+  if(window.BloomPhone?.active){
+    if(event?.type==='click' && document.activeElement===input)input.blur();
+    return;
+  }
+  input.focus();
+}
+
+function addLaterTask(event){
   const text=(laterTaskInput?.value||'').trim();
   if(!text)return;
 
@@ -7641,7 +7874,7 @@ function addLaterTask(){
 
   if(laterTaskInput)laterTaskInput.value='';
   render();
-  laterTaskInput?.focus();
+  settleTaskInputAfterAdd(laterTaskInput,event);
 }
 
 if(laterTaskAddBtn)laterTaskAddBtn.addEventListener('click',addLaterTask);
@@ -7656,7 +7889,7 @@ const dailyTaskInput=$('dailyTaskInput');
 const dailyTaskAddBtn=$('dailyTaskAddBtn');
 const dailyTaskClaimBtn=$('dailyTaskClaimBtn');
 
-function addDailyTask(){
+function addDailyTask(event){
   ensureCurrentDay();
   const text=(dailyTaskInput?.value||'').trim();
   if(!text)return;
@@ -7671,7 +7904,7 @@ function addDailyTask(){
 
   if(dailyTaskInput)dailyTaskInput.value='';
   render();
-  dailyTaskInput?.focus();
+  settleTaskInputAfterAdd(dailyTaskInput,event);
 }
 
 if(dailyTaskAddBtn)dailyTaskAddBtn.addEventListener('click',addDailyTask);
@@ -7798,7 +8031,8 @@ function openSettings(){
   if($('pomodoroRoundsInput')) $('pomodoroRoundsInput').value=state.pomodoroRounds||4;
   if($('focusTimerMinutesInput')) $('focusTimerMinutesInput').value=state.focusTimerMinutes||45;
   if(typeof window.syncStudySettingsFields==='function') window.syncStudySettingsFields();
-  $('settingsModal').classList.add('open')
+  $('settingsModal').classList.add('open');
+  window.dispatchEvent(new Event('bloomsettingsopen'));
 }
 $('habitEditor').addEventListener('input',e=>{
   if(e.target.matches('.habit-edit-name,.habit-edit-goal,.habit-edit-color')){
@@ -7861,6 +8095,7 @@ $('settingsNav').onclick=()=>{
 };
 $('closeSettings').onclick=closeSettings;
 $('saveSettings').onclick=()=>{
+  window.BloomDeviceUI?.saveSettingsChoice?.({notify:false});
   syncHabitEditor();
   const cleaned=settingsHabits.map(h=>({
     id:h.id||newHabitId(),
@@ -7872,17 +8107,17 @@ $('saveSettings').onclick=()=>{
   const usedByHabit=Object.fromEntries(state.habits.map(h=>[h.id,habitUsedCount(h.id)]));
   for(const h of cleaned){
     if((usedByHabit[h.id]||0)>h.goal){
-      toast(`"${h.name}" is below its completions already used this week. Reset the week first.`);
+      toast(`"${h.name}" is below its completions already used this week. You can lower it after the next weekly rollover.`);
       return;
     }
   }
   const removedIds=state.habits.filter(old=>!cleaned.some(h=>h.id===old.id)).map(h=>h.id);
   if(state.pulls.some(p=>removedIds.includes(p.habitId))){
-    toast('A removed habit already has pulls this week. Reset the week first.');
+    toast('A removed habit already has pulls this week. You can remove it after the next weekly rollover.');
     return;
   }
   if(state.pulls.length>newGoal){
-    toast('Your new weekly total is below the pulls already used. Reset the week first.');
+    toast('Your new weekly total is below the pulls already used. You can lower it after the next weekly rollover.');
     return;
   }
   const previousWeekStart=state.weekStartDay ?? 1;
@@ -8339,23 +8574,6 @@ function showHabitWeekSummary(summary){
   $('weekSummaryModal').classList.add('open');
 }
 
-$('resetBtn').onclick=()=>$('resetModal').classList.add('open');
-$('cancelReset').onclick=()=>$('resetModal').classList.remove('open');
-$('confirmReset').onclick=()=>{
-  const summary=buildHabitWeekSummary();
-  saveCurrentWeekToHistory(summary);
-
-  state.pulls=[];
-  state.rewardClaimed=false;
-  state.weeklyDailyTaskSlots=0;
-  state.weekKey=weekKey(new Date(),state.weekStartDay);
-
-  $('resetModal').classList.remove('open');
-  render();
-  renderHistoryPage();
-  showHabitWeekSummary(summary);
-};
-
 $('closeWeekSummary').onclick=()=>{
   $('weekSummaryModal').classList.remove('open');
 };
@@ -8569,12 +8787,7 @@ if(homeNav){
   };
 }
 
-// Only the reset confirmation may close by clicking its backdrop.
 // Settings and Themes require their explicit Cancel/Done controls.
-$('resetModal').addEventListener('click',e=>{
-  if(e.target===$('resetModal')) $('resetModal').classList.remove('open');
-});
-
 
 function showCoffeePage(){
   if(document.body.classList.contains('clock-mode')){
@@ -8672,6 +8885,9 @@ document.addEventListener('click',e=>{
   }
 });
 window.addEventListener('resize',()=>{
+  if(activeDuePicker) positionDuePicker(activeDuePicker.panel,activeDuePicker.anchor);
+});
+window.addEventListener('bloomphoneviewport',()=>{
   if(activeDuePicker) positionDuePicker(activeDuePicker.panel,activeDuePicker.anchor);
 });
 window.addEventListener('scroll',()=>{
@@ -9445,8 +9661,54 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
   const $=id=>document.getElementById(id);
   const modal=$('tutorialModal'), coach=$('tutorialCoach');
   const app=window.BloomByBitApp||{};
+  // Only phones get an independently scrolling instruction body. The drag
+  // handle, sparkle, and navigation buttons stay outside that scroll area.
+  function syncDeviceCoachMarkup(){
+    const text=$('tutorialCoachText'),hint=$('tutorialCoachHint');
+    if(!text || !hint)return;
+    const copy=text.parentElement.classList.contains('bbb-phone-coach-copy')?text.parentElement:null;
+    if(window.BloomPhone?.active && !copy){
+      const wrapper=document.createElement('div');wrapper.className='bbb-phone-coach-copy';text.before(wrapper);wrapper.append(text,hint);
+    }else if(!window.BloomPhone?.active && copy){copy.before(text,hint);copy.remove();}
+  }
+  syncDeviceCoachMarkup();
   let stepIndex=0, practiceMode=false, focused=null, interactionRoot=null, cleanupStep=()=>{}, tutorialStateSnapshot=null, tutorialStorageSnapshot=null, tutorialSidebarSnapshot=null;
   let coachMinimized=false, coachPinnedByUser=false, coachDragMoved=false, renderingStep=false;
+  let tutorialStepVersion=0;
+  const pendingTutorialTimers=new Set();
+  let coachStepAnimations=[];
+  const tutorialIsRunning=()=>document.body.classList.contains('tutorial-running');
+  function invalidateTutorialStep(){
+    tutorialStepVersion++;
+    pendingTutorialTimers.forEach(timer=>clearTimeout(timer));
+    pendingTutorialTimers.clear();
+  }
+  function scheduleTutorialStep(callback,delay=0){
+    if(!tutorialIsRunning())return;
+    const version=tutorialStepVersion;
+    const timer=setTimeout(()=>{
+      pendingTutorialTimers.delete(timer);
+      if(version!==tutorialStepVersion || !tutorialIsRunning())return;
+      safe(callback);
+    },delay);
+    pendingTutorialTimers.add(timer);
+  }
+  function cancelCoachStepChange(){
+    // Interrupted morphs must not leave old instructions or a late onfinish.
+    const animations=coachStepAnimations;
+    coachStepAnimations=[];
+    animations.forEach(animation=>{
+      animation.onfinish=null;
+      try{animation.cancel()}catch(e){}
+    });
+    coach?.querySelectorAll('.tutorial-old-content').forEach(node=>node.remove());
+    coach?.classList.remove('tutorial-morphing');
+    const content=$('tutorialCoachContent');
+    if(content){
+      content.classList.remove('tutorial-new-content');
+      content.style.opacity='';content.style.transform='';content.style.filter='';
+    }
+  }
   const markSeen=()=>{try{localStorage.setItem('bloomByBit_tutorialSeen','1')}catch(e){}};
   const isSeen=()=>{try{return localStorage.getItem('bloomByBit_tutorialSeen')==='1'}catch(e){return false}};
   const safe=(fn)=>{try{return fn()}catch(err){console.error('Bloom by Bit tutorial:',err);return null}};
@@ -9454,6 +9716,13 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
   function setCoachMinimized(value){
     coachMinimized=!!value;
     coach?.classList.toggle('minimized',coachMinimized);
+    if(window.BloomPhone?.active && coach){
+      // A previously scrolled card must not carry its scroll offset into the
+      // tiny sparkle, otherwise the only way to reopen it can be clipped away.
+      coach.scrollTop=0;
+      const content=$('tutorialCoachContent');
+      if(content)content.scrollTop=0;
+    }
     const b=$('tutorialCoachMinimize');
     if(b){
       b.setAttribute('aria-label',coachMinimized?'Show tutorial instructions':'Minimize tutorial instructions');
@@ -9469,19 +9738,39 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     if(coach.scrollHeight>limit+12)coach.classList.add('tutorial-needs-scroll');
   }
   const examplePanel=$('tutorialExamplePanel');
-  function hideTutorialExample(){if(examplePanel){examplePanel.classList.remove('open');examplePanel.innerHTML=''}}
+  function hideTutorialExample(){
+    if(examplePanel){
+      examplePanel.classList.remove('open');
+      examplePanel.setAttribute('aria-hidden','true');
+      examplePanel.innerHTML='';
+    }
+  }
   let lockedDemoSnapshot=null;
+  function restoreLockedTaskExample(){
+    const snapshot=lockedDemoSnapshot;
+    lockedDemoSnapshot=null;
+    $('dailyTasksCard')?.classList.remove('tutorial-lock-demo');
+    document.querySelectorAll('.tutorial-lock-demo-note').forEach(node=>node.remove());
+    const st=app.getState?.();
+    if(st && snapshot){
+      st.dailyTasks=snapshot;
+      safe(()=>app.render?.());
+    }
+  }
   function showLockedTaskExample(){
+    // Re-entering via Back must snapshot real tutorial tasks, not the demo.
+    restoreLockedTaskExample();
     const st=app.getState?.();
     if(!st?.dailyTasks)return ()=>{};
     lockedDemoSnapshot=cloneTutorialData(st.dailyTasks);
+    if(!lockedDemoSnapshot)return ()=>{};
     st.dailyTasks={
       ...st.dailyTasks,
       items:[
         {id:'tutorial-locked-1',text:'Finish reading',done:true,carried:false,dueAt:'',nextDayOnly:false},
         {id:'tutorial-locked-2',text:'Email professor',done:false,carried:false,dueAt:'',nextDayOnly:false},
         {id:'tutorial-locked-3',text:'Do laundry',done:false,carried:false,dueAt:'',nextDayOnly:false},
-        {id:'tutorial-after-1',text:'Call to make an appointment — added afterward',done:false,carried:false,dueAt:'',nextDayOnly:true}
+        {id:'tutorial-after-1',text:'Added Later',done:false,carried:false,dueAt:'',nextDayOnly:true}
       ],
       lockedPulls:1,
       lockedTaskIds:['tutorial-locked-1','tutorial-locked-2','tutorial-locked-3'],
@@ -9491,12 +9780,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     app.render?.();
     const card=$('dailyTasksCard');
     card?.classList.add('tutorial-lock-demo');
-    return ()=>{
-      const stateNow=app.getState?.();
-      if(stateNow && lockedDemoSnapshot){stateNow.dailyTasks=cloneTutorialData(lockedDemoSnapshot);app.render?.()}
-      lockedDemoSnapshot=null;
-      $('dailyTasksCard')?.classList.remove('tutorial-lock-demo');
-    };
+    return restoreLockedTaskExample;
   }
   function positionLockedExample(){
     if(!examplePanel?.classList.contains('open'))return;
@@ -9652,6 +9936,8 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     coachPosByStep.set(stepIndex,{x,y});
   }
   function getCoachDestination(){
+    const phoneDestination=window.BloomPhone?.coachDestination(coach,steps?.[stepIndex]||{},focused,coachPinnedByUser,lastCoachPos);
+    if(phoneDestination)return phoneDestination;
     const margin=14,vw=window.innerWidth,vh=window.innerHeight;
     const step=steps?.[stepIndex]||{};
     // Resolve the intended width first so measurements are deterministic.
@@ -9699,10 +9985,11 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
 
   function positionCoach(){
     if(!coach)return;
+    if(window.BloomPhone?.active && (!tutorialIsRunning() || !coach.classList.contains('open')))return;
     safe(()=>{
       const d=getCoachDestination();
       const step=steps?.[stepIndex]||{};
-      const dockBottomRight=!step.centerCoach && !step.anchorToTarget && !(step.explore && coachPinnedByUser);
+      const dockBottomRight=!window.BloomPhone?.active && !step.centerCoach && !step.anchorToTarget && !(step.explore && coachPinnedByUser);
       coach.style.width=Math.round(d.w)+'px';
       coach.style.height='auto';
       if(dockBottomRight){
@@ -9718,6 +10005,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
       }
       lastCoachPos={x:d.x,y:d.y};
       coachPosByStep.set(stepIndex,{x:d.x,y:d.y});
+      window.BloomPhone?.syncTutorialSpace?.(coach);
       if(examplePanel?.classList.contains('open')) requestAnimationFrame(positionLockedExample);
     });
   }
@@ -9741,6 +10029,28 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     if(scroll)safe(()=>anchor.scrollIntoView({block:'nearest',inline:'nearest',behavior:'auto'}));
     return root;
   }
+  function syncPhoneTutorialNavigation(){
+    if(!window.BloomPhone?.active)return;
+    const body=document.body;
+    const running=body.classList.contains('tutorial-running');
+    const navTarget=running?focused?.closest?.('#sidebar .nav-btn'):null;
+    const needed=!!navTarget;
+    body.classList.toggle('bbb-tutorial-nav-needed',needed);
+    if(!running)return;
+
+    // A navigation step must remain reachable after trying Studying fullscreen.
+    // The existing exit control handles both native and visual fullscreen.
+    if(needed && body.classList.contains('aby-study-fullscreen'))$('clockBack')?.click();
+
+    // This is temporary tutorial presentation, not a saved user preference.
+    body.classList.toggle('sidebar-collapsed',!needed);
+    const toggle=$('sidebarFab');
+    const label=needed?'Hide navigation':'Open navigation';
+    toggle?.setAttribute('aria-label',label);
+    if(toggle)toggle.title=label;
+    if(navTarget)navTarget.scrollIntoView({block:'nearest',inline:'nearest',behavior:'auto'});
+  }
+
   function setTutorialContext(context){
     safe(()=>{
       // Put the interface on the page that belongs to this step. This makes
@@ -9777,11 +10087,29 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     });
   }
 
-  function finish(){
-    safe(cleanupStep); cleanupStep=()=>{}; clearFocus(); hideTutorialExample(); safe(()=>window.BloomByBitStudying?.resetAndStop?.()); coach?.classList.remove('open','changing','mini-ready','minimized','final-mode'); coachMinimized=false; coachPinnedByUser=false; coachDragMoved=false; modal?.classList.remove('open'); document.body.classList.remove('tutorial-running'); markSeen(); restoreTutorialState(); lastCoachPos=null;
-    app.toast?.('Tutorial complete ✦');
+  function finish(options){
+    const wasRunning=tutorialIsRunning() || !!tutorialStateSnapshot;
+    invalidateTutorialStep();
+    safe(cleanupStep);cleanupStep=()=>{};
+    // Clean the demo independently of the current step's cleanup callback.
+    safe(restoreLockedTaskExample);
+    clearFocus();hideTutorialExample();cancelCoachStepChange();
+    document.querySelectorAll('.tutorial-focus,.tutorial-explore-root').forEach(node=>{
+      node.classList.remove('tutorial-focus','tutorial-explore-root');
+    });
+    safe(()=>window.BloomByBitStudying?.resetAndStop?.());
+    coach?.classList.remove('open','changing','mini-ready','minimized','final-mode','explore-mode','dragging','tutorial-needs-scroll');
+    coachMinimized=false;coachPinnedByUser=false;coachDragMoved=false;
+    modal?.classList.remove('open');
+    document.body.classList.remove('tutorial-running','tutorial-theme-clearance');
+    markSeen();restoreTutorialState();lastCoachPos=null;
+    safe(syncPhoneTutorialNavigation);
+    if(wasRunning && options?.notify!==false)app.toast?.('Tutorial complete ✦');
   }
-  function next(){if(stepIndex<steps.length-1){stepIndex++;renderStep()}else finish()}
+  function next(){
+    if(!tutorialIsRunning())return;
+    if(stepIndex<steps.length-1){stepIndex++;renderStep()}else finish();
+  }
   function rewindStepSideEffects(fromIndex,toIndex){
     // If the user backs up from "Try a second habit" to "Add another habit",
     // remove the tutorial-created second habit so that step is genuinely repeatable.
@@ -9794,6 +10122,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     }
   }
   function back(){
+    if(!tutorialIsRunning())return;
     if(stepIndex>0){
       hideTutorialExample();
       const from=stepIndex,to=stepIndex-1;
@@ -9804,7 +10133,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
   }
   function onOnce(el,event,fn){
     if(!el)return;
-    const handler=(e)=>{safe(()=>fn?.(e)); setTimeout(next,70)};
+    const handler=(e)=>{safe(()=>fn?.(e)); scheduleTutorialStep(next,70)};
     el.addEventListener(event,handler,{once:true});
     cleanupStep=()=>el.removeEventListener(event,handler);
   }
@@ -9831,13 +10160,13 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
       if(advanced)return;
       if(countRows()>before){
         advanced=true;
-        setTimeout(next,70);
+        scheduleTutorialStep(next,70);
       }
     };
-    const observer=new MutationObserver(()=>setTimeout(check,60));
+    const observer=new MutationObserver(()=>scheduleTutorialStep(check,60));
     observer.observe(list,{childList:true,subtree:true});
-    const clickHandler=()=>setTimeout(check,120);
-    const keyHandler=(e)=>{if(e.key==='Enter')setTimeout(check,120)};
+    const clickHandler=()=>scheduleTutorialStep(check,120);
+    const keyHandler=(e)=>{if(e.key==='Enter')scheduleTutorialStep(check,120)};
     btn?.addEventListener('click',clickHandler);
     inp?.addEventListener('keydown',keyHandler);
     cleanupStep=()=>{
@@ -9858,17 +10187,17 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
       advanced=true;
       observer.disconnect();
       document.removeEventListener('click',captureClick,true);
-      setTimeout(next,70);
+      scheduleTutorialStep(next,70);
     };
-    const observer=new MutationObserver(()=>requestAnimationFrame(advance));
+    const observer=new MutationObserver(()=>scheduleTutorialStep(advance,0));
     observer.observe(page,{attributes:true,attributeFilter:['class','aria-hidden']});
     const captureClick=(e)=>{
-      if(e.target?.closest?.('#clockNav')) setTimeout(advance,80);
+      if(e.target?.closest?.('#clockNav')) scheduleTutorialStep(advance,80);
     };
     // Listen above the nav button because Studying's own click handler uses
     // stopImmediatePropagation() on the button itself.
     document.addEventListener('click',captureClick,true);
-    if(isOpen()) setTimeout(advance,80);
+    if(isOpen()) scheduleTutorialStep(advance,80);
     cleanupStep=()=>{
       observer.disconnect();
       document.removeEventListener('click',captureClick,true);
@@ -9885,7 +10214,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     {context:'settings',title:'Save your habits',text:'Save these changes so you can see how the habits appear on the dashboard.',hint:'Click <b>Save Changes</b>.',enter(){const el=focus('#saveSettings');if(practiceMode){setNext(false);onOnce(el,'click')}else setNext(true)}} ,
     {context:'home',title:'Add something for today',text:'Today’s Tasks can earn Bonus Pulls. Add a quick example so you can see how it works.',hint:'A few ideas: <b>send an email</b>, <b>finish a reading</b>, <b>submit an assignment</b>, <b>do laundry</b>, or <b>make an appointment</b>. Type a task, then click <b>Add</b>.',avoidSelectors:['#dailyTaskList'],preferSides:['bottom','right','left','top'],enter(){goHome();focus('.daily-task-add',true);waitForTaskAdd('dailyTaskInput','dailyTaskAddBtn','#dailyTaskList','.daily-task-row')}} ,
     {context:'home',title:'Park a task for later',text:'Tasks for Later is for things you do not need to tackle yet. Add another task here so you can try both boxes.',hint:'A few ideas: <b>send an email</b>, <b>finish a reading</b>, <b>submit an assignment</b>, <b>do laundry</b>, or <b>make an appointment</b>. Type a task, then click <b>Add</b>.',avoidSelectors:['#laterTaskList'],preferSides:['bottom','right','left','top'],enter(){focus('.later-task-add',true);waitForTaskAdd('laterTaskInput','laterTaskAddBtn','#laterTaskList','.later-task-row')}} ,
-    {context:'home',title:'How Locked Bonus Pulls Work',text:'The first time you check off a task in Today’s Tasks, every task already in that box becomes part of that day’s Locked Set. Those tasks get a small lock so you know exactly what must be finished to earn the Bonus Pulls.',hint:'The Today’s Tasks box is showing an example now. The three tasks with lock icons are the Locked Set. The task labeled <b>added afterward</b> has no lock, so it does not count toward that day’s Bonus Pulls. Finish every locked task to earn the Bonus Pulls shown for that set.',anchorToTarget:true,preferSides:['right','left','bottom','top'],enter(){const restoreDemo=showLockedTaskExample();cleanupStep=()=>{restoreDemo?.()};focus('#dailyTasksCard',true);setNext(true)}} ,
+    {context:'home',title:'How Locked Bonus Pulls Work',text:'The first time you check off a task in Today’s Tasks, every task already in that box becomes part of that day’s Locked Set. Those tasks get a small lock so you know exactly what must be finished to earn the Bonus Pulls.',hint:'The Today’s Tasks box is showing an example now. The three tasks with lock icons are the Locked Set. The task labeled <b>Added Later</b> was added after the Locked Set formed. It has no lock, so it does not count toward that day’s Bonus Pulls. Finish every locked task to earn the Bonus Pulls shown for that set.',anchorToTarget:true,preferSides:['right','left','bottom','top'],enter(){const restoreDemo=showLockedTaskExample();cleanupStep=()=>{restoreDemo?.()};focus('#dailyTasksCard',true);setNext(true)}} ,
     {context:'home',title:'Your pulls live here',text:'Habit completions fill these circles, and finishing your locked Today’s Tasks can add Bonus Pulls. When you use a pull, it reveals either <b>Lucky</b> or <b>Next Time</b>.',hint:'Only <b>Lucky Pulls</b> count toward your Reward Tier. <b>Next Time</b> uses that pull but does not add to your Lucky Pull total.',enter(){focus('#pullProgressCard',true);setNext(true)}} ,
     {context:'home',title:'How Reward Tiers work',text:'Your Lucky Pulls determine which Reward Tier you unlock for the week: Small, Medium, or Large. The number needed scales with the weekly habit goals you set.',hint:'Daily Task Bonus Pulls give you extra chances to get Lucky Pulls, but they do <b>not</b> raise the threshold for your Reward Tiers. If you earn Medium or Large, you can choose that tier or a lower one when you draw.',enter(){focus('#rewards',true);setNext(true)}} ,
     {context:'home',title:'Open Studying',text:'Studying has your clock, focus timer, and study tools.',hint:'Click <b>Studying</b>.',enter(){focus('#clockNav');waitForStudyingOpen()}} ,
@@ -9906,10 +10235,11 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
 
   function animateCoachStepChange(fromRect,oldContentClone){
     if(!coach)return;
-    try{coach.getAnimations().forEach(a=>a.cancel())}catch(e){}
+    cancelCoachStepChange();
+    const animationStep=tutorialStepVersion;
 
     const step=steps?.[stepIndex]||{};
-    const dockBottomRight=!step.centerCoach && !step.anchorToTarget && !(step.explore && coachPinnedByUser);
+    const dockBottomRight=!window.BloomPhone?.active && !step.centerCoach && !step.anchorToTarget && !(step.explore && coachPinnedByUser);
     const margin=14;
 
     // First lay out the NEW card at its true final geometry. For ordinary steps,
@@ -9960,22 +10290,24 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
       ],{duration:1500,easing:fairyEase,fill:'forwards'});
     }
     cardAnim.id='tutorial-step-motion';
+    coachStepAnimations.push(cardAnim);
 
     if(oldContentClone){
-      oldContentClone.animate([
+      coachStepAnimations.push(oldContentClone.animate([
         {opacity:1,transform:'translateY(0)'},
         {opacity:0,transform:'translateY(-3px)'}
-      ],{duration:260,easing:'ease-out',fill:'forwards'});
+      ],{duration:260,easing:'ease-out',fill:'forwards'}));
     }
     if(content){
-      content.animate([
+      coachStepAnimations.push(content.animate([
         {opacity:0,transform:'translateY(5px)',offset:0},
         {opacity:0,transform:'translateY(5px)',offset:.48},
         {opacity:1,transform:'translateY(0)',offset:1}
-      ] ,{duration:980,easing:'cubic-bezier(.16,.84,.26,1)',fill:'forwards'});
+      ] ,{duration:980,easing:'cubic-bezier(.16,.84,.26,1)',fill:'forwards'}));
     }
 
     cardAnim.onfinish=()=>{
+      if(animationStep!==tutorialStepVersion || !tutorialIsRunning())return;
       // Finalize at the SAME geometry used as the animation destination.
       // No re-measure/re-dock pass here: that was the source of the visible
       // bottom-right jump after a step transition.
@@ -9992,18 +10324,24 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
       const finalRect=coach.getBoundingClientRect();
       lastCoachPos={x:finalRect.left,y:finalRect.top};
       coachPosByStep.set(stepIndex,lastCoachPos);
-      try{cardAnim.cancel()}catch(e){}
+      cancelCoachStepChange();
       updateCoachOverflow();
+      if(window.BloomPhone?.active)positionCoach();
       if(examplePanel?.classList.contains('open')) positionLockedExample();
     };
   }
 
   function renderStep(){
-    safe(cleanupStep); cleanupStep=()=>{}; clearFocus(); hideTutorialExample();
+    if(!tutorialIsRunning())return;
+    invalidateTutorialStep();
+    safe(cleanupStep);cleanupStep=()=>{};
+    safe(restoreLockedTaskExample);
+    clearFocus();hideTutorialExample();
     const s=steps[stepIndex]; if(!s)return finish();
 
     const wasOpen=!!(coach&&coach.classList.contains('open'));
     const previousCoachRect=wasOpen?coach.getBoundingClientRect():null;
+    cancelCoachStepChange();
     let oldContentClone=null;
     if(wasOpen){
       const old=$('tutorialCoachContent');
@@ -10039,6 +10377,11 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     document.body.classList.remove('tutorial-theme-clearance');
 
     renderingStep=true;
+    if(window.BloomPhone?.active){
+      if(coach)coach.scrollTop=0;
+      const copy=coach?.querySelector('.bbb-phone-coach-copy');
+      if(copy)copy.scrollTop=0;
+    }
     safe(()=>{
       coach?.classList.toggle('mini-ready',!!s.explore);
       coach?.classList.toggle('final-mode',!!s.centerCoach);
@@ -10056,6 +10399,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
       s.enter?.();
     });
     renderingStep=false;
+    safe(syncPhoneTutorialNavigation);
 
     coach?.classList.add('open');
     if(previousCoachRect) animateCoachStepChange(previousCoachRect,oldContentClone);
@@ -10063,6 +10407,8 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
   }
 
   function startGuidedTour(){
+    if(tutorialIsRunning())return;
+    invalidateTutorialStep();cancelCoachStepChange();
     try{
       // Always run the tutorial against the same clean first-use dashboard.
       // Existing users get their real dashboard back exactly as it was when
@@ -10086,16 +10432,23 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
       coachMinimized=false;
       coachPinnedByUser=false;
       coachDragMoved=false;
-      setTimeout(()=>{try{renderStep()}catch(err){console.error('Bloom by Bit tutorial start:',err);document.body.classList.remove('tutorial-running');coach?.classList.remove('open','changing');modal?.classList.add('open');app.toast?.('Tutorial could not start. Please try again.')}},80);
+      scheduleTutorialStep(()=>{try{renderStep()}catch(err){console.error('Bloom by Bit tutorial start:',err);finish({notify:false});modal?.classList.add('open');app.toast?.('Tutorial could not start. Please try again.')}},80);
     }catch(err){
       console.error('Bloom by Bit tutorial start:',err);
-      document.body.classList.remove('tutorial-running');
-      coach?.classList.remove('open','changing');
+      finish({notify:false});
       modal?.classList.add('open');
       app.toast?.('Tutorial could not start. Please try again.');
     }
   }
-  function openTutorial(){safe(cleanupStep);clearFocus();coach?.classList.remove('open','changing');closeOtherModals();modal?.classList.add('open')}
+  function openTutorial(){
+    if(tutorialIsRunning() || tutorialStateSnapshot)finish({notify:false});
+    invalidateTutorialStep();
+    safe(cleanupStep);cleanupStep=()=>{};
+    safe(restoreLockedTaskExample);
+    clearFocus();hideTutorialExample();cancelCoachStepChange();
+    coach?.classList.remove('open','changing');
+    closeOtherModals();modal?.classList.add('open');
+  }
   $('tutorialBegin')?.addEventListener('click',startGuidedTour);
   $('tutorialSkip')?.addEventListener('click',()=>{markSeen();modal?.classList.remove('open')});
   $('tutorialCoachNext')?.addEventListener('click',next);
@@ -10106,9 +10459,35 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
   // user places it somewhere, that position is respected for the rest of the tour.
   let dragState=null;
   const dragBlockedTarget=target=>!!target?.closest?.('button,a,input,textarea,select,label');
+  function preparePhoneCoachGesture(){
+    if(!window.BloomPhone?.active)return;
+    // A user's gesture takes ownership from a pending step animation. Its late
+    // completion must not move the guide back or hide the controls mid-gesture.
+    if(coachStepAnimations.length){
+      const r=coach.getBoundingClientRect();
+      cancelCoachStepChange();
+      coachPinnedByUser=true;lastCoachPos={x:r.left,y:r.top};
+    }
+    positionCoach();
+  }
+  function moveCoachForGesture(x,y){
+    if(window.BloomPhone?.active){
+      const p=window.BloomPhone.constrainCoach(coach,x,y);x=p.x;y=p.y;
+    }else{
+      const margin=10,cw=coach.offsetWidth||68,ch=coach.offsetHeight||68;
+      x=clamp(x,margin,window.innerWidth-cw-margin);
+      y=clamp(y,margin,window.innerHeight-ch-margin);
+    }
+    coach.style.right='auto';coach.style.bottom='auto';
+    coach.style.left=Math.round(x)+'px';coach.style.top=Math.round(y)+'px';
+    lastCoachPos={x,y};coachPosByStep.set(stepIndex,{x,y});
+    window.BloomPhone?.syncTutorialSpace?.(coach);
+  }
   coach?.addEventListener('pointerdown',e=>{
     if(!steps?.[stepIndex]?.explore)return;
     if(e.button!==0 || dragBlockedTarget(e.target))return;
+    if(window.BloomPhone?.active && e.pointerType==='touch' && !e.target.closest('.tutorial-coach-title,.tutorial-coach-step'))return;
+    preparePhoneCoachGesture();
     const r=coach.getBoundingClientRect();
     dragState={id:e.pointerId,startX:e.clientX,startY:e.clientY,left:r.left,top:r.top,moved:false};
     coachDragMoved=false;
@@ -10121,25 +10500,32 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     const dx=e.clientX-dragState.startX,dy=e.clientY-dragState.startY;
     if(!dragState.moved && Math.hypot(dx,dy)<4)return;
     dragState.moved=true;coachDragMoved=true;coachPinnedByUser=true;
-    const margin=10,cw=coach.offsetWidth||58,ch=coach.offsetHeight||58;
-    const x=clamp(dragState.left+dx,margin,window.innerWidth-cw-margin);
-    const y=clamp(dragState.top+dy,margin,window.innerHeight-ch-margin);
-    coach.style.right='auto';coach.style.bottom='auto';coach.style.left=Math.round(x)+'px';coach.style.top=Math.round(y)+'px';
-    lastCoachPos={x,y};coachPosByStep.set(stepIndex,{x,y});
+    if(window.BloomPhone?.active){
+      moveCoachForGesture(dragState.left+dx,dragState.top+dy);
+    }else{
+      const margin=10,cw=coach.offsetWidth||58,ch=coach.offsetHeight||58;
+      const x=clamp(dragState.left+dx,margin,window.innerWidth-cw-margin);
+      const y=clamp(dragState.top+dy,margin,window.innerHeight-ch-margin);
+      coach.style.right='auto';coach.style.bottom='auto';coach.style.left=Math.round(x)+'px';coach.style.top=Math.round(y)+'px';
+      lastCoachPos={x,y};coachPosByStep.set(stepIndex,{x,y});
+    }
   });
   const endCoachDrag=e=>{
     if(!dragState || (e?.pointerId!=null && dragState.id!==e.pointerId))return;
     safe(()=>coach.releasePointerCapture?.(dragState.id));
     coach.classList.remove('dragging');
     const moved=dragState.moved;dragState=null;
+    if(window.BloomPhone?.active)positionCoach();
     if(moved)setTimeout(()=>{coachDragMoved=false},0);
   };
   coach?.addEventListener('pointerup',endCoachDrag);
   coach?.addEventListener('pointercancel',endCoachDrag);
+  coach?.addEventListener('lostpointercapture',e=>{if(window.BloomPhone?.active)endCoachDrag(e);});
   const minimizeBtn=$('tutorialCoachMinimize');
   let sparkleDrag=null,lastSparkleToggleAt=0,suppressSparkleClickUntil=0;
   minimizeBtn?.addEventListener('pointerdown',e=>{
     if(!steps?.[stepIndex]?.explore || e.button!==0)return;
+    preparePhoneCoachGesture();
     const r=coach.getBoundingClientRect();
     sparkleDrag={id:e.pointerId,startX:e.clientX,startY:e.clientY,left:r.left,top:r.top,moved:false};
     safe(()=>minimizeBtn.setPointerCapture?.(e.pointerId));
@@ -10150,11 +10536,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     const dx=e.clientX-sparkleDrag.startX,dy=e.clientY-sparkleDrag.startY;
     if(!sparkleDrag.moved&&Math.hypot(dx,dy)<6)return;
     sparkleDrag.moved=true;coachDragMoved=true;coachPinnedByUser=true;
-    const margin=10,cw=coach.offsetWidth||68,ch=coach.offsetHeight||68;
-    const x=clamp(sparkleDrag.left+dx,margin,window.innerWidth-cw-margin);
-    const y=clamp(sparkleDrag.top+dy,margin,window.innerHeight-ch-margin);
-    coach.style.right='auto';coach.style.bottom='auto';coach.style.left=Math.round(x)+'px';coach.style.top=Math.round(y)+'px';
-    lastCoachPos={x,y};coachPosByStep.set(stepIndex,{x,y});
+    moveCoachForGesture(sparkleDrag.left+dx,sparkleDrag.top+dy);
     e.preventDefault();e.stopPropagation();
   });
   const endSparkleGesture=e=>{
@@ -10163,6 +10545,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     safe(()=>minimizeBtn.releasePointerCapture?.(sparkleDrag.id));
     sparkleDrag=null;
     if(moved){
+      if(window.BloomPhone?.active)positionCoach();
       // A drag is movement only. Suppress the synthetic click that browsers
       // often fire after pointerup so dragging can never open/close the coach.
       const now=performance.now();
@@ -10184,6 +10567,11 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     if(!sparkleDrag)return;
     safe(()=>minimizeBtn.releasePointerCapture?.(sparkleDrag.id));
     sparkleDrag=null;coachDragMoved=false;
+    if(window.BloomPhone?.active)positionCoach();
+  });
+  minimizeBtn?.addEventListener('lostpointercapture',()=>{
+    if(!window.BloomPhone?.active || !sparkleDrag)return;
+    sparkleDrag=null;coachDragMoved=false;positionCoach();
   });
   // Click fallback for browsers/previews that do not reliably deliver the
   // pointer-up after capture. The timestamp prevents a normal pointer gesture
@@ -10203,9 +10591,21 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
   });
   $('replayTutorialBtn')?.addEventListener('click',openTutorial);
   window.addEventListener('resize',()=>{positionCoach();updateCoachOverflow()},{passive:true});
+  window.addEventListener('bloomphoneviewport',()=>{if(coach?.classList.contains('open')){positionCoach();updateCoachOverflow()}},{passive:true});
   window.addEventListener('scroll',positionCoach,{passive:true,capture:true});
+  window.addEventListener('bloomdevicechange',()=>{
+    cancelCoachStepChange();syncDeviceCoachMarkup();lastCoachPos=null;coachPinnedByUser=false;
+    if(coach){coach.scrollTop=0;coach.style.width='';coach.style.height='';}
+    if(tutorialIsRunning()){
+      safe(syncPhoneTutorialNavigation);requestAnimationFrame(()=>{positionCoach();updateCoachOverflow();});
+    }
+  });
   window.openBloomTutorial=openTutorial;
-  if(!isSeen())setTimeout(openTutorial,350);
+  const offerTutorial=()=>{
+    if(!window.BloomDevice?.startupPending && !isSeen() && !tutorialIsRunning() && !$('settingsModal')?.classList.contains('open'))openTutorial();
+  };
+  window.addEventListener('bloomdeviceready',()=>setTimeout(offerTutorial,150));
+  if(!window.BloomDevice?.startupPending)setTimeout(offerTutorial,350);
 })();
 </script>
 
@@ -10238,8 +10638,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
       ['pull-results','What do Lucky and Next Time mean?','Every pull reveals either Lucky or Next Time. Lucky Pulls count toward your Reward Tier. Next Time still uses the pull, but it does not add to your Lucky Pull total.'],
       ['pull-circles','What do the circles mean?','Empty circles are pulls you can still earn. Filled circles are pulls you have already used. If you make an accidental pull, hover over the filled circle and click × to undo it.'],
       ['reward-tiers','How do Reward Tiers work?','Lucky Pulls unlock Small, Medium, or Large Reward Tiers. The thresholds scale with your Weekly Habit goals. If you unlock Medium or Large, you can choose that tier or a lower one when you draw.'],
-      ['reward-draw','How does Draw My Reward work?','Once you have earned a Reward Tier, Draw My Reward lets you choose an eligible tier and randomly picks one of the rewards you placed in that tier.'],
-      ['reset-week','What does Reset Week do?','Reset Week saves the finished week to History and starts a new week of habit progress and pulls. Lucky Pulls do not carry into the next week, while your habits, rewards, theme, and other saved setup stay.']
+      ['reward-draw','How does Draw My Reward work?','Once you have earned a Reward Tier, Draw My Reward lets you choose an eligible tier and randomly picks one of the rewards you placed in that tier.']
     ]},
     studying:{label:'Studying',intro:'The Studying page keeps a clock and focus tools close by without adding clutter to the dashboard.',items:[
       ['study-clock','What is the Clock view?','Clock gives you a clean full-page time and date view while you study. Use the page controls to switch between Clock and Timer.'],
@@ -10247,7 +10646,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
       ['study-controls','What do Start, Reset, and Skip do?','Start begins or pauses the timer. Reset restarts the current interval. Skip moves to the next Pomodoro interval. You can change timer lengths and automatic/manual Pomodoro transitions in Settings.']
     ]},
     history:{label:'History',intro:'History is where finished weeks collect so you can look back at your progress.',items:[
-      ['history-when','When does a week appear in History?','A week is saved to History when you use Reset Week. You can then look back at that week’s habit progress and task history.']
+      ['history-when','When does a week appear in History?','A completed week is saved to History automatically when the next week begins. You can then look back at that week’s habit progress and task history.']
     ]},
     personalize:{label:'Themes & Settings',intro:'This is where you make Bloom by Bit work the way you like.',items:[
       ['themes','How do Themes work?','Open Themes from the sidebar and choose a world. Themes change the atmosphere and styling, not how your habits, tasks, pulls, or rewards work.'],
@@ -10481,3 +10880,547 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
   display:none !important;
 }
 </style>
+
+<style id="bbb-phone-fit-styles">
+/* ===== PHONE FIT ADAPTER: inactive on laptops and tablets =====
+   Preserve the existing themes, art, controls and desktop/tablet rules.
+   No zoom-out trick and no enlarged icons: only fit, wrap and bounded scrolling. */
+html.bbb-phone{--side-w:128px;--page-gap:12px;--bbb-vh:100dvh;--bbb-vw:100vw;--bbb-vtop:0px;--bbb-vleft:0px;--bbb-vbottom:0px;--bbb-coach-limit:340px;--bbb-coach-h:0px;--bbb-coach-w:370px;scroll-padding-top:64px;scroll-padding-bottom:80px}
+html.bbb-phone body{min-width:0;max-width:100%;overflow-wrap:break-word}
+html.bbb-phone .app{min-width:0!important;max-width:100%!important}
+html.bbb-phone .main,
+html.bbb-phone body:not(.sidebar-collapsed) .main,
+html.bbb-phone body.sidebar-collapsed .main{width:100%!important;max-width:100%!important;margin-left:0!important;padding:64px 12px 82px!important;transition:none!important}
+html.bbb-phone .main .topbar{top:12px!important;right:12px!important;max-width:calc(100vw - 72px)!important}
+html.bbb-phone .date-pill{max-width:100%;font-size:11px!important;white-space:normal;text-align:right;line-height:1.25}
+html.bbb-phone .sidebar{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;inset:0 auto auto 0!important;width:128px!important;height:100dvh!important;max-height:100dvh!important;padding:18px 8px!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;z-index:210!important;border-right:1px solid var(--edge)!important}
+html.bbb-phone .sidebar .brand{display:block!important;font-size:32px!important;line-height:.95!important;flex:0 0 auto;margin-bottom:16px!important;text-align:center}
+html.bbb-phone .sidebar .brand-mark{margin:10px auto!important}
+html.bbb-phone .sidebar .brand-sprout{width:38px!important;height:38px!important}
+html.bbb-phone .sidebar .nav{display:flex!important;flex-direction:column!important;justify-content:flex-start!important;align-items:stretch!important;width:100%!important;gap:6px!important;min-height:0!important;flex:0 0 auto}
+html.bbb-phone .sidebar .nav-btn{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:8px!important;width:100%!important;min-width:0!important;min-height:36px!important;padding:8px 7px!important;font-size:11px!important;white-space:nowrap}
+html.bbb-phone .sidebar .nav-btn svg{width:20px!important;height:20px!important;flex:0 0 20px}
+html.bbb-phone .sidebar .side-note{display:none!important}
+html.bbb-phone body .sidebar-fab{top:12px!important;left:108px!important;transform:none!important;z-index:220!important}
+html.bbb-phone body.sidebar-collapsed .sidebar-fab{left:12px!important}
+html.bbb-phone .main .hero{padding:18px 14px 16px!important}
+html.bbb-phone .greeting{font-size:clamp(30px,8.5vw,42px)!important;white-space:normal!important;overflow-wrap:anywhere}
+html.bbb-phone .hero h1{font-size:18px!important;line-height:1.35!important;letter-spacing:.16em!important}
+html.bbb-phone .hero p{font-size:17px!important;line-height:1.35!important}
+html.bbb-phone .motivation-inline{line-height:1.4!important;white-space:normal!important;overflow-wrap:anywhere}
+html.bbb-phone .dashboard-stack{gap:14px!important}
+html.bbb-phone :is(.card,.section,.prize-col,.habit-copy,.daily-title-wrap,.daily-task-text-wrap,.history-shell,.history-habit-top,.history-habit-name,.coffee-shell,.coffee-support-copy,.feedback-field){min-width:0!important;max-width:100%;box-sizing:border-box}
+html.bbb-phone :is(.habit-card,.daily-tasks-card,.later-tasks-card,.pull-progress-card){padding:16px 14px!important}
+html.bbb-phone .card-title{font-size:23px!important;line-height:1.2!important}
+html.bbb-phone .current-habit.habit-item{display:grid!important;grid-template-columns:42px minmax(0,1fr)!important;gap:9px 10px!important;padding:12px!important;align-items:center!important}
+html.bbb-phone .habit-seal{width:42px!important;height:42px!important;min-width:0!important;grid-column:1;grid-row:1}
+html.bbb-phone .habit-copy{grid-column:2;grid-row:1;width:auto!important;min-width:0!important}
+html.bbb-phone .habit-name{font-size:22px!important;line-height:1.18!important;white-space:normal!important;overflow-wrap:anywhere!important}
+html.bbb-phone .habit-sub{font-size:13px!important;line-height:1.35!important;white-space:normal!important}
+html.bbb-phone .habit-item .habit-pull-btn{grid-column:2;justify-self:start;width:auto!important;max-width:100%!important;padding:9px 12px!important;font-size:15px!important;white-space:normal!important;line-height:1.2!important}
+html.bbb-phone .task-columns{grid-template-columns:minmax(0,1fr)!important;gap:14px!important}
+html.bbb-phone :is(.daily-tasks-head,.later-tasks-head,.pull-progress-head){gap:8px!important;min-width:0}
+html.bbb-phone .daily-pull-badge{flex-shrink:0;white-space:nowrap}
+html.bbb-phone .daily-task-row,
+html.bbb-phone .daily-task-row.carried,
+html.bbb-phone .daily-task-row:has(.daily-task-next-day){grid-template-columns:30px minmax(0,1fr) 60px 28px!important;gap:5px!important;padding:7px 6px!important;min-width:0!important}
+html.bbb-phone .later-task-row{grid-template-columns:minmax(0,1fr) 52px 28px!important;gap:5px!important;padding:7px 6px!important;min-width:0!important}
+html.bbb-phone .daily-task-check{width:30px!important;height:30px!important;min-width:0!important}
+html.bbb-phone .daily-task-row .task-due-wrap.daily-task-status{width:60px!important;min-width:60px!important;grid-template-columns:12px minmax(0,1fr)!important;column-gap:4px!important}
+html.bbb-phone .daily-task-row .task-due-wrap.daily-task-status .task-due-btn{width:40px!important;min-width:0!important}
+html.bbb-phone .later-task-row .task-due-wrap{min-width:0!important;width:52px!important}
+html.bbb-phone .task-actions-wrap,html.bbb-phone .task-actions-button{width:28px!important;min-width:28px!important}
+html.bbb-phone :is(.daily-task-text,.later-task-text){min-width:0!important;width:100%!important;padding-left:2px!important;padding-right:2px!important}
+html.bbb-phone .daily-task-carried,html.bbb-phone .daily-task-next-day{display:none!important}
+html.bbb-phone .task-actions-menu{right:0!important;left:auto!important;min-width:120px!important;max-width:calc(100vw - 40px)!important}
+html.bbb-phone :is(.daily-task-add,.later-task-add,.add-row){min-width:0!important;gap:7px!important}
+html.bbb-phone :is(.daily-task-add,.later-task-add,.add-row) input{width:0!important;min-width:0!important;flex:1 1 0!important}
+html.bbb-phone :is(.daily-task-add,.later-task-add,.add-row) button{flex:0 0 auto;min-width:48px!important;padding-left:10px!important;padding-right:10px!important}
+html.bbb-phone .daily-claim-btn{width:auto!important;max-width:100%!important}
+html.bbb-phone .week-row{gap:10px;flex-wrap:wrap}
+html.bbb-phone .dots{flex-wrap:wrap!important;max-width:100%!important}
+html.bbb-phone .stat-row{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+html.bbb-phone .mini-stat{min-width:0!important}
+html.bbb-phone .prize-cols{grid-template-columns:minmax(0,1fr)!important;gap:14px!important}
+html.bbb-phone .prize-col{padding:18px 14px!important}
+html.bbb-phone .prize-list li{min-width:0;gap:8px!important;overflow-wrap:anywhere}
+html.bbb-phone .prize-list li span{min-width:0!important;flex:1 1 0;overflow-wrap:anywhere}
+html.bbb-phone .prize-list li button{flex:0 0 auto}
+html.bbb-phone .draw-wrap .primary{width:auto!important;max-width:100%!important}
+/* Coffee and History use the same page space; no nested phone-width margins. */
+html.bbb-phone .coffee-shell,html.bbb-phone .history-shell{width:100%!important;max-width:100%!important;margin:0 auto!important;padding:0!important}
+html.bbb-phone :is(.coffee-hero,.coffee-card,.history-header,.history-current-card,.history-past-card,.history-week-card){padding:18px 16px!important}
+html.bbb-phone :is(.coffee-hero h1,.history-header h1){font-size:30px!important;line-height:1.12!important;overflow-wrap:anywhere}
+html.bbb-phone .coffee-card h2{font-size:25px!important;line-height:1.2!important}
+html.bbb-phone .coffee-grid{gap:14px!important}
+html.bbb-phone .coffee-support-card{grid-template-columns:minmax(0,1fr)!important;gap:14px!important}
+html.bbb-phone .coffee-support-action{min-width:0;max-width:100%;justify-self:end!important;align-self:center!important}
+html.bbb-phone .coffee-support-button{width:auto!important;max-width:100%!important;white-space:normal!important;padding:12px 16px!important;font-size:16px!important}
+html.bbb-phone .coffee-support-status:not(:empty){position:static!important;width:auto!important;margin-top:8px!important}
+html.bbb-phone .feedback-grid{grid-template-columns:minmax(0,1fr)!important;gap:12px!important}
+html.bbb-phone .feedback-field :is(input,textarea){min-width:0!important;max-width:100%!important;box-sizing:border-box}
+html.bbb-phone :is(.history-section-head,.history-week-head,.history-section-title,.history-habit-top,.week-summary-habit-top){gap:10px!important;min-width:0!important}
+html.bbb-phone :is(.history-section-head,.history-week-head,.history-section-title){flex-wrap:wrap!important}
+html.bbb-phone :is(.history-habit-name,.week-summary-habit-name){white-space:normal!important;overflow-wrap:anywhere!important}
+html.bbb-phone :is(.history-habit-count,.week-summary-habit-count){flex-shrink:0!important}
+/* Dialogs fit the visible viewport, including a phone's on-screen keyboard. */
+html.bbb-phone body .modal-backdrop{inset:auto!important;top:var(--bbb-vtop)!important;left:var(--bbb-vleft)!important;width:var(--bbb-vw)!important;height:var(--bbb-vh)!important;padding:10px!important;box-sizing:border-box!important;transition:none!important;overflow:auto!important;overscroll-behavior:contain;align-items:center!important;justify-items:center!important}
+html.bbb-phone body .modal-backdrop .modal{margin:0!important;min-width:0!important;max-width:100%!important;max-height:100%!important;overflow-y:auto!important;overflow-x:hidden!important;box-sizing:border-box!important;padding:18px 16px!important;overscroll-behavior:contain}
+html.bbb-phone #settingsModal .modal,html.bbb-phone #themesModal .modal{width:min(650px,100%)!important}
+html.bbb-phone #settingsModal .modal{padding:16px!important}
+html.bbb-phone #settingsModal .modal>h3{font-size:23px!important;line-height:1.18!important}
+html.bbb-phone .modal h3{overflow-wrap:anywhere}
+html.bbb-phone .modal-actions{position:sticky!important;bottom:-1px!important;flex-wrap:wrap!important;gap:8px!important;max-width:100%!important;background:var(--surface-strong)!important;padding-top:10px!important;z-index:4}
+html.bbb-phone .modal-actions button{min-width:0!important;max-width:100%;white-space:normal!important}
+html.bbb-phone #settingsModal .settings-tabs{margin:14px 0!important;gap:4px!important;padding:4px!important;grid-template-columns:repeat(3,minmax(0,1fr))!important}
+html.bbb-phone #settingsModal .settings-tab{min-width:0!important;font-size:12px!important;padding:7px 3px!important;line-height:1.2!important;white-space:normal!important}
+html.bbb-phone #settingsModal .settings-habits-head{gap:6px!important;flex-wrap:wrap!important}
+html.bbb-phone #settingsModal .habit-edit-row{padding:10px!important;grid-template-columns:minmax(0,1fr) 30px!important;gap:7px!important}
+html.bbb-phone #settingsModal .habit-edit-fields{grid-template-columns:minmax(0,1fr) 60px!important;gap:10px!important}
+html.bbb-phone #settingsModal .habit-edit-fields label{min-width:0!important;white-space:normal!important}
+html.bbb-phone #settingsModal .habit-edit-fields label:first-child{grid-column:1 / -1!important}
+html.bbb-phone #settingsModal .habit-color-label{grid-column:2!important;grid-row:2!important}
+html.bbb-phone #settingsModal .remove-habit{width:30px!important;min-width:30px!important;align-self:end!important}
+html.bbb-phone .backup-panel{padding:12px!important}
+html.bbb-phone .backup-actions{gap:8px!important}
+html.bbb-phone .backup-actions button{max-width:100%!important;white-space:normal!important;flex:0 1 auto!important}
+html.bbb-phone .tutorial-setting{flex-direction:row!important;flex-wrap:wrap!important;gap:10px!important}
+html.bbb-phone .tutorial-setting button{width:auto!important;max-width:100%!important}
+html.bbb-phone :is(.clock-format-setting,.daily-task-color-setting,.later-task-color-setting,.task-sort-setting,.study-mode-setting){gap:10px!important;min-width:0!important}
+html.bbb-phone :is(.clock-format-setting,.daily-task-color-setting,.later-task-color-setting,.task-sort-setting,.study-mode-setting)>div{min-width:0!important;flex:1 1 auto}
+html.bbb-phone .settings-switch{flex:0 0 auto!important}
+html.bbb-phone .study-settings-panel{padding:12px!important;min-width:0!important}
+html.bbb-phone .study-time-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+html.bbb-phone .study-time-grid>label{min-width:0!important}
+html.bbb-phone .study-number-wrap{min-width:0!important;max-width:100%!important;box-sizing:border-box!important;gap:5px!important;padding:0 7px!important}
+html.bbb-phone #settingsModal .study-number-wrap input{width:0!important;min-width:32px!important;flex:1 1 0!important;padding-left:0!important;padding-right:0!important}
+html.bbb-phone #settingsModal .study-number-wrap>span{flex:0 1 auto!important;min-width:0!important;white-space:normal!important;line-height:1.15!important}
+html.bbb-phone .focus-only-setting{grid-template-columns:minmax(0,1fr)!important}
+html.bbb-phone .theme-grid,html.bbb-phone .themes-modal .theme-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;min-width:0!important}
+html.bbb-phone .theme-btn{min-width:0!important;padding:7px!important}
+html.bbb-phone .theme-swatch{height:100px!important;min-height:0!important}
+html.bbb-phone .theme-btn span{font-size:14px!important;line-height:1.2!important;overflow-wrap:anywhere!important}
+/* Keep editable text readable without enlarging control boxes or disabling zoom. */
+html.bbb-phone body :is(input[type="text"],input[type="email"],input[type="number"],input:not([type]),textarea){font-size:16px!important}
+/* Existing custom calendar, not a replacement date picker. */
+html.bbb-phone .custom-due-picker{box-sizing:border-box!important;max-width:calc(var(--bbb-vw) - 20px)!important;max-height:calc(var(--bbb-vh) - 20px)!important;overflow:auto!important;overscroll-behavior:contain;padding:12px!important}
+html.bbb-phone .due-picker-time{grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr) minmax(0,1fr)!important;gap:5px!important}
+html.bbb-phone .due-time-select{padding:0 5px!important;min-width:0!important}
+html.bbb-phone .due-picker-current{align-items:baseline!important;flex-direction:row!important;gap:8px!important}
+html.bbb-phone .due-picker-current-value{font-size:11px!important;white-space:normal!important}
+html.bbb-phone .due-picker-actions{flex-wrap:wrap!important;gap:6px!important}
+/* The clock/timer shares the original artwork. Fit the time, not a scaled page. */
+html.bbb-phone body.clock-mode .clock-page{inset:0!important;left:0!important;right:0!important;min-width:0!important;min-height:0!important;width:100%!important;height:100dvh!important;max-width:100%!important}
+html.bbb-phone .study-view{left:0!important;right:0!important;width:100%!important;min-width:0!important;box-sizing:border-box!important;transition:none!important}
+html.bbb-phone .studying-mode-switch{top:14px!important;left:50%!important;transform:translateX(-50%)!important;transition:none!important}
+html.bbb-phone .studying-mode-btn{padding:8px 12px!important;font-size:11px!important}
+html.bbb-phone .clock-fullscreen{top:14px!important;right:12px!important;padding:9px!important;gap:0!important;width:34px!important;height:34px!important;min-width:34px!important;box-sizing:border-box!important}
+html.bbb-phone .clock-fullscreen span{display:none!important}
+html.bbb-phone .clock-content{width:100%!important;max-width:100%!important;padding:0 12px!important;box-sizing:border-box!important;left:auto!important;transform:none!important;margin:0!important}
+html.bbb-phone .clock-time{max-width:100%!important;white-space:nowrap!important}
+html.bbb-phone .clock-digits{font-size:clamp(60px,19vw,110px)!important;line-height:1!important}
+html.bbb-phone .clock-period{font-size:clamp(17px,4.5vw,25px)!important}
+html.bbb-phone .clock-date{font-size:clamp(14px,3.8vw,20px)!important;white-space:normal!important;line-height:1.35!important}
+html.bbb-phone .study-timer-view{padding:66px 14px 60px!important;overflow-y:auto!important;overscroll-behavior:contain;align-items:safe center!important}
+html.bbb-phone .study-timer-card{width:min(420px,100%)!important;max-width:100%!important;min-width:0!important;min-height:0!important;padding:24px 16px 20px!important;box-sizing:border-box!important;flex:0 0 auto!important}
+html.bbb-phone .study-timer-time{font-size:clamp(54px,18vw,92px)!important;line-height:1!important}
+html.bbb-phone .study-timer-kicker{margin-bottom:12px!important}
+html.bbb-phone .study-timer-meta{margin-top:12px!important}
+html.bbb-phone .study-timer-controls{margin-top:18px!important;gap:7px!important;max-width:100%!important}
+html.bbb-phone .study-timer-controls button{min-width:64px!important;height:38px!important;padding:0 12px!important;flex:0 1 auto!important}
+/* Help and tutorial remain inside the visible area rather than covering controls. */
+html.bbb-phone #bloomHelpLauncher{right:12px!important;bottom:calc(var(--bbb-vbottom) + 12px)!important;width:46px!important;height:46px!important;font-size:36px!important}
+html.bbb-phone #bloomHelpPanel{right:auto!important;left:calc(var(--bbb-vleft) + 10px)!important;bottom:calc(var(--bbb-vbottom) + 10px)!important;width:min(430px,calc(var(--bbb-vw) - 20px))!important;max-height:calc(var(--bbb-vh) - 20px)!important}
+html.bbb-phone .bloom-help-head{padding:15px 16px 12px!important;gap:8px!important;flex-shrink:0;min-width:0}
+html.bbb-phone .bloom-help-head h2{font-size:23px!important}
+html.bbb-phone .bloom-help-body{min-height:0!important;padding:12px 14px!important}
+html.bbb-phone .bloom-help-footer{flex-shrink:0;padding:0 14px 12px!important;gap:8px!important}
+html.bbb-phone #tutorialCoach:not(.minimized){max-height:var(--bbb-coach-limit)!important;overflow-y:auto!important;overflow-x:hidden!important;padding:14px!important;box-sizing:border-box!important;overscroll-behavior:contain;touch-action:pan-y}
+html.bbb-phone #tutorialCoach :is(.tutorial-coach-title,.tutorial-coach-step){touch-action:none}
+html.bbb-phone #tutorialCoach .tutorial-coach-title{font-size:22px!important;line-height:1.15!important}
+html.bbb-phone #tutorialCoach .tutorial-coach-text{font-size:13px!important;line-height:1.45!important}
+html.bbb-phone #tutorialCoach .tutorial-coach-hint{font-size:12px!important;line-height:1.4!important}
+html.bbb-phone #tutorialCoach .tutorial-coach-actions{position:sticky;bottom:-1px;background:var(--surface-strong);padding-top:8px;gap:6px;z-index:3}
+html.bbb-phone #tutorialCoach .tutorial-coach-actions button{font-size:13px!important;padding:8px 9px!important;white-space:normal!important;min-width:0!important}
+html.bbb-phone #tutorialCoachMinimize{touch-action:none}
+html.bbb-phone #tutorialExamplePanel{width:min(470px,calc(var(--bbb-vw) - 20px))!important;max-height:calc(var(--bbb-vh) - 20px)!important;overflow:auto!important;box-sizing:border-box}
+html.bbb-phone .tutorial-actions{gap:8px;flex-wrap:wrap}
+html.bbb-phone .tutorial-actions button{min-width:0!important;max-width:100%;white-space:normal}
+html.bbb-phone:has(#tutorialCoach.open:not(.minimized):not([data-bbb-centered="true"])) :is(#settingsModal,#themesModal){height:calc(var(--bbb-vh) - var(--bbb-coach-h))!important;align-items:start!important}
+html.bbb-phone:has(#tutorialCoach.open:not(.minimized):not([data-bbb-centered="true"])) .main{padding-bottom:calc(var(--bbb-coach-h) + 24px)!important}
+html.bbb-phone .toast{max-width:calc(100vw - 32px)!important;white-space:normal!important;text-align:center;box-sizing:border-box;bottom:calc(var(--bbb-vbottom) + 14px)!important}
+html.bbb-phone .celebration-card{width:min(520px,calc(var(--bbb-vw) - 24px))!important;max-width:100%!important;max-height:calc(var(--bbb-vh) - 24px)!important;box-sizing:border-box!important;overflow:auto!important;padding:24px 18px!important}
+html.bbb-phone .reward-name{overflow-wrap:anywhere}
+html.bbb-phone .pull-chip{max-width:calc(100vw - 28px)!important;box-sizing:border-box!important}
+html.bbb-phone .pull-caption{width:calc(100vw - 32px)!important;max-width:520px!important;overflow-wrap:anywhere!important}
+/* A short/wide phone is still a phone, not the laptop layout. */
+@media(min-width:620px){
+ html.bbb-phone .sidebar{padding-top:10px!important;padding-bottom:10px!important}
+ html.bbb-phone .sidebar .brand{display:none!important}
+ html.bbb-phone .sidebar .nav{gap:3px!important}
+ html.bbb-phone .sidebar .nav-btn{min-height:34px!important;padding-top:7px!important;padding-bottom:7px!important}
+ html.bbb-phone .task-columns{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ html.bbb-phone .current-habit.habit-item{grid-template-columns:42px minmax(0,1fr) auto!important}
+ html.bbb-phone .habit-item .habit-pull-btn{grid-column:3;grid-row:1}
+ html.bbb-phone .stat-row{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+ html.bbb-phone .prize-cols{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ html.bbb-phone .prize-col h3{font-size:23px!important}
+ html.bbb-phone .feedback-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ html.bbb-phone .coffee-support-card{grid-template-columns:minmax(0,1fr) auto!important}
+ html.bbb-phone #settingsModal .habit-edit-fields{grid-template-columns:minmax(0,1fr) 110px 60px!important}
+ html.bbb-phone #settingsModal .habit-edit-fields label:first-child{grid-column:1!important}
+ html.bbb-phone #settingsModal .habit-color-label{grid-column:3!important;grid-row:1!important}
+ html.bbb-phone .theme-grid,html.bbb-phone .themes-modal .theme-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ html.bbb-phone .theme-swatch{height:85px!important}
+ html.bbb-phone .due-day{aspect-ratio:auto!important;height:24px!important}
+ html.bbb-phone .due-picker-head{margin-bottom:7px!important}
+ html.bbb-phone .due-picker-time{margin-top:8px!important;padding-top:8px!important}
+ html.bbb-phone .due-picker-actions{margin-top:8px!important}
+ html.bbb-phone .study-timer-view{padding:62px 14px 14px!important}
+ html.bbb-phone .study-timer-card{width:min(460px,100%)!important;padding:15px 20px!important}
+ html.bbb-phone .study-timer-time{font-size:min(80px,22dvh)!important}
+ html.bbb-phone .study-timer-kicker{margin-bottom:8px!important}
+ html.bbb-phone .study-timer-meta{margin-top:8px!important;min-height:0!important}
+ html.bbb-phone .study-timer-controls{margin-top:12px!important}
+ html.bbb-phone .clock-digits{font-size:min(128px,33dvh)!important}
+ html.bbb-phone:has(#tutorialCoach.open:not(.minimized):not([data-bbb-centered="true"])) :is(#settingsModal,#themesModal){height:var(--bbb-vh)!important;width:calc(var(--bbb-vw) - var(--bbb-coach-w))!important;align-items:center!important}
+ html.bbb-phone .pull-caption{top:calc(50% + 86px)!important;font-size:14px!important}
+ html.bbb-phone .pull-chip{min-height:94px!important;padding:18px 24px!important}
+}
+@media(max-width:359px){
+ html.bbb-phone .main{padding-left:10px!important;padding-right:10px!important}
+ html.bbb-phone :is(.habit-card,.daily-tasks-card,.later-tasks-card,.pull-progress-card){padding:14px 10px!important}
+ html.bbb-phone .card-title{font-size:21px!important}
+ html.bbb-phone .daily-task-row,html.bbb-phone .daily-task-row.carried,html.bbb-phone .daily-task-row:has(.daily-task-next-day){grid-template-columns:28px minmax(0,1fr) 58px 26px!important;gap:3px!important}
+ html.bbb-phone .study-time-grid{grid-template-columns:minmax(0,1fr)!important}
+}
+/* Resolve the original high-specificity Clock/sidebar positioning rules. */
+html.bbb-phone body{--side-w:128px}
+html.bbb-phone .sidebar .brand{font-size:17px!important;letter-spacing:.12em!important;line-height:1.05!important}
+html.bbb-phone .sidebar .nav-btn{flex-direction:row!important}
+html.bbb-phone body.clock-mode #clockPage .study-view{left:0!important;right:0!important;width:100%!important}
+html.bbb-phone body.clock-mode #clockPage .study-clock-view .clock-content{position:relative!important;inset:auto!important;top:auto!important;left:auto!important;right:auto!important;width:100%!important;max-width:100%!important;transform:none!important;margin:0!important;padding:0 12px!important}
+html.bbb-phone body.clock-mode #clockPage .studying-mode-switch{left:50%!important}
+html.bbb-phone:has(.modal-backdrop.open) :is(#sidebarFab,#bloomHelpLauncher){visibility:hidden!important;pointer-events:none!important}
+/* The guide shares a landscape phone with Settings; keep its form fields
+   stacked when that remaining panel is narrower than a normal phone card. */
+@media(min-width:620px) and (max-width:799px){
+ html.bbb-phone:has(#tutorialCoach.open:not(.minimized)) #settingsModal .habit-edit-fields{grid-template-columns:minmax(0,1fr) 60px!important}
+ html.bbb-phone:has(#tutorialCoach.open:not(.minimized)) #settingsModal .habit-edit-fields label:first-child{grid-column:1 / -1!important}
+ html.bbb-phone:has(#tutorialCoach.open:not(.minimized)) #settingsModal .habit-color-label{grid-column:2!important;grid-row:2!important}
+ html.bbb-phone:has(#tutorialCoach.open:not(.minimized)) #settingsModal .theme-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+/* The phone drawer must never sit in front of a dialog opened from it. */
+html.bbb-phone body .modal-backdrop{z-index:1000!important}
+
+/* Phone tutorial: show the drawer only for a highlighted navigation task.
+   No animation here: the coach must measure the target in its final position. */
+html.bbb-phone body.tutorial-running #sidebar{transition:none!important}
+html.bbb-phone body.tutorial-running.bbb-tutorial-nav-needed #sidebar{
+  display:flex!important;visibility:visible!important;opacity:1!important;
+  transform:none!important;pointer-events:auto!important;
+}
+html.bbb-phone body.tutorial-running:not(.bbb-tutorial-nav-needed) :is(#sidebar,#sidebarFab){
+  visibility:hidden!important;pointer-events:none!important;
+}
+/* The Studying arrow is also navigation, except when it exits fullscreen. */
+html.bbb-phone body.tutorial-running:not(.bbb-tutorial-nav-needed):not(.aby-study-fullscreen):not(.clock-browser-fullscreen):not(.study-faux-fullscreen) #clockBack{
+  visibility:hidden!important;pointer-events:none!important;
+}
+
+</style>
+<style id="bbb-phone-tutorial-scroll-safety">
+/* Phone tutorial only: a bounded grid makes the dialog itself scroll, rather
+   than clipping a tall dialog inside a second, smaller scrolling backdrop. */
+html.bbb-phone body.tutorial-running:has(#tutorialCoach.open) :is(#settingsModal,#themesModal){
+  top:var(--bbb-tour-dialog-y,var(--bbb-vtop))!important;
+  left:var(--bbb-tour-dialog-x,var(--bbb-vleft))!important;
+  width:var(--bbb-tour-dialog-w,var(--bbb-vw))!important;
+  height:var(--bbb-tour-dialog-h,var(--bbb-vh))!important;
+  min-width:0!important;min-height:0!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:minmax(0,1fr)!important;
+  align-items:center!important;overflow:hidden!important;
+}
+html.bbb-phone body.tutorial-running:has(#tutorialCoach.open) :is(#settingsModal,#themesModal)>.modal{
+  min-width:0!important;min-height:0!important;
+  max-height:100%!important;overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch;
+}
+/* Scroll only the copy. The sparkle and drag handle must never scroll away;
+   Next/Back/End stay reachable even on a short landscape screen. */
+html.bbb-phone body.tutorial-running #tutorialCoach:not(.minimized){
+  display:flex!important;flex-direction:column;overflow:hidden!important;
+}
+html.bbb-phone body.tutorial-running #tutorialCoachContent{
+  display:flex;flex-direction:column;min-height:0;min-width:0;
+  flex:0 1 auto;max-height:calc(var(--bbb-coach-limit) - 30px);
+}
+html.bbb-phone body.tutorial-running #tutorialCoach .bbb-phone-coach-copy{
+  min-height:0;flex:0 1 auto;overflow-x:hidden;overflow-y:auto;
+  overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch;
+}
+html.bbb-phone body.tutorial-running #tutorialCoach :is(.tutorial-coach-step,.tutorial-coach-title,.tutorial-coach-actions){
+  flex:0 0 auto;
+}
+html.bbb-phone body.tutorial-running #tutorialCoach.mini-ready :is(.tutorial-coach-step,.tutorial-coach-title){
+  padding-right:44px;
+}
+html.bbb-phone body.tutorial-running #tutorialCoach .tutorial-coach-actions{
+  position:relative!important;bottom:auto!important;
+}
+html.bbb-phone body.tutorial-running #tutorialCoach.minimized #tutorialCoachContent{
+  display:none!important;
+}
+</style>
+<style id="bbb-device-note-and-phone-polish">
+/* All devices: informational copy in Basic; no change to other settings tabs. */
+#settingsModal .settings-device-note{
+  margin:6px 0 12px!important;line-height:1.45;font-size:14px;color:var(--muted);
+}
+/* Phone-only completion card. Keep inline words and the sparkle inline rather
+   than laying individual text nodes / <b> tags out as separate grid rows. */
+html.bbb-phone body.tutorial-running #tutorialCoach.final-mode{
+  max-width:calc(var(--bbb-vw) - 20px)!important;
+}
+html.bbb-phone body.tutorial-running #tutorialCoach.final-mode .tutorial-coach-text{
+  display:block!important;
+}
+/* Use the landscape width, not a tall portrait card. The copy retains its
+   scroll fallback for unusually short viewports; controls remain outside it. */
+@media(orientation:landscape){
+  html.bbb-phone body.tutorial-running #tutorialCoach.final-mode .tutorial-coach-step{
+    font-size:11px!important;line-height:1.3!important;margin-bottom:6px!important;
+  }
+  html.bbb-phone body.tutorial-running #tutorialCoach.final-mode .tutorial-coach-title{
+    font-size:24px!important;line-height:1.2!important;margin:0 0 10px!important;
+  }
+  html.bbb-phone body.tutorial-running #tutorialCoach.final-mode .tutorial-coach-title::before{
+    display:inline-block;font-size:23px;line-height:1;margin:0 9px 0 0;vertical-align:baseline;
+  }
+  html.bbb-phone body.tutorial-running #tutorialCoach.final-mode .tutorial-coach-text,
+  html.bbb-phone body.tutorial-running #tutorialCoach.final-mode .tutorial-coach-hint{
+    font-size:15px!important;line-height:1.4!important;
+  }
+  html.bbb-phone body.tutorial-running #tutorialCoach.final-mode .tutorial-coach-actions{
+    margin-top:10px!important;padding-top:0!important;
+  }
+}
+</style>
+<script id="bbb-phone-fit-runtime">
+/* Phone-only housekeeping. Never replace click handlers, state or storage. */
+(()=>{
+  'use strict';
+  const phone=window.BloomPhone;
+  if(!phone)return;
+  function init(){
+    // A 1000 x 600 SVG stretched to a tall screen turns its circular orb into
+    // an ellipse and squeezes the flight path. Uniform scaling preserves both
+    // the curve and its centered landing in either phone orientation.
+    const flight=document.getElementById('pullFlightSvg');
+    const originalAspect=flight?.getAttribute('preserveAspectRatio');
+    let wasPhone=false,desktopCollapsed=document.body.classList.contains('sidebar-collapsed');
+    function applyMode(){
+      if(phone.active){
+        if(!wasPhone)desktopCollapsed=document.body.classList.contains('sidebar-collapsed');
+        flight?.setAttribute('preserveAspectRatio','xMidYMid meet');
+        if(!wasPhone && !document.body.classList.contains('tutorial-running'))collapseDrawer();
+        phone.sync();
+      }else{
+        if(flight){if(originalAspect==null)flight.removeAttribute('preserveAspectRatio');else flight.setAttribute('preserveAspectRatio',originalAspect);}
+        document.body.classList.remove('bbb-tutorial-nav-needed');
+        if(wasPhone){
+          document.body.classList.toggle('sidebar-collapsed',desktopCollapsed);
+          const toggle=document.getElementById('sidebarFab');
+          const label=desktopCollapsed?'Open navigation':'Hide navigation';
+          toggle?.setAttribute('aria-label',label);if(toggle)toggle.title=label;
+        }
+      }
+      if(document.querySelector('#settingsModal.open') && (window.visualViewport?.width||innerWidth)<=760)collapseDrawer();
+      wasPhone=phone.active;
+    }
+    window.addEventListener('bloomdevicechange',applyMode);
+    function collapseDrawer(){
+      document.body.classList.add('sidebar-collapsed');
+      const button=document.getElementById('sidebarFab');
+      button?.setAttribute('aria-label','Open navigation');
+      if(button)button.title='Open navigation';
+    }
+    // On phones navigation overlays the page instead of squeezing its cards.
+    // This initial choice is intentionally not written into saved preferences.
+    applyMode();
+    document.addEventListener('click',event=>{
+      if(!phone.active)return;
+      if(document.body.classList.contains('tutorial-running'))return;
+      const target=event.target instanceof Element?event.target:null;
+      if(!target)return;
+      if(target.closest('.sidebar .nav-btn')){collapseDrawer();return;}
+      if(!target.closest('#sidebar,#sidebarFab,#clockBack,.modal-backdrop') &&
+          !document.querySelector('.modal-backdrop.open'))collapseDrawer();
+    });
+    // Listen before the legacy navigation handlers that stop propagation.
+    // Schedule only dismissal, never cancel or replay the navigation action.
+    document.addEventListener('click',event=>{
+      if(!phone.active)return;
+      if(!(event.target instanceof Element))return;
+      const nav=event.target.closest('.sidebar .nav-btn');
+      if(!nav)return;
+      const inTutorial=document.body.classList.contains('tutorial-running');
+      // Ignore the tutorial's synthetic page changes. Only dismiss a required
+      // tab after the user's real tap, without swallowing its navigation click.
+      if(inTutorial && (!event.isTrusted || !nav.classList.contains('tutorial-focus')))return;
+      requestAnimationFrame(()=>{
+        if(!document.body.classList.contains('tutorial-running')){collapseDrawer();return;}
+        // A newer tutorial step owns the drawer now; do not override it.
+        if(inTutorial && nav.classList.contains('tutorial-focus')){
+          document.body.classList.remove('bbb-tutorial-nav-needed');
+          collapseDrawer();
+        }
+      });
+    },true);
+    // A touch release on the sparkle moves/resizes the guide immediately.
+    // Some browsers then retarget its compatibility click to the newly
+    // exposed Next button. Consume only that same gesture's extra click;
+    // a fresh pointerdown always allows the user's next intentional tap.
+    let sparkleTouchRelease=false;
+    window.addEventListener('pointerdown',()=>{sparkleTouchRelease=false;},true);
+    window.addEventListener('pointercancel',()=>{sparkleTouchRelease=false;},true);
+    window.addEventListener('pointerup',event=>{
+      if(!phone.active)return;
+      if(event.pointerType==='touch' && event.target instanceof Element &&
+         event.target.closest('#tutorialCoachMinimize'))sparkleTouchRelease=true;
+    },true);
+    window.addEventListener('click',event=>{
+      if(!phone.active)return;
+      if(!sparkleTouchRelease || !event.isTrusted || (event.detail===0 && event.pointerType!=='touch'))return;
+      sparkleTouchRelease=false;
+      event.preventDefault();event.stopImmediatePropagation();
+    },true);
+    phone.sync();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+})();
+
+</script>
+
+<style id="bbb-device-picker-styles">
+/* The chooser is independent of either layout, including an accidental choice. */
+#bbbDevicePicker[hidden]{display:none!important}
+#bbbDevicePicker:not([hidden]){position:fixed!important;inset:auto!important;left:var(--device-chooser-x,0px)!important;top:var(--device-chooser-y,0px)!important;width:var(--device-chooser-w,100vw)!important;height:var(--device-chooser-h,100dvh)!important;z-index:80000!important;display:flex!important;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;overflow:auto;background:rgba(9,17,13,.76);color:var(--text,#252c24);overscroll-behavior:contain}
+#bbbDevicePicker .bbb-device-dialog{width:min(520px,100%);max-height:calc(var(--device-chooser-h,100dvh) - 32px);overflow:auto;box-sizing:border-box;margin:auto;background:var(--surface-strong,#f8f1e6);border:1px solid var(--edge,#c6bda7);border-radius:18px;padding:24px;box-shadow:0 20px 70px rgba(0,0,0,.3);font-family:var(--theme-ui,system-ui);text-align:left}
+#bbbDevicePicker h2{font:600 29px/1.15 var(--theme-font,Georgia);margin:8px 0 12px;color:inherit}
+#bbbDevicePicker p{font:14px/1.5 var(--theme-ui,system-ui);margin:8px 0 16px;color:var(--muted,#535c50)}
+#bbbDevicePicker .bbb-device-kicker{font:700 10px/1.4 var(--theme-ui,system-ui);letter-spacing:.16em;opacity:.65}
+#bbbDevicePicker .bbb-device-options{border:0;margin:0 0 16px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;min-width:0}
+#bbbDevicePicker .bbb-device-option{display:flex;align-items:flex-start;gap:8px;margin:0;padding:14px 10px;min-width:0;border:1px solid var(--edge,#c6bda7);border-radius:12px;cursor:pointer;background:var(--surface-soft,rgba(255,255,255,.4));font:14px/1.4 var(--theme-ui,system-ui)}
+#bbbDevicePicker .bbb-device-option.selected{border-color:var(--button,#53624b);box-shadow:inset 0 0 0 1px var(--button,#53624b)}
+#bbbDevicePicker .bbb-device-option span{min-width:0}
+#bbbDevicePicker .bbb-device-option strong{display:block;color:inherit}
+#bbbDevicePicker input[type=radio],#bbbDevicePicker input[type=checkbox],#bbbDeviceSettings input[type=checkbox]{width:16px!important;min-width:16px!important;height:16px!important;padding:0!important;margin:2px 0 0!important;flex:0 0 16px;accent-color:var(--button,#53624b)}
+#bbbDevicePicker .bbb-device-remember,#bbbDeviceSettings .bbb-device-remember{display:flex!important;align-items:flex-start;gap:9px;margin:12px 0!important;font:13px/1.45 var(--theme-ui,system-ui)!important;cursor:pointer}
+#bbbDevicePicker .bbb-device-footnote,#bbbDeviceSettings .bbb-device-footnote{font-size:11px!important;line-height:1.45!important;opacity:.78;margin:10px 0!important}
+#bbbDevicePicker .bbb-device-actions{display:flex;justify-content:flex-end;margin-top:14px}
+#bbbDeviceContinue{width:auto!important;min-width:105px!important;padding:10px 20px!important;border:1px solid var(--button,#53624b);border-radius:10px;background:var(--button,#53624b);color:var(--button-text,#fffaf0);font:600 15px/1.3 var(--theme-ui,system-ui);cursor:pointer}
+#bbbDeviceContinue:disabled{opacity:.45;cursor:not-allowed}
+.bbb-device-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#bbbDeviceSettings{border:1px solid var(--edge);border-radius:12px;padding:14px 14px 10px;margin:14px 0;color:var(--text);background:var(--surface-soft)}
+#bbbDeviceSettings>strong{font:700 16px/1.35 var(--theme-font,Georgia)}
+#bbbDeviceSettings p{font:13px/1.45 var(--theme-ui,system-ui);color:var(--muted);margin:6px 0 12px}
+#bbbDeviceSettings>label{margin:8px 0 4px;display:block;font:13px/1.4 var(--theme-ui,system-ui)}
+#bbbDeviceSetting{display:block;width:100%;box-sizing:border-box;min-width:0;max-width:100%;border:1px solid var(--edge);border-radius:8px;background:var(--surface-strong);color:var(--text);padding:9px 10px;font:14px/1.3 var(--theme-ui,system-ui)}
+#bbbDeviceSettings .bbb-device-setting-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+#bbbApplyDevice{border:1px solid var(--button,#53624b);border-radius:9px;background:var(--button,#53624b);color:var(--button-text,#fffaf0);cursor:pointer;width:auto!important;min-width:0!important;max-width:100%;padding:8px 12px;font:600 13px/1.4 var(--theme-ui,system-ui)}
+.bbb-device-status{font:12px/1.4 var(--theme-ui,system-ui)!important;color:var(--muted)}
+.bbb-device-status:empty{display:none!important}
+/* Enchanted Library uses a delicate serif, so keep the small device copy comfortably readable. */
+body[data-theme="fantasy"] #bbbDevicePicker .bbb-device-footnote{font-size:14px!important;line-height:1.5!important;opacity:.9}
+body[data-theme="fantasy"] #bbbDevicePicker .bbb-device-remember{font-size:15px!important;line-height:1.45!important}
+body[data-theme="fantasy"] #bbbDevicePicker .bbb-device-option{font-size:15px!important}
+body[data-theme="fantasy"] #bbbDeviceSettings .bbb-device-footnote{font-size:13px!important;line-height:1.5!important;opacity:.88}
+/* A narrow laptop/tablet keeps the same left-hand navigation, never the old
+   half-bottom/half-sidebar combination. Large-screen geometry is unchanged. */
+html.bbb-desktop #sidebar{display:flex;flex-direction:column;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain}
+html.bbb-desktop #sidebar .nav{flex-direction:column;justify-content:flex-start;width:100%;flex:0 0 auto}
+html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowrap}
+@media(max-width:760px){
+ html.bbb-desktop #sidebar{padding:18px 8px}
+ html.bbb-desktop #sidebar .nav{gap:7px!important}
+ html.bbb-desktop #sidebar .nav-btn{padding:9px 7px!important;display:flex!important;flex-direction:row!important;align-items:center!important;gap:8px!important;font-size:12px!important}
+ html.bbb-desktop #sidebar .brand{display:block;font-size:32px;flex:0 0 auto;margin-bottom:18px}
+ /* Recovery Settings fits even when Laptop was chosen on a very small phone. */
+ html.bbb-desktop #settingsModal{inset:auto!important;top:var(--device-chooser-y,0px)!important;left:var(--device-chooser-x,0px)!important;width:var(--device-chooser-w,100vw)!important;height:var(--device-chooser-h,100dvh)!important;padding:48px 10px 10px!important;align-items:center!important}
+ html.bbb-desktop #settingsModal>.modal{width:min(760px,100%)!important;max-width:100%!important;max-height:calc(var(--device-chooser-h,100dvh) - 58px)!important;min-width:0!important;box-sizing:border-box!important}
+}
+@media(max-width:380px){
+ #bbbDevicePicker .bbb-device-dialog{padding:18px}
+ #bbbDevicePicker .bbb-device-options{gap:6px}
+ #bbbDevicePicker .bbb-device-option{padding:11px 7px;gap:5px}
+ #bbbDevicePicker h2{font-size:25px}
+}
+@media(max-height:460px){
+ #bbbDevicePicker .bbb-device-dialog{padding:16px 20px}
+ #bbbDevicePicker h2{font-size:24px;margin:5px 0 8px}
+ #bbbDevicePicker p{margin:6px 0 10px;font-size:13px}
+ #bbbDevicePicker .bbb-device-options{margin-bottom:8px}
+ #bbbDevicePicker .bbb-device-option{padding:10px}
+ #bbbDevicePicker .bbb-device-actions{margin-top:8px}
+}
+/* Keep these controls out from under the existing sticky Save/Cancel footer. */
+#bbbDeviceSettings :is(select,input,button){scroll-margin-top:65px;scroll-margin-bottom:90px}
+
+</style>
+<script id="bbb-device-picker-runtime">
+(()=>{
+  'use strict';
+  const $=id=>document.getElementById(id),pref=window.BloomDevice;
+  const picker=$('bbbDevicePicker'),form=$('bbbDeviceForm');
+  if(!pref || !picker || !form)return;
+  function syncSettings(){
+    $('bbbDeviceSetting').value=pref.device;
+    $('bbbDeviceRememberSetting').checked=pref.dontAskAgain;
+    $('bbbDeviceSettingStatus').textContent='';
+  }
+  function saveSettingsChoice(options={}){
+    const result=pref.choose($('bbbDeviceSetting').value,$('bbbDeviceRememberSetting').checked);
+    if(!result.ok)return false;
+    const selected=$('bbbDeviceSetting')?.selectedOptions?.[0]?.textContent||'Device';
+    $('bbbDeviceSettingStatus').textContent=result.persisted?selected+' selected and saved.':selected+' selected for this visit. Browser storage is unavailable, so it cannot be remembered.';
+    if(options.notify!==false && !result.persisted)window.BloomByBitApp?.toast?.('Layout applied for this visit; browser storage is unavailable.');
+    return true;
+  }
+  function refreshOptions(){
+    $('bbbDeviceContinue').disabled=!form.querySelector('input[name="bbbDevice"]:checked');
+    form.querySelectorAll('.bbb-device-option').forEach(label=>label.classList.toggle('selected',!!label.querySelector('input')?.checked));
+  }
+  function finishChoice(){
+    const selected=form.querySelector('input[name="bbbDevice"]:checked');
+    if(!selected)return;
+    const result=pref.choose(selected.value,$('bbbDeviceRemember').checked);
+    if(!result.ok)return;
+    picker.hidden=true;syncSettings();pref.ready();
+    if(!result.persisted)window.BloomByBitApp?.toast?.('Layout applied for this visit; this browser could not save your choice.');
+  }
+  form.addEventListener('change',refreshOptions);
+  form.addEventListener('submit',event=>{event.preventDefault();finishChoice();});
+  $('bbbApplyDevice').addEventListener('click',()=>saveSettingsChoice());
+  window.BloomDeviceUI={syncSettings,saveSettingsChoice};
+  window.addEventListener('bloomsettingsopen',syncSettings);
+  function focusables(){return [...form.querySelectorAll('input,button,select,a[href]')].filter(el=>!el.disabled && el.getClientRects().length);}
+  picker.addEventListener('keydown',event=>{
+    if(event.key==='Escape'){event.preventDefault();return;}
+    if(event.key!=='Tab')return;
+    const controls=focusables();if(!controls.length)return;
+    const first=controls[0],last=controls[controls.length-1];
+    if(event.shiftKey && document.activeElement===first){event.preventDefault();last.focus();}
+    else if(!event.shiftKey && document.activeElement===last){event.preventDefault();first.focus();}
+  });
+  syncSettings();
+  if(pref.startupPending){
+    if(pref.hasChoice){const radio=form.querySelector('input[value="'+pref.device+'"]');if(radio)radio.checked=true;}
+    $('bbbDeviceRemember').checked=pref.dontAskAgain;
+    refreshOptions();picker.hidden=false;
+    requestAnimationFrame(()=>{(form.querySelector('input:checked')||form.querySelector('input[type=radio]'))?.focus({preventScroll:true});});
+  }
+})();
+</script>
