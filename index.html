@@ -9488,11 +9488,51 @@ body[data-theme="tidal"] .study-timer-card{border-radius:30px}
     const root=document.documentElement;
     const viewport=document.querySelector('meta[name="viewport"]');
     let viewportBeforeFullscreen;
+    let fullscreenBackgroundSnapshot=null;
     let fullscreenRequested=false;
     const nativeFull=()=>!!(document.fullscreenElement || document.webkitFullscreenElement);
+
+    function preserveFullscreenBackground(){
+      if(fullscreenBackgroundSnapshot)return;
+      const world=document.querySelector('.world');
+      const source=world?getComputedStyle(world):getComputedStyle(page);
+      fullscreenBackgroundSnapshot={
+        image:page.style.getPropertyValue('background-image'),
+        imagePriority:page.style.getPropertyPriority('background-image'),
+        position:page.style.getPropertyValue('background-position'),
+        positionPriority:page.style.getPropertyPriority('background-position'),
+        size:page.style.getPropertyValue('background-size'),
+        sizePriority:page.style.getPropertyPriority('background-size'),
+        repeat:page.style.getPropertyValue('background-repeat'),
+        repeatPriority:page.style.getPropertyPriority('background-repeat')
+      };
+      // Normal Studying deliberately shows the single .world background through
+      // a transparent page. In native fullscreen that .world layer sits outside
+      // the fullscreen top layer, so copy that exact rendered image onto the
+      // Studying page only for the fullscreen session.
+      page.style.setProperty('background-image',source.backgroundImage,'important');
+      page.style.setProperty('background-position',source.backgroundPosition||'center center','important');
+      page.style.setProperty('background-size',source.backgroundSize||'cover','important');
+      page.style.setProperty('background-repeat',source.backgroundRepeat||'no-repeat','important');
+    }
+    function restoreFullscreenBackground(){
+      if(!fullscreenBackgroundSnapshot)return;
+      const snap=fullscreenBackgroundSnapshot;fullscreenBackgroundSnapshot=null;
+      for(const [prop,value,priority] of [
+        ['background-image',snap.image,snap.imagePriority],
+        ['background-position',snap.position,snap.positionPriority],
+        ['background-size',snap.size,snap.sizePriority],
+        ['background-repeat',snap.repeat,snap.repeatPriority]
+      ]){
+        if(value)page.style.setProperty(prop,value,priority||'');
+        else page.style.removeProperty(prop);
+      }
+    }
     const visualFull=()=>document.body.classList.contains('aby-study-fullscreen');
 
     function setVisual(on){
+      if(on)preserveFullscreenBackground();
+      else restoreFullscreenBackground();
       // Extend only this fullscreen session under the device's safe areas.
       // Restore the original viewport setting on exit to preserve other pages.
       if(on && viewport && viewportBeforeFullscreen===undefined){
