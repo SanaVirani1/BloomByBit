@@ -1,4 +1,9 @@
 <!doctype html>
+<!--
+  Bloom by Bit — cleaned single-file build
+  CSS source order and JavaScript execution order are intentionally preserved.
+  Device-specific behavior remains controlled by the existing Laptop / Tablet / Phone preference.
+-->
 <html lang="en">
 <head>
 <style id="bbb-help-no-flash">
@@ -211,7 +216,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" type="image/png" href="data:image/png;base64,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">
 <title>Bloom by Bit — Reward Habit Dashboard</title>
-<style>
+<style id="bloom-core-styles">
+/* ===== anonymous-style-1 ===== */
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
 :root{
  --ink:#20251f; --cream:#f4eddf; --cream2:#ebe0cf; --paper:rgba(248,241,230,.96); --paper2:rgba(239,229,211,.96);
@@ -683,9 +689,8 @@ body[data-theme="fantasy"] .world, body[data-theme="fantasy"] .clock-page {
   -webkit-mask-size:contain;mask-size:contain;
   transition:background-color .25s ease;
 }
-</style>
 
-<style id="celestial-native-background">
+/* ===== celestial-native-background ===== */
 body[data-theme="celestial"] .world, body[data-theme="celestial"] .clock-page {
   background-image: url("assets/image-12-63e520986f1a.png") !important;
   background-size: cover !important;
@@ -694,10 +699,8 @@ body[data-theme="celestial"] .world, body[data-theme="celestial"] .clock-page {
   background-color: transparent !important;
   filter: none !important;
 }
-</style>
 
-
-<style id="storybook-native-background">
+/* ===== storybook-native-background ===== */
 body[data-theme="cottage"] .world, body[data-theme="cottage"] .clock-page {
   background-image: url("assets/image-13-b5b1920817a4.png") !important;
   background-size: cover !important;
@@ -706,10 +709,8 @@ body[data-theme="cottage"] .world, body[data-theme="cottage"] .clock-page {
   background-color: transparent !important;
   filter: none !important;
 }
-</style>
 
-
-<style id="neon-native-background">
+/* ===== neon-native-background ===== */
 body[data-theme="nocturne"] .world, body[data-theme="nocturne"] .clock-page {
   background-image: url("assets/image-14-80c601738e4e.png") !important;
   background-size: cover !important;
@@ -718,10 +719,8 @@ body[data-theme="nocturne"] .world, body[data-theme="nocturne"] .clock-page {
   background-color: transparent !important;
   filter: none !important;
 }
-</style>
 
-
-<style id="tidal-native-background">
+/* ===== tidal-native-background ===== */
 body[data-theme="tidal"] .world, body[data-theme="tidal"] .clock-page {
   background-image: url("assets/image-15-87b9a914a2bb.png") !important;
   background-size: cover !important;
@@ -730,9 +729,8 @@ body[data-theme="tidal"] .world, body[data-theme="tidal"] .clock-page {
   background-color: transparent !important;
   filter: none !important;
 }
-</style>
 
-<style id="smooth-pull-fix">
+/* ===== smooth-pull-fix ===== */
 /* ===== SMOOTH PULL FIX =====
    Keep the reveal container truly centered and use GPU-friendly comet motion. */
 .pull-ritual.open{
@@ -842,8 +840,8 @@ body[data-theme="tidal"] .world, body[data-theme="tidal"] .clock-page {
 @media(max-width:700px){
   .pull-ritual .pull-caption{top:calc(50% + 135px) !important}
 }
-</style>
-<style id="token-reveal-visibility-fix">
+
+/* ===== token-reveal-visibility-fix ===== */
 /* ===== TOKEN REVEAL VISIBILITY FIX ===== */
 .pull-ritual .pull-chip-wrap{
   position:absolute !important;
@@ -887,8 +885,8 @@ body[data-theme="tidal"] .world, body[data-theme="tidal"] .clock-page {
   opacity:1 !important;
   visibility:visible !important;
 }
-</style>
-<style id="final-polish-css">
+
+/* ===== final-polish-css ===== */
 /* Smooth return from the pull scene to the dashboard */
 .pull-ritual.closing{
   pointer-events:none;
@@ -905,8 +903,9 @@ body[data-theme="tidal"] .world, body[data-theme="tidal"] .clock-page {
 .sw-celestial{background-image:url("assets/image-12-63e520986f1a.png")!important;}
 .sw-cottage{background-image:url("assets/image-13-b5b1920817a4.png")!important;}
 .sw-nocturne{background-image:url("assets/image-14-80c601738e4e.png")!important;}
-.sw-tidal{background-image:url("assets/image-15-87b9a914a2bb.png")!important;}</style>
-<style id="canonical-layout">
+.sw-tidal{background-image:url("assets/image-15-87b9a914a2bb.png")!important;}
+
+/* ===== canonical-layout ===== */
 /* ===== CANONICAL LAYOUT: TWO CENTERLINES =====
    CLOSED sidebar -> center in full viewport.
    OPEN sidebar -> center in the remaining area to the right of the sidebar. */
@@ -1059,8 +1058,8 @@ body:not(.sidebar-collapsed) .sidebar-fab svg{
     top:12px !important;
   }
 }
-</style>
-<style id="restore-sidebar-arrow">
+
+/* ===== restore-sidebar-arrow ===== */
 /* ===== RESTORE CIRCULAR SIDEBAR ARROW ===== */
 .sidebar-fab{
   position:fixed !important;
@@ -1113,8 +1112,8 @@ body.sidebar-collapsed .sidebar-fab svg{
 body:not(.sidebar-collapsed) .sidebar-fab svg{
   transform:none !important;
 }
-</style>
-<style id="final-ui-polish-batch">
+
+/* ===== final-ui-polish-batch ===== */
 /* ===== FINAL UI POLISH BATCH ===== */
 
 /* A. Toast should center inside the currently usable dashboard area. */
@@ -1263,8 +1262,8 @@ body[data-theme="celestial"] .motivation-inline .mot-label{
 #themesModal .modal{
   width:min(1050px,100%) !important;
 }
-</style>
-<style id="neon-motivation-descender-fix">
+
+/* ===== neon-motivation-descender-fix ===== */
 /* ===== NEON MOTIVATION + DESCENDER FIX ===== */
 
 /* Force the same motivation typography in Neon Nocturne as every other theme. */
@@ -1308,8 +1307,8 @@ body[data-theme="nocturne"] .motivation-inline .mot-label{
 .current-habit{
   overflow:visible !important;
 }
-</style>
-<style id="backup-restore-styles">
+
+/* ===== backup-restore-styles ===== */
 /* ===== BACKUP / RESTORE ===== */
 .backup-panel{
   margin-top:16px;
@@ -1343,8 +1342,8 @@ body[data-theme="tidal"] .backup-panel{
   background:rgba(9,48,56,.82);
   border-color:rgba(127,209,203,.50);
 }
-</style>
-<style id="creator-credit-style">
+
+/* ===== creator-credit-style ===== */
 /* Creator credit */
 .creator-credit{
   margin:16px 0 2px;
@@ -1355,12 +1354,13 @@ body[data-theme="tidal"] .backup-panel{
   opacity:.52;
   font-weight:500;
 }
-</style><style id="clear-data-style">
+
+/* ===== clear-data-style ===== */
 .clear-data-btn{
   opacity:.82;
 }
-</style>
-<style id="settings-scroll-fix">
+
+/* ===== settings-scroll-fix ===== */
 /* ===== SETTINGS MODAL VIEWPORT FIX ===== */
 #settingsModal{
   overflow:hidden !important;
@@ -1395,8 +1395,8 @@ body[data-theme="tidal"] .backup-panel{
 #settingsModal .modal::-webkit-scrollbar-track{
   background:transparent;
 }
-</style>
-<style id="multi-habit-styles">
+
+/* ===== multi-habit-styles ===== */
 /* ===== MULTI-HABIT ===== */
 .habits-display{
   display:flex;
@@ -1466,8 +1466,8 @@ body[data-theme="tidal"] .backup-panel{
   .settings-habits-head{align-items:flex-start;flex-direction:column}
   .settings-habits-head span{text-align:left}
 }
-</style>
-<style id="coffee-support-style">
+
+/* ===== coffee-support-style ===== */
 /* Coffee / creator page */
 .coffee-page{padding-top:34px;padding-bottom:70px}
 .coffee-shell{width:min(940px,calc(100% - 42px));margin:0 auto}
@@ -1507,8 +1507,8 @@ body[data-theme="tidal"] .backup-panel{
   .coffee-support-button{width:100%}
   .feedback-grid{grid-template-columns:1fr}
 }
-</style>
-<style id="pull-usable-area-centering">
+
+/* ===== pull-usable-area-centering ===== */
 /* ===== PULL RITUAL USABLE-AREA CENTERING ===== */
 body:not(.sidebar-collapsed) .pull-ritual{
   left:var(--side-w) !important;
@@ -1518,14 +1518,14 @@ body.sidebar-collapsed .pull-ritual{
   left:0 !important;
   width:100% !important;
 }
-</style>
-<style id="unlimited-habits-style">
+
+/* ===== unlimited-habits-style ===== */
 /* Unlimited habits */
 #habitEditor{max-height:none!important}
 #settingsModal .modal{overflow-y:auto!important}
 .habit-editor{padding-right:2px}
-</style>
-<style id="wrapping-pull-dots">
+
+/* ===== wrapping-pull-dots ===== */
 /* ===== WRAPPING PULL DOTS =====
    Keep each pull marker a fixed size. Once a row fills, continue on the next row. */
 .dots{
@@ -1566,8 +1566,8 @@ body.sidebar-collapsed .pull-ritual{
     max-height:30px !important;
   }
 }
-</style>
-<style id="habit-colors-reversible-pulls">
+
+/* ===== habit-colors-reversible-pulls ===== */
 /* ===== HABIT COLORS + REVERSIBLE PULLS ===== */
 .habit-item{
   border-left:4px solid var(--habit-color) !important;
@@ -1654,8 +1654,8 @@ body.sidebar-collapsed .pull-ritual{
     grid-column:1 / 2;
   }
 }
-</style>
-<style id="true-shimmering-win-circles">
+
+/* ===== true-shimmering-win-circles ===== */
 /* ===== TRUE SHIMMERING WIN CIRCLES ===== */
 .dot.done.win{
   position:relative !important;
@@ -1732,8 +1732,8 @@ body.sidebar-collapsed .pull-ritual{
 .dot.reversible:hover .win-glitter{
   opacity:0 !important;
 }
-</style>
-<style id="clean-cinematic-pull-v2">
+
+/* ===== clean-cinematic-pull-v2 ===== */
 /* ===== CLEAN CINEMATIC PULL ===== */
 /* Calm vignette; no busy starfield motion. */
 .pull-ritual{
@@ -1966,8 +1966,8 @@ body.sidebar-collapsed .pull-ritual{
   }
   .pull-caption{top:calc(50% + 91px) !important}
 }
-</style>
-<style id="svg-cinematic-pull-rebuild">
+
+/* ===== svg-cinematic-pull-rebuild ===== */
 /* ===== VISIBLE CINEMATIC SVG PULL ===== */
 .pull-ritual{
   background:rgba(5,8,15,.86) !important;
@@ -2152,8 +2152,8 @@ body.sidebar-collapsed .pull-ritual{
   from{opacity:1}
   to{opacity:0}
 }
-</style>
-<style id="cinematic-pull-polish">
+
+/* ===== cinematic-pull-polish ===== */
 /* ===== CINEMATIC PULL — POLISHED REVEAL ===== */
 
 /* The moving orb and trail dissolve completely at landing,
@@ -2283,8 +2283,8 @@ body.sidebar-collapsed .pull-ritual{
   from{opacity:0;letter-spacing:.16em;transform:translateY(5px)}
   to{opacity:1;letter-spacing:.08em;transform:translateY(0)}
 }
-</style>
-<style id="smoother-pull-transition">
+
+/* ===== smoother-pull-transition ===== */
 /* ===== SMOOTHER LANDING -> RESULT TRANSITION ===== */
 /* Let the landing glow taper away instead of cutting directly to the card. */
 .pull-ritual.landed .pull-flight-orb,
@@ -2330,8 +2330,8 @@ body.sidebar-collapsed .pull-ritual{
   45%{opacity:.72;filter:blur(.7px)}
   100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
 }
-</style>
-<style id="extra-smooth-token-reveal">
+
+/* ===== extra-smooth-token-reveal ===== */
 /* Extra-smooth result token reveal */
 .pull-ritual.reveal .pull-chip{animation:tokenSilkIn .92s cubic-bezier(.16,.72,.22,1) forwards!important}
 @keyframes tokenSilkIn{
@@ -2349,8 +2349,8 @@ body.sidebar-collapsed .pull-ritual{
 .pull-ritual.reveal .pull-chip::before{animation:resultSheen 1.35s .52s ease-out forwards!important}
 .pull-ritual.reveal .pull-chip-wrap::after{animation:resultGlints 1.05s .46s ease-out forwards!important}
 .pull-ritual.reveal .pull-caption{animation:svgCaptionIn .42s .48s ease-out forwards!important}
-</style>
-<style id="unified-date-sidebar-type">
+
+/* ===== unified-date-sidebar-type ===== */
 /* ===== UNIFIED DATE + SIDEBAR QUOTE TYPOGRAPHY ===== */
 .date-pill{
   font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif !important;
@@ -2369,8 +2369,8 @@ body.sidebar-collapsed .pull-ritual{
   letter-spacing:.01em !important;
   font-style:italic !important;
 }
-</style>
-<style id="clock-page-style">
+
+/* ===== clock-page-style ===== */
 /* ===== FULL SCREEN CLOCK PAGE ===== */
 .clock-page{
   position:fixed;
@@ -2465,8 +2465,8 @@ body.clock-mode .sidebar-fab,
 body.clock-mode .main{
   visibility:hidden !important;
 }
-</style>
-<style id="clock-page-polish-v2">
+
+/* ===== clock-page-polish-v2 ===== */
 /* ===== CLOCK PAGE POLISH ===== */
 .clock-content{
   width:min(94vw,1180px) !important;
@@ -2597,8 +2597,8 @@ body.clock-mode .main{
   .clock-back{left:14px !important}
   .clock-fullscreen{right:14px !important}
 }
-</style>
-<style id="clock-controls-polish2">
+
+/* ===== clock-controls-polish2 ===== */
 /* ===== CLOCK CONTROLS POLISH ===== */
 .clock-arrow-back{
   width:44px !important;
@@ -2618,9 +2618,7 @@ body.clock-mode .main{
   stroke-linejoin:round !important;
 }
 
-
-</style>
-<style id="clock-sidebar-toggle-fix">
+/* ===== clock-sidebar-toggle-fix ===== */
 /* ===== CLOCK SIDEBAR TOGGLE FIX ===== */
 body.clock-mode .main{
   visibility:hidden !important;
@@ -2655,9 +2653,8 @@ body.clock-mode.sidebar-collapsed .clock-arrow-back{
   opacity:1 !important;
   pointer-events:auto !important;
 }
-</style>
 
-<style id="clock-nav-final-fix-style">
+/* ===== clock-nav-final-fix-style ===== */
 /* There must only be ONE navigation arrow on the Clock page. */
 body.clock-mode .sidebar-fab{
   display:none !important;
@@ -2714,9 +2711,8 @@ body.clock-browser-fullscreen .clock-arrow-back,
 :-webkit-full-screen .clock-arrow-back{
   display:flex !important;
 }
-</style>
 
-<style id="clock-final-state-model">
+/* ===== clock-final-state-model ===== */
 /* ===== FINAL CLOCK NAV / FULLSCREEN STATE MODEL ===== */
 
 /* Clock page stays behind navigation and modals. */
@@ -2771,9 +2767,8 @@ body.clock-browser-fullscreen #clockFullscreen,
 :-webkit-full-screen #clockFullscreen{
   display:none!important;
 }
-</style>
 
-<style id="clock-polish-final-css">
+/* ===== clock-polish-final-css ===== */
 /* Clock/sidebar arrow should sit vertically centered on the drawer edge. */
 body.clock-mode:not(.clock-browser-fullscreen) .sidebar-fab{
   top:50% !important;
@@ -2800,10 +2795,8 @@ body.clock-mode:not(.clock-browser-fullscreen):not(.sidebar-collapsed) .sidebar-
 body.clock-mode .modal-backdrop{
   z-index:260 !important;
 }
-</style>
 
-
-<style id="clock-arrow-top-and-theme-cleanup">
+/* ===== clock-arrow-top-and-theme-cleanup ===== */
 /* Clock page uses the site's original top-positioned sidebar arrow. */
 body.clock-mode:not(.clock-browser-fullscreen) .sidebar-fab{
   top:20px !important;
@@ -2821,10 +2814,8 @@ body.clock-mode:not(.clock-browser-fullscreen):not(.sidebar-collapsed) .sidebar-
     top:12px !important;
   }
 }
-</style>
 
-
-<style id="clock-theme-css-source-of-truth">
+/* ===== clock-theme-css-source-of-truth ===== */
 /* Clock background now comes directly from the same CSS rule as the dashboard background.
    No JS copying is needed, so theme selection is always exact. */
 .clock-page{
@@ -2857,10 +2848,8 @@ body:not(.sidebar-collapsed) .sidebar-fab svg{
 body.sidebar-collapsed .sidebar-fab svg{
   transform:translate(-50%,-50%) translateX(-1px) rotate(180deg) !important;
 }
-</style>
 
-
-<style id="settings-clock-layer-fix">
+/* ===== settings-clock-layer-fix ===== */
 body.clock-mode #settingsModal{
   position:fixed !important;
   inset:0 !important;
@@ -2874,11 +2863,8 @@ body.clock-mode #settingsModal .modal{
   position:relative !important;
   z-index:1001 !important;
 }
-</style>
 
-
-
-<style id="settings-layout-repair">
+/* ===== settings-layout-repair ===== */
 /* Clean, consistent habit rows across every theme */
 #settingsModal .habit-edit-row{
   display:grid !important;
@@ -2985,27 +2971,20 @@ body.clock-mode .clock-page{
   overflow:hidden !important;
   height:100dvh !important;
 }
-</style>
 
-
-
-<style id="quote-spacing-final">
+/* ===== quote-spacing-final ===== */
 #quote{
   word-spacing:normal !important;
   white-space:normal !important;
 }
-</style>
 
-
-<style id="clock-ampm-font-match">
+/* ===== clock-ampm-font-match ===== */
 .clock-period{
   font-family:Georgia,'Times New Roman',serif !important;
   font-weight:400 !important;
 }
-</style>
 
-
-<style id="clock-usable-area-centering">
+/* ===== clock-usable-area-centering ===== */
 /* Center the Clock content in the usable viewport, just like the dashboard:
    - sidebar closed: center in the full screen
    - sidebar open: center in the remaining area to the right of the sidebar */
@@ -3035,10 +3014,8 @@ body.clock-mode.clock-browser-fullscreen .clock-content{
   left:50% !important;
   width:min(94vw,1180px) !important;
 }
-</style>
 
-
-<style id="daily-tasks-feature">
+/* ===== daily-tasks-feature ===== */
 .daily-tasks-card{
   margin-top:16px !important;
   padding:18px 19px !important;
@@ -3211,10 +3188,8 @@ body.clock-mode.clock-browser-fullscreen .clock-content{
     width:100%;
   }
 }
-</style>
 
-
-<style id="daily-tasks-structure-v2">
+/* ===== daily-tasks-structure-v2 ===== */
 .dashboard-stack{
   display:flex !important;
   flex-direction:column !important;
@@ -3264,10 +3239,8 @@ body.clock-mode.clock-browser-fullscreen .clock-content{
   width:100% !important;
   box-sizing:border-box !important;
 }
-</style>
 
-
-<style id="daily-task-color-help-ui">
+/* ===== daily-task-color-help-ui ===== */
 .daily-title-line{
   display:flex;
   align-items:center;
@@ -3404,10 +3377,8 @@ body.clock-mode.clock-browser-fullscreen .clock-content{
 }
 #dailyTaskColorInput::-webkit-color-swatch-wrapper{padding:2px}
 #dailyTaskColorInput::-webkit-color-swatch{border:0;border-radius:6px}
-</style>
 
-
-<style id="habit-help-ui">
+/* ===== habit-help-ui ===== */
 .habit-title-line{
   display:flex;
   align-items:center;
@@ -3475,10 +3446,8 @@ body.clock-mode.clock-browser-fullscreen .clock-content{
   visibility:visible;
   transform:translateY(0);
 }
-</style>
 
-
-<style id="weekly-help-ui">
+/* ===== weekly-help-ui ===== */
 .weekly-title-line{
   display:flex;
   align-items:center;
@@ -3546,10 +3515,8 @@ body.clock-mode.clock-browser-fullscreen .clock-content{
   visibility:visible;
   transform:translateY(0);
 }
-</style>
 
-
-<style id="weekly-habits-tooltip-overflow-fix">
+/* ===== weekly-habits-tooltip-overflow-fix ===== */
 /* Let the Weekly Habits help bubble extend outside the card. */
 .habit-card{
   overflow:visible !important;
@@ -3574,26 +3541,20 @@ body.clock-mode.clock-browser-fullscreen .clock-content{
   position:relative !important;
   z-index:1 !important;
 }
-</style>
 
-
-<style id="clock-uniform-digits">
+/* ===== clock-uniform-digits ===== */
 .clock-digits{
   font-variant-numeric:lining-nums tabular-nums !important;
   font-feature-settings:"lnum" 1,"tnum" 1 !important;
   letter-spacing:-.025em !important;
 }
-</style>
 
-
-<style id="clock-center-by-digits">
+/* ===== clock-center-by-digits ===== */
 .clock-time{position:relative !important;display:block !important;width:max-content !important;margin:0 auto !important;}
 .clock-digits{display:block !important;}
 .clock-period{position:absolute !important;left:calc(100% + .20em) !important;bottom:.10em !important;margin-left:0 !important;white-space:nowrap !important;}
-</style>
 
-
-<style id="military-time-setting-ui">
+/* ===== military-time-setting-ui ===== */
 .clock-period{display:none!important}
 
 .clock-format-setting{
@@ -3660,10 +3621,8 @@ body.clock-mode.clock-browser-fullscreen .clock-content{
   outline:2px solid color-mix(in srgb,var(--accent) 58%,white);
   outline-offset:2px;
 }
-</style>
 
-
-<style id="daily-task-rollover-ui">
+/* ===== daily-task-rollover-ui ===== */
 .daily-task-row.carried{
   grid-template-columns:34px minmax(0,1fr) auto 34px !important;
 }
@@ -3686,10 +3645,8 @@ body.clock-mode.clock-browser-fullscreen .clock-content{
     display:none !important;
   }
 }
-</style>
 
-
-<style id="tasks-for-later-ui">
+/* ===== tasks-for-later-ui ===== */
 .task-columns{
   display:grid !important;
   grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
@@ -3895,10 +3852,8 @@ body.clock-mode.clock-browser-fullscreen .clock-content{
     grid-template-columns:1fr !important;
   }
 }
-</style>
 
-
-<style id="task-spacing-and-drag-ui">
+/* ===== task-spacing-and-drag-ui ===== */
 .task-columns{margin:0!important;}
 .task-columns .daily-tasks-card,.task-columns .later-tasks-card{margin:0!important;align-self:start!important;}
 .daily-task-row,.later-task-row{cursor:grab;}
@@ -3906,16 +3861,12 @@ body.clock-mode.clock-browser-fullscreen .clock-content{
 .daily-task-row.dragging,.later-task-row.dragging{opacity:.48!important;transform:scale(.995);}
 .daily-task-list.drag-over,.later-task-list.drag-over{outline:2px dashed color-mix(in srgb,var(--accent) 55%,var(--edge));outline-offset:5px;border-radius:12px;}
 .daily-tasks-card.drag-over-card,.later-tasks-card.drag-over-card{box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 35%,transparent),0 18px 45px rgba(0,0,0,.12)!important;}
-</style>
 
-
-<style id="clock-exact-home-background">
+/* ===== clock-exact-home-background ===== */
 body.clock-mode .clock-page{background-color:#17241c!important;background-image:linear-gradient(rgba(6,12,9,.18),rgba(6,12,9,.28)),var(--scene)!important;background-size:cover!important;background-position:center center!important;background-repeat:no-repeat!important;filter:saturate(1.03) contrast(1.02)!important;}
 body.clock-mode .clock-shade{display:none!important;}
-</style>
 
-
-<style id="clock-use-home-background-directly">
+/* ===== clock-use-home-background-directly ===== */
 /*
   Do not render a second background on Clock at all.
   The Clock page is transparent so the exact same .world layer used by Home
@@ -3935,10 +3886,8 @@ body.clock-mode .clock-page::before{
 body.clock-mode .clock-shade{
   display:none !important;
 }
-</style>
 
-
-<style id="clock-transition-no-flash">
+/* ===== clock-transition-no-flash ===== */
 /* Hide dashboard content immediately when Clock mode starts so no Home controls linger. */
 body.clock-mode .main,
 body.clock-mode .hero,
@@ -3963,10 +3912,8 @@ body.clock-mode .clock-page{
   visibility:visible !important;
   transition:none !important;
 }
-</style>
 
-
-<style id="task-drag-handle-ui">
+/* ===== task-drag-handle-ui ===== */
 /* Only the dedicated move handle can start a drag. */
 .daily-task-row,
 .later-task-row{
@@ -4037,10 +3984,8 @@ body.clock-mode .clock-page{
     grid-template-columns:minmax(0,1fr) 28px 34px !important;
   }
 }
-</style>
 
-
-<style id="task-reorder-ui">
+/* ===== task-reorder-ui ===== */
 /* Show the insertion line BETWEEN task cards, not through a task. */
 .daily-task-row.drop-gap-before,
 .daily-task-row.drop-gap-after,
@@ -4101,11 +4046,8 @@ body.clock-mode .clock-page{
 .task-move-handle:active{
   cursor:grabbing !important;
 }
-</style>
 
-
-
-<style id="custom-themed-due-picker">
+/* ===== custom-themed-due-picker ===== */
 .task-due-wrap{
   position:relative;
   min-width:0;
@@ -4326,10 +4268,8 @@ body.clock-mode .clock-page{
     grid-template-columns:minmax(0,1fr) auto 28px 34px !important;
   }
 }
-</style>
 
-
-<style id="due-picker-current-value-style">
+/* ===== due-picker-current-value-style ===== */
 .due-picker-current{
   display:flex;
   align-items:baseline;
@@ -4361,10 +4301,8 @@ body.clock-mode .clock-page{
     text-align:left;
   }
 }
-</style>
 
-
-<style id="task-sort-setting-ui">
+/* ===== task-sort-setting-ui ===== */
 .task-sort-setting{
   display:flex;
   align-items:center;
@@ -4415,10 +4353,8 @@ body.clock-mode .clock-page{
   .week-start-setting{align-items:flex-start;flex-direction:column}
   .week-start-setting select{width:100%}
 }
-</style>
 
-
-<style id="daily-task-lock-ui">
+/* ===== daily-task-lock-ui ===== */
 .daily-task-next-day{
   align-self:center;
   white-space:nowrap;
@@ -4439,10 +4375,8 @@ body.clock-mode .clock-page{
     grid-template-columns:34px minmax(0,1fr) auto 28px 34px !important;
   }
 }
-</style>
 
-
-<style id="emoji-and-lock-polish">
+/* ===== emoji-and-lock-polish ===== */
 .daily-task-text,
 .later-task-text,
 #dailyTaskInput,
@@ -4518,10 +4452,7 @@ body.clock-mode .clock-page{
   opacity:1;
 }
 
-</style>
-
-
-<style id="task-handle-cursor-only">
+/* ===== task-handle-cursor-only ===== */
 .daily-task-row,
 .later-task-row,
 .daily-task-row:active,
@@ -4538,10 +4469,8 @@ body.clock-mode .clock-page{
 .task-move-handle:active{
   cursor:grabbing !important;
 }
-</style>
 
-
-<style id="expanded-help-widths">
+/* ===== expanded-help-widths ===== */
 .habit-help-tip,
 .daily-help-tip,
 .later-help-tip,
@@ -4554,10 +4483,8 @@ body.clock-mode .clock-page{
 .weekly-help-tip span{
   line-height:1.45 !important;
 }
-</style>
 
-
-<style id="task-help-overflow-fix">
+/* ===== task-help-overflow-fix ===== */
 /* Let task help popovers extend outside short task cards instead of being clipped. */
 .task-columns,
 .daily-tasks-card,
@@ -4595,10 +4522,8 @@ body.clock-mode .clock-page{
 .later-tasks-card:has(.later-help:focus-within){
   z-index:450 !important;
 }
-</style>
 
-
-<style id="week-reset-summary-ui">
+/* ===== week-reset-summary-ui ===== */
 .week-summary-modal{
   max-width:500px !important;
 }
@@ -4666,10 +4591,8 @@ body.clock-mode .clock-page{
   background:var(--summary-habit-color,#D6D7D9);
   transition:width .35s ease;
 }
-</style>
 
-
-<style id="history-page-ui">
+/* ===== history-page-ui ===== */
 .history-page{
   padding:28px 28px 42px;
   min-width:0;
@@ -4821,10 +4744,8 @@ body.clock-mode .clock-page{
   .history-page{padding:18px 14px 32px}
   .history-header h1{font-size:29px}
 }
-</style>
 
-
-<style id="history-past-contained-fix">
+/* ===== history-past-contained-fix ===== */
 .history-past-card{
   padding:18px 20px !important;
 }
@@ -4842,10 +4763,8 @@ body.clock-mode .clock-page{
   background:transparent !important;
   box-shadow:none !important;
 }
-</style>
 
-
-<style id="history-theme-typography">
+/* ===== history-theme-typography ===== */
 /* History now follows each theme's typography, not just its colors/shapes. */
 .history-page,
 .history-page p,
@@ -4930,10 +4849,8 @@ body[data-theme="tidal"] .history-week-head h3{font-size:20px !important}
   body[data-theme] .history-section-head h2,
   body[data-theme] .history-section-title h2{font-size:21px !important}
 }
-</style>
 
-
-<style id="pomodoro-autostart-help-ui">
+/* ===== pomodoro-autostart-help-ui ===== */
 /* Auto-start setting visually belongs to the Pomodoro controls. */
 .pomodoro-auto-start-setting[hidden]{
   display:none !important;
@@ -5034,11 +4951,8 @@ body.clock-browser-fullscreen .study-timer-help{
     max-width:none;
   }
 }
-</style>
 
-
-
-<style id="studying-layout-typography-fullscreen-fix-v2">
+/* ===== studying-layout-typography-fullscreen-fix-v2 ===== */
 /* IMPORTANT: preserve the original Clock typography exactly. */
 .clock-time{
   font-family:Georgia,'Times New Roman',serif !important;
@@ -5185,11 +5099,8 @@ body.clock-browser-fullscreen .clock-back{
     font-size:clamp(62px,18vw,96px) !important;
   }
 }
-</style>
 
-
-
-<style id="studying-fullscreen-v4-css">
+/* ===== studying-fullscreen-v4-css ===== */
 /* Keep the clock's original font. Only the timer numbers borrow that number face. */
 .clock-time,
 .clock-digits{
@@ -5252,10 +5163,8 @@ body.study-faux-fullscreen .studying-mode-switch{
 body.study-faux-fullscreen{
   overflow:hidden !important;
 }
-</style>
 
-
-<style id="studying-fullscreen-inline-final-css">
+/* ===== studying-fullscreen-inline-final-css ===== */
 /* Fullscreen layout */
 body.aby-study-fullscreen{
   overflow:hidden !important;
@@ -5309,12 +5218,8 @@ body.aby-study-fullscreen .studying-mode-switch{
   font-variant-numeric:lining-nums tabular-nums !important;
   font-feature-settings:"lnum" 1,"tnum" 1 !important;
 }
-</style>
 
-
-
-
-<style id="studying-fullscreen-clickability-final">
+/* ===== studying-fullscreen-clickability-final ===== */
 /*
   ROOT FIX:
   .study-view is z-index:5 and covers the whole page.
@@ -5405,10 +5310,8 @@ body.aby-study-fullscreen .studying-mode-switch{
     top:14px !important;
   }
 }
-</style>
 
-
-<style id="settings-typography-unification">
+/* ===== settings-typography-unification ===== */
 /* Settings uses one UI typeface throughout. Hierarchy comes from size/weight, not mixed font families. */
 #settingsModal,
 #settingsModal .modal,
@@ -5487,10 +5390,8 @@ body.aby-study-fullscreen .studying-mode-switch{
   margin-left:auto !important;
   text-align:right !important;
 }
-</style>
 
-
-<style id="task-status-cluster-v4">
+/* ===== task-status-cluster-v4 ===== */
 /* Lock + due time share one compact status area so task rows stay airy. */
 .daily-task-row .task-due-wrap.has-required-lock{
   display:flex;
@@ -5526,9 +5427,8 @@ body.aby-study-fullscreen .studying-mode-switch{
 .daily-task-row .task-due-wrap.has-required-lock .task-due-countdown{
   min-width:25px;
 }
-</style>
 
-<style id="task-actions-and-status-v5">
+/* ===== task-actions-and-status-v5 ===== */
 /* One compact actions control replaces separate move + delete icons. */
 .daily-task-row,.later-task-row{position:relative!important;}
 .daily-task-row{grid-template-columns:34px minmax(0,1fr) minmax(68px,auto) 32px!important;gap:10px!important;}
@@ -5617,10 +5517,8 @@ body.aby-study-fullscreen .studying-mode-switch{
   .daily-task-row .task-due-wrap.has-required-lock{min-width:64px!important;gap:7px!important;}
   .task-due-wrap{min-width:58px!important;}
 }
-</style>
 
-
-<style id="task-row-alignment-v6">
+/* ===== task-row-alignment-v6 ===== */
 /* Keep the row quiet: one aligned lock/status area and one aligned actions icon. */
 .daily-task-row{
   grid-template-columns:34px minmax(0,1fr) 82px 32px!important;
@@ -5705,10 +5603,8 @@ body.aby-study-fullscreen .studying-mode-switch{
   .daily-task-row .daily-task-carried{display:none!important;}
   .daily-task-row .task-due-wrap.daily-task-status{width:76px!important;min-width:76px!important;grid-template-columns:14px 1fr!important;column-gap:9px!important;}
 }
-</style>
 
-
-<style id="bbb-touch-controls-and-fullscreen-fix">
+/* ===== bbb-touch-controls-and-fullscreen-fix ===== */
 /* Native button text can use the browser's link blue unless explicitly themed.
    Keep this default low-specificity so primary, danger and icon colors win. */
 :where(button,input[type="button"],input[type="submit"]){
@@ -6072,7 +5968,6 @@ html.bbb-study-fullscreen body.clock-mode #clockPage .studying-mode-switch{
 </main>
 </div>
 
-
 <!-- Bloom by Bit Help -->
 <button type="button" id="bloomHelpLauncher" aria-label="Open Bloom by Bit help" title="Need a little help?">✦</button>
 <section id="bloomHelpPanel" aria-hidden="true" aria-label="Bloom by Bit help">
@@ -6086,7 +5981,6 @@ html.bbb-study-fullscreen body.clock-mode #clockPage .studying-mode-switch{
   <div id="bloomHelpBody" class="bloom-help-body"></div>
   <div class="bloom-help-footer" id="bloomHelpFooter"></div>
 </section>
-
 
 <div class="modal-backdrop" id="themesModal"><div class="modal themes-modal"><h3>Choose Your World</h3><p>Pick the atmosphere you want around your dashboard.</p><div class="theme-grid">
   <button class="theme-btn active" data-theme="fantasy"><div class="theme-swatch sw-fantasy"></div><span>Enchanted Library</span></button>
@@ -6296,7 +6190,7 @@ html.bbb-study-fullscreen body.clock-mode #clockPage .studying-mode-switch{
   <div class="creator-credit">Bloom by Bit · Created by Sana Virani</div>
   <div class="modal-actions"><button id="closeSettings">Cancel</button><button class="save" id="saveSettings">Save Changes</button></div>
 </div></div>
-<style>
+<style id="guided-tutorial-styles">
 .tutorial-setting{margin-top:18px;padding:15px 16px;border:1px solid var(--line);border-radius:14px;display:flex;align-items:center;justify-content:space-between;gap:16px;background:rgba(255,255,255,.18)}
 .tutorial-setting>div{display:grid;gap:4px}.tutorial-setting span{font-size:13px;opacity:.72}.tutorial-setting button{white-space:nowrap}
 .tutorial-modal{max-width:560px;text-align:center}.tutorial-kicker{font-size:11px;letter-spacing:.2em;font-weight:750;opacity:.6;margin-bottom:8px}.tutorial-icon{font-size:32px;line-height:1;margin:8px 0 12px}.tutorial-modal h3{margin-bottom:10px}.tutorial-copy{display:grid;align-content:start;gap:8px}.tutorial-copy p{margin:0;line-height:1.55}.tutorial-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px}.tutorial-actions .tutorial-right{display:flex;gap:8px}.tutorial-actions button{min-width:86px}
@@ -6427,7 +6321,7 @@ body[data-theme="fantasy"] #tutorialModal .tutorial-actions button{font-size:17p
 </div>
 <div class="celebration" id="celebration"><div id="confettiLayer"></div><div class="celebration-card"><div class="celebration-kicker" id="celebrationTier">Your reward</div><h2>You earned it.</h2><div class="reward-name" id="rewardName"></div><button id="closeCelebration">Claim My Reward</button></div></div>
 <div class="toast" id="toast"></div>
-<script>
+<script id="bloom-core-runtime">
 (()=>{
 const $=id=>document.getElementById(id);
 
@@ -9095,7 +8989,6 @@ window.BloomByBitApp={
   </button>
 </div>
 
-
 <script id="history-home-navigation-fix">
 (()=>{
   function installHistoryHomeFix(){
@@ -9139,7 +9032,6 @@ window.BloomByBitApp={
   }
 })();
 </script>
-
 
 <style id="studying-page-final-ui">
 /* ===== STUDYING PAGE ===== */
@@ -9486,12 +9378,6 @@ body[data-theme="tidal"] .study-timer-card{border-radius:30px}
 })();
 </script>
 
-
-
-
-
-
-
 <script id="studying-fullscreen-clickability-runtime">
 (()=>{
   function init(){
@@ -9644,8 +9530,8 @@ body[data-theme="tidal"] .study-timer-card{border-radius:30px}
 })();
 </script>
 
-
-<style id="shared-world-crop-fix-v16">
+<style id="bloom-style-bundle-2">
+/* ===== shared-world-crop-fix-v16 ===== */
 /* Keep every page on the exact same theme image crop.
    100vw/100vh prevents the background from subtly re-framing when a page
    adds/removes the browser scrollbar (Home/Coffee vs Study/History). */
@@ -9672,9 +9558,8 @@ body.clock-mode .world{
   visibility:visible !important;
   opacity:1 !important;
 }
-</style>
 
-<style id="bloom-help-hub-styles">
+/* ===== bloom-help-hub-styles ===== */
 /* The old scattered ? helpers now live in one organized help hub. */
 .habit-help,.daily-help,.later-help,.weekly-help,.study-timer-help{display:none!important}
 
@@ -10777,7 +10662,6 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
 })();
 </script>
 
-
 <script id="bloom-help-hub-runtime">
 (()=>{
   const $=id=>document.getElementById(id);
@@ -10892,7 +10776,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
 })();
 </script>
 
-<script>
+<script id="coffee-feedback-runtime">
 (() => {
   const form = document.getElementById('coffeeFeedbackForm');
   if (!form) return;
@@ -10946,7 +10830,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
 })();
 </script>
 <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="sanavirani101" data-description="Support me on Buy me a coffee!" data-message="" data-color="#40DCA5" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
-<script>
+<script id="buy-me-a-coffee-runtime">
 (() => {
   const button = document.getElementById('coffeeSupportButton');
   const status = document.getElementById('coffeeSupportStatus');
@@ -11041,8 +10925,8 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
 })();
 </script>
 
-
-<style id="bbb-tablet-final-overrides">
+<style id="bloom-style-bundle-3">
+/* ===== bbb-tablet-final-overrides ===== */
 /* Final control theming: Safari must never fall back to its blue button skin. */
 .modal-actions button:not(.save):not(.danger),
 #closeThemes,
@@ -11080,9 +10964,8 @@ html.bbb-study-fullscreen body.clock-mode #clockPage::before,
 #clockPage:fullscreen::before,#clockPage:-webkit-full-screen::before{
   position:absolute!important;inset:0!important;width:auto!important;height:auto!important;
 }
-</style>
 
-<style id="bbb-all-modes-final-fixes">
+/* ===== bbb-all-modes-final-fixes ===== */
 /* 1) Start Fresh confirmation must always be above Settings in every mode. */
 #clearDataModal.open{
   z-index:2147483646!important;
@@ -11129,16 +11012,14 @@ body.aby-study-fullscreen #clockPage,
   background-position:center center!important;
   background-repeat:no-repeat!important;
 }
-</style>
-</body></html>
-<style id="bonus-dot-center-remove">
+
+/* ===== bonus-dot-center-remove ===== */
 .dot.task-bonus-slot::before{
   content:none !important;
   display:none !important;
 }
-</style>
 
-<style id="bbb-phone-fit-styles">
+/* ===== bbb-phone-fit-styles ===== */
 /* ===== PHONE FIT ADAPTER: inactive on laptops and tablets =====
    Preserve the existing themes, art, controls and desktop/tablet rules.
    No zoom-out trick and no enlarged icons: only fit, wrap and bounded scrolling. */
@@ -11385,8 +11266,7 @@ html.bbb-phone body.tutorial-running:not(.bbb-tutorial-nav-needed):not(.aby-stud
   visibility:hidden!important;pointer-events:none!important;
 }
 
-</style>
-<style id="bbb-phone-tutorial-scroll-safety">
+/* ===== bbb-phone-tutorial-scroll-safety ===== */
 /* Phone tutorial only: a bounded grid makes the dialog itself scroll, rather
    than clipping a tall dialog inside a second, smaller scrolling backdrop. */
 html.bbb-phone body.tutorial-running:has(#tutorialCoach.open) :is(#settingsModal,#themesModal){
@@ -11429,8 +11309,8 @@ html.bbb-phone body.tutorial-running #tutorialCoach .tutorial-coach-actions{
 html.bbb-phone body.tutorial-running #tutorialCoach.minimized #tutorialCoachContent{
   display:none!important;
 }
-</style>
-<style id="bbb-device-note-and-phone-polish">
+
+/* ===== bbb-device-note-and-phone-polish ===== */
 /* All devices: informational copy in Basic; no change to other settings tabs. */
 #settingsModal .settings-device-note{
   margin:6px 0 12px!important;line-height:1.45;font-size:14px;color:var(--muted);
@@ -11679,3 +11559,6 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
   }
 })();
 </script>
+
+</body>
+</html>
