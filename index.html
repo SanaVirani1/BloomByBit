@@ -5755,6 +5755,7 @@ body.bbb-task-reordering .task-calendar-actions-handle{cursor:grabbing}
 .task-calendar-unscheduled h4{margin:0;font:700 18px/1.2 var(--theme-font)}
 .task-calendar-unscheduled-head span{color:var(--muted);font:12px/1.3 var(--theme-ui)}
 #taskCalendarUnscheduledList{display:grid;gap:7px}
+.task-calendar-picker-field:disabled{opacity:.55;cursor:not-allowed;filter:saturate(.72)}
 .task-calendar-modal-backdrop{position:fixed;inset:0;z-index:26000;display:grid;place-items:center;padding:18px;background:rgba(5,8,7,.68)}
 .task-calendar-modal-backdrop[hidden]{display:none!important}
 .task-calendar-modal{width:min(460px,100%);max-height:calc(100dvh - 36px);overflow:auto;box-sizing:border-box;padding:22px;border:1px solid var(--edge);border-radius:18px;background:var(--surface-strong);color:var(--text);box-shadow:0 28px 85px rgba(0,0,0,.48)}
@@ -6177,12 +6178,12 @@ form[data-themed-validation]{--bbb-validation-accent:var(--button)}
               <input type="text" id="taskCalendarText" maxlength="100" placeholder="Add a task" required>
             </label>
             <label>
-              <span>Due date</span>
+              <span>Due date <small>(optional)</small></span>
               <button type="button" class="task-calendar-picker-field" id="taskCalendarDateButton" aria-label="Choose due date">
                 <span class="task-calendar-picker-value" id="taskCalendarDateLabel">Choose a date</span>
                 <span class="task-calendar-picker-chevron" aria-hidden="true">▾</span>
               </button>
-              <input type="hidden" id="taskCalendarDate" required>
+              <input type="hidden" id="taskCalendarDate">
             </label>
             <label>
               <span>Time <small>(optional)</small></span>
@@ -6719,7 +6720,7 @@ body[data-theme="fantasy"] #tutorialModal .tutorial-actions button{font-size:17p
     </label>
     <div class="task-calendar-edit-date-row">
       <label>
-        <span>Due date</span>
+        <span>Due date <small>(optional)</small></span>
         <button type="button" class="task-calendar-picker-field" id="taskCalendarEditDateButton" aria-label="Choose due date">
           <span class="task-calendar-picker-value" id="taskCalendarEditDateLabel">Choose a date</span>
           <span class="task-calendar-picker-chevron" aria-hidden="true">▾</span>
@@ -12328,7 +12329,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     ]},
     calendar:{label:'Task Calendar',intro:'The calendar keeps tasks, dates, optional times, and daily progress together in one place.',items:[
       ['calendar-views','How do Month and Week work?','Use Month for the big picture and Week for a closer look at seven days. Today is marked in both views. The arrows move one month or one week at a time, and Today brings you back to the current date. Click anywhere inside a day box to select it.'],
-      ['calendar-add','How do I add a task?','Select a day, enter the task, and choose its due date. Time is optional, and the Time picker also lets you mark the task as All-day. The Date and Time buttons work separately. Once either picker is open, use Apply or Cancel to close it.'],
+      ['calendar-add','How do I add a task?','Select a day and enter the task. The due date is optional: choose <b>No due date</b> in the Date picker to place the task in Unscheduled at the bottom of the calendar. If you use a due date, time is optional, and the Time picker also lets you mark the task as All-day.'],
       ['calendar-edit','How do I edit or delete a task?','Select the task’s day, then click the three-line button on the right side of the task. Choose Edit or Delete. Delete always asks you to confirm before the task is removed. Tasks shown inside the calendar itself are display-only. If a day shows +more, open it to see every task.'],
       ['calendar-order','How do I rearrange tasks?','When Settings → Habits & Tasks → Order each day by due time is off, press and hold the three-line button on the right side of a task, then drag it to a new position. When automatic due-time sorting is on, Bloom by Bit keeps the order automatically, so manual rearranging is disabled.'],
       ['calendar-countdown','What do the task countdowns mean?','Timed tasks show the largest useful unit remaining: days, hours, or minutes. After the deadline passes, the task shows DUE. All-day tasks do not show a countdown.'],
@@ -13313,7 +13314,7 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
     if(sameYear)return `${a.toLocaleDateString(undefined,{month:'short',day:'numeric'})} – ${b.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}`;
     return `${a.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})} – ${b.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}`;
   };
-  const dateButtonLabel=key=>validKey(key)?dateFromKey(key).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'}):'Choose a date';
+  const dateButtonLabel=key=>validKey(key)?dateFromKey(key).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'}):'No due date';
   const timeButtonLabel=value=>{
     if(!value)return 'All day';
     const [h,m]=String(value).split(':').map(Number);
@@ -13322,10 +13323,21 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
   };
   function syncPickerLabels(){
     const pairs=[
-      [addDateInput,byId('taskCalendarDateLabel'),dateButtonLabel],[addTimeInput,byId('taskCalendarTimeLabel'),timeButtonLabel],
-      [editDateInput,byId('taskCalendarEditDateLabel'),dateButtonLabel],[editTimeInput,byId('taskCalendarEditTimeLabel'),timeButtonLabel]
+      [addDateInput,byId('taskCalendarDateLabel'),dateButtonLabel],
+      [editDateInput,byId('taskCalendarEditDateLabel'),dateButtonLabel]
     ];
     pairs.forEach(([input,label,formatter])=>{if(input&&label)label.textContent=formatter(input.value)});
+    [
+      [addDateInput,addTimeInput,byId('taskCalendarTimeButton'),byId('taskCalendarTimeLabel')],
+      [editDateInput,editTimeInput,byId('taskCalendarEditTimeButton'),byId('taskCalendarEditTimeLabel')]
+    ].forEach(([dateInput,timeInput,button,label])=>{
+      if(!dateInput||!timeInput||!button||!label)return;
+      const hasDate=validKey(dateInput.value);
+      if(!hasDate)timeInput.value='';
+      button.disabled=!hasDate;
+      button.setAttribute('aria-disabled',String(!hasDate));
+      label.textContent=hasDate?timeButtonLabel(timeInput.value):'No time';
+    });
   }
   function closeCalendarPicker(){
     activeCalendarPicker?.panel?.remove();
@@ -13347,6 +13359,7 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
   function openCalendarPicker(dateInput,timeInput,anchor,mode='date'){
     const dateMode=mode==='date',timeMode=mode==='time';
     if(!dateInput||!timeInput||!anchor||(!dateMode&&!timeMode))return;
+    if(timeMode&&!validKey(dateInput.value)){window.BloomByBitApp?.toast?.('Choose a due date first');return}
     closeCalendarPicker();
     if(typeof closeDuePicker==='function')closeDuePicker();
 
@@ -13384,8 +13397,9 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
         weekdays.append(day);
       });
       const pickerGrid=document.createElement('div');pickerGrid.className='due-picker-grid';
-      const todayButton=document.createElement('button');todayButton.type='button';todayButton.className='due-picker-clear';todayButton.textContent='Today';
-      actions.append(todayButton,cancel,apply);
+      const noDateButton=document.createElement('button');noDateButton.type='button';noDateButton.className='due-picker-clear';noDateButton.textContent='No due date';
+      const todayButton=document.createElement('button');todayButton.type='button';todayButton.className='due-picker-today';todayButton.textContent='Today';
+      actions.append(noDateButton,todayButton,cancel,apply);
       panel.append(kicker,head,weekdays,pickerGrid,actions);
 
       function sameDay(date,y,m,d){return date.getFullYear()===y&&date.getMonth()===m&&date.getDate()===d}
@@ -13410,6 +13424,15 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
       }
       prev.addEventListener('click',event=>{event.preventDefault();viewMonth--;if(viewMonth<0){viewMonth=11;viewYear--}renderPickerCalendar();positionCalendarPicker(panel,anchor)});
       next.addEventListener('click',event=>{event.preventDefault();viewMonth++;if(viewMonth>11){viewMonth=0;viewYear++}renderPickerCalendar();positionCalendarPicker(panel,anchor)});
+      noDateButton.addEventListener('click',event=>{
+        event.preventDefault();
+        dateInput.value='';
+        timeInput.value='';
+        syncPickerLabels();
+        dateInput.dispatchEvent(new Event('change',{bubbles:true}));
+        timeInput.dispatchEvent(new Event('change',{bubbles:true}));
+        closeCalendarPicker();
+      });
       todayButton.addEventListener('click',event=>{event.preventDefault();selected=dateFromKey(today());viewYear=selected.getFullYear();viewMonth=selected.getMonth();renderPickerCalendar();positionCalendarPicker(panel,anchor)});
       apply.addEventListener('click',event=>{
         event.preventDefault();
@@ -13778,7 +13801,7 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
     closeCalendarPicker();
     editing={source:entry.source,id:entry.task.id};
     byId('taskCalendarEditText').value=entry.task.text||'';
-    editDateInput.value=entry.date||selectedDate();
+    editDateInput.value=entry.date||'';
     editTimeInput.value=entry.task.allDay===true?'':dueTime(entry.task.dueAt);
     syncPickerLabels();
     modal.hidden=false;requestAnimationFrame(()=>byId('taskCalendarEditText').focus({preventScroll:true}));
@@ -13788,18 +13811,19 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
     const entry=editing?findEntry(editing.source,editing.id):null;if(!entry)return closeEditor();
     const text=byId('taskCalendarEditText').value.trim(),date=editDateInput.value,time=editTimeInput.value;
     if(!text){window.BloomByBitApp?.toast?.('Add a task name');return}
-    if(!validKey(date)){window.BloomByBitApp?.toast?.('Choose a due date');return}
+    if(date&&!validKey(date)){window.BloomByBitApp?.toast?.('Choose a valid due date');return}
+    const hasDate=validKey(date);
     const original={...entry.task};
-    const updated={...original,text,dueAt:makeDueAt(date,time),allDay:!time,createdAt:original.createdAt||new Date().toISOString()};
-    if(entry.source==='daily'&&date===today()){
+    const updated={...original,text,dueAt:hasDate?makeDueAt(date,time):'',allDay:!hasDate||!time,createdAt:original.createdAt||new Date().toISOString()};
+    if(entry.source==='daily'&&hasDate&&date===today()){
       // Editing a locked Today task must not remove it from the Locked Set.
       Object.assign(entry.task,updated,{carried:!!original.carried,nextDayOnly:!!original.nextDayOnly});
-    }else if(entry.source==='later'&&date!==today()){
+    }else if(entry.source==='later'&&(!hasDate||date!==today())){
       Object.assign(entry.task,updated);
       delete entry.task.carried;delete entry.task.nextDayOnly;
     }else{
       removeEntry(entry);
-      if(date===today()){
+      if(hasDate&&date===today()){
         updated.carried=false;
         updated.nextDayOnly=dailyTaskListLocked();
         state.dailyTasks.items.push(updated);
@@ -13808,7 +13832,8 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
         state.laterTasks.push(updated);
       }
     }
-    state.calendarSelectedDate=date;state.calendarAnchorDate=date;save();closeEditor();render();
+    if(hasDate){state.calendarSelectedDate=date;state.calendarAnchorDate=date}
+    save();closeEditor();render();
   }
 
   card.addEventListener('pointerdown',event=>{
@@ -13869,12 +13894,14 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
   byId('taskCalendarAddForm').addEventListener('submit',event=>{
     event.preventDefault();
     const text=byId('taskCalendarText').value.trim(),date=addDateInput.value,time=addTimeInput.value;
-    if(!text||!validKey(date))return;
-    const task={id:date===today()?newDailyTaskId():newLaterTaskId(),text,done:false,dueAt:makeDueAt(date,time),allDay:!time,createdAt:new Date().toISOString()};
-    if(date===today()){
+    if(!text)return;
+    if(date&&!validKey(date))return;
+    const hasDate=validKey(date);
+    const task={id:hasDate&&date===today()?newDailyTaskId():newLaterTaskId(),text,done:false,dueAt:hasDate?makeDueAt(date,time):'',allDay:!hasDate||!time,createdAt:new Date().toISOString()};
+    if(hasDate&&date===today()){
       task.carried=false;task.nextDayOnly=dailyTaskListLocked();state.dailyTasks.items.push(task);
     }else state.laterTasks.push(task);
-    state.calendarSelectedDate=date;state.calendarAnchorDate=date;
+    if(hasDate){state.calendarSelectedDate=date;state.calendarAnchorDate=date}
     byId('taskCalendarText').value='';addTimeInput.value='';syncPickerLabels();save();render();
     if(window.BloomPhone?.active)byId('taskCalendarText').blur();else byId('taskCalendarText').focus();
   });
@@ -14006,10 +14033,6 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
     if(form.id==='taskCalendarAddForm'){
       const task=document.getElementById('taskCalendarText');
       if(task&&!task.value.trim())return {field:task,message:'Please fill out this field.'};
-      const date=document.getElementById('taskCalendarDate');
-      if(date&&!/^\d{4}-\d{2}-\d{2}$/.test(date.value)){
-        return {field:date,focusTarget:document.getElementById('taskCalendarDateButton'),message:'Please choose a due date.'};
-      }
     }
     if(form.id==='bbbDeviceForm'){
       const selected=form.querySelector('input[name="bbbDevice"]:checked');
