@@ -5661,6 +5661,9 @@ html.bbb-study-fullscreen body.clock-mode #clockPage .studying-mode-switch{
   border-left:0!important;
   overflow:visible!important;
 }
+/* Keep task action menus above the following Weekly Pulls card without
+   permanently changing the calendar card's stacking order. */
+.task-calendar-card.task-calendar-menu-layer{z-index:120!important;}
 body[data-theme="fantasy"] .task-calendar-card{--calendar-accent:var(--button);--calendar-selected:color-mix(in srgb,var(--button) 17%,var(--surface))}
 body[data-theme="celestial"] .task-calendar-card{--calendar-accent:#91a5ff;--calendar-selected:color-mix(in srgb,#91a5ff 18%,var(--surface))}
 body[data-theme="cottage"] .task-calendar-card{--calendar-accent:#758961;--calendar-selected:color-mix(in srgb,#758961 18%,var(--surface))}
@@ -13697,6 +13700,9 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
   }
   function deleteEntry(entry){removeEntry(entry);save();render();}
 
+  function syncActionMenuLayer(){
+    card.classList.toggle('task-calendar-menu-layer',!!card.querySelector('.task-calendar-actions-wrap.menu-open'));
+  }
   function closeActionMenus(except=null){
     card.querySelectorAll('.task-calendar-actions-wrap.menu-open').forEach(wrap=>{
       if(wrap===except)return;
@@ -13704,6 +13710,7 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
       const menu=wrap.querySelector('.task-calendar-actions-menu'),handle=wrap.querySelector('.task-calendar-actions-handle');
       if(menu)menu.hidden=true;if(handle)handle.setAttribute('aria-expanded','false');
     });
+    syncActionMenuLayer();
   }
   function toggleActionMenu(wrap){
     if(!wrap)return;
@@ -13711,6 +13718,7 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
     if(!menu||!handle)return;
     const opening=menu.hidden;closeActionMenus(opening?wrap:null);
     menu.hidden=!opening;wrap.classList.toggle('menu-open',opening);handle.setAttribute('aria-expanded',String(opening));
+    syncActionMenuLayer();
     if(opening)requestAnimationFrame(()=>menu.querySelector('button')?.focus({preventScroll:true}));
   }
   function requestDelete(entry,{fromEditor=false}={}){
