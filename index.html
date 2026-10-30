@@ -7504,6 +7504,10 @@ const THEME_HABIT_COLORS={
 /* Legacy/general fallback kept for older saved data. */
 const HABIT_COLORS=THEME_HABIT_COLORS.fantasy;
 
+// Tracks the real calendar day for this open browser session so a rollover at
+// midnight can advance the calendar only when it was following the old Today.
+let runtimeCalendarDay=localDateKey();
+
 function defaultHabitColor(theme,index=0){
   const palette=THEME_HABIT_COLORS[theme]||THEME_HABIT_COLORS.fantasy;
   return palette[Math.abs(index)%palette.length];
@@ -7571,6 +7575,8 @@ function load(){
   try{
     const s=JSON.parse(localStorage.getItem('betterYou_v1'));
     if(s){
+      const savedAppDay=/^\d{4}-\d{2}-\d{2}$/.test(String(s.dailyTasks?.date||''))?String(s.dailyTasks.date):'';
+      const currentAppDay=localDateKey();
       state={...state,...s,prizes:{...state.prizes,...(s.prizes||{})}};
       // Migrate older one-habit saves automatically.
       if(!Array.isArray(state.habits) || !state.habits.length){
@@ -7622,6 +7628,12 @@ function load(){
       state.calendarView=state.calendarView==='week'?'week':'month';
       state.calendarSelectedDate=/^\d{4}-\d{2}-\d{2}$/.test(String(state.calendarSelectedDate||''))?state.calendarSelectedDate:localDateKey();
       state.calendarAnchorDate=/^\d{4}-\d{2}-\d{2}$/.test(String(state.calendarAnchorDate||''))?state.calendarAnchorDate:state.calendarSelectedDate;
+      // If this is the first load on a new day, open the calendar on Today
+      // instead of restoring yesterday's selected date from local storage.
+      if(savedAppDay&&savedAppDay!==currentAppDay){
+        state.calendarSelectedDate=currentAppDay;
+        state.calendarAnchorDate=currentAppDay;
+      }
       state.calendarArchive=Array.isArray(state.calendarArchive)?state.calendarArchive.map((x,i)=>({
         id:x.id||('archive-'+i+'-'+Date.now().toString(36)),
         text:String(x.text||''),
@@ -7750,6 +7762,20 @@ function calendarDateKeyFromDueAt(value){
 function ensureCurrentDay(){
   const today=localDateKey();
   let changed=false;
+
+  // If the app stays open across midnight, advance the selected calendar day
+  // only when it was following the previous real Today. If the user is
+  // deliberately browsing another date, leave their selection alone.
+  if(runtimeCalendarDay!==today){
+    const previousToday=runtimeCalendarDay;
+    if(!state.calendarSelectedDate||state.calendarSelectedDate===previousToday){
+      state.calendarSelectedDate=today;
+      state.calendarAnchorDate=today;
+    }
+    runtimeCalendarDay=today;
+    changed=true;
+  }
+
   state.calendarArchive=Array.isArray(state.calendarArchive)?state.calendarArchive:[];
   state.laterTasks=Array.isArray(state.laterTasks)?state.laterTasks:[];
 
@@ -9924,6 +9950,10 @@ function refreshDateAndQuote(){
 }
 load();refreshDateAndQuote();render();
 setInterval(()=>{ensureCurrentWeek();ensureCurrentDay();refreshDateAndQuote();render()},60000);
+// Refresh immediately when the user returns to a tab that may have crossed
+// midnight while hidden/asleep instead of waiting for the next minute tick.
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshDateAndQuote();render()}});
+window.addEventListener('focus',()=>{refreshDateAndQuote();render()});
 setInterval(refreshDueCountdowns,30000);
 document.addEventListener('click',e=>{
   if(activeDuePicker && !e.target.closest('.custom-due-picker') && !e.target.closest('.task-due-btn')){
