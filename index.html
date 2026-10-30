@@ -5670,8 +5670,17 @@ body[data-theme="cottage"] .task-calendar-card{--calendar-accent:#758961;--calen
 body[data-theme="nocturne"] .task-calendar-card{--calendar-accent:#ff72e6;--calendar-selected:color-mix(in srgb,#ff72e6 16%,var(--surface))}
 body[data-theme="tidal"] .task-calendar-card{--calendar-accent:#8ee1da;--calendar-selected:color-mix(in srgb,#8ee1da 17%,var(--surface))}
 .task-calendar-head,.task-calendar-toolbar,.task-calendar-nav,.task-calendar-title-line,.task-calendar-agenda-head,.task-calendar-unscheduled-head{display:flex;align-items:center}
-.task-calendar-head{justify-content:flex-start;gap:18px;margin-bottom:16px}
+.task-calendar-head{justify-content:space-between;gap:18px;margin-bottom:16px}
 .task-calendar-title-line{gap:9px}
+.task-calendar-collapse-btn{flex:0 0 auto;align-self:flex-start;min-height:38px;border:1px solid var(--edge);border-radius:10px;padding:9px 13px;background:var(--surface-soft);color:var(--text);font:750 13px/1.1 var(--theme-ui);cursor:pointer;transition:transform .16s ease,border-color .16s ease,background .16s ease}
+.task-calendar-collapse-btn:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--calendar-accent) 55%,var(--edge));background:color-mix(in srgb,var(--calendar-accent) 9%,var(--surface-soft))}
+.task-calendar-collapse-btn:focus-visible{outline:2px solid color-mix(in srgb,var(--calendar-accent) 70%,white);outline-offset:2px}
+.task-calendar-browser-shell{display:grid;grid-template-rows:1fr;opacity:1}
+.task-calendar-card.calendar-collapse-ready .task-calendar-browser-shell{transition:grid-template-rows .38s cubic-bezier(.22,.8,.26,1),opacity .24s ease}
+.task-calendar-browser{min-height:0;overflow:hidden}
+.task-calendar-card.is-collapsed .task-calendar-browser-shell{grid-template-rows:0fr;opacity:0;pointer-events:none}
+.task-calendar-card.is-collapsed .task-calendar-head{margin-bottom:4px}
+.task-calendar-card.is-collapsed .task-calendar-agenda{margin-top:4px}
 .task-calendar-sub{margin:4px 0 0;color:var(--muted);font:15px/1.4 var(--theme-font)}
 #taskCalendarClaimBtn{padding:9px 13px;font-size:14px}
 .task-calendar-toolbar{justify-content:space-between;gap:14px;padding:12px 0;border-top:1px solid var(--edge);border-bottom:1px solid var(--edge)}
@@ -5776,6 +5785,7 @@ body.bbb-task-reordering .task-calendar-actions-handle{cursor:grabbing}
 }
 html.bbb-phone .task-calendar-card{padding:14px 10px}
 html.bbb-phone .task-calendar-head{align-items:flex-start;flex-direction:column;margin-bottom:11px}
+html.bbb-phone .task-calendar-collapse-btn{width:100%;align-self:stretch}
 html.bbb-phone .task-calendar-bonus{width:100%;justify-content:space-between}
 html.bbb-phone .task-calendar-toolbar{align-items:flex-start;flex-direction:column}
 html.bbb-phone .task-calendar-nav{width:100%}
@@ -6136,8 +6146,11 @@ form[data-themed-validation]{--bbb-validation-accent:var(--button)}
             </div>
             <p class="task-calendar-sub">Plan the work. See the week. Keep moving bit by bit.</p>
           </div>
+          <button type="button" class="task-calendar-collapse-btn" id="taskCalendarCollapseBtn" aria-expanded="true" aria-controls="taskCalendarBrowser">Minimize calendar</button>
         </div>
 
+        <div class="task-calendar-browser-shell" id="taskCalendarBrowserShell">
+          <div class="task-calendar-browser" id="taskCalendarBrowser">
         <div class="task-calendar-toolbar">
           <div class="task-calendar-nav">
             <button type="button" id="taskCalendarTodayBtn">Today</button>
@@ -6155,11 +6168,13 @@ form[data-themed-validation]{--bbb-validation-accent:var(--button)}
         <div class="task-calendar-grid-wrap">
           <div class="task-calendar-grid" id="taskCalendarGrid"></div>
         </div>
+          </div>
+        </div>
 
         <div class="task-calendar-agenda" id="taskCalendarAgenda">
           <div class="task-calendar-agenda-head">
             <div>
-              <span>Selected day</span>
+              <span id="taskCalendarAgendaKicker">Selected day</span>
               <h3 id="taskCalendarSelectedTitle"></h3>
             </div>
             <span id="taskCalendarSelectedCount"></span>
@@ -7529,6 +7544,7 @@ const defaults={
   dailyTaskColor:DEFAULT_CALENDAR_TASK_COLOR,
   laterTaskColor:DEFAULT_CALENDAR_TASK_COLOR,
   calendarView:'month',
+  calendarCollapsed:false,
   calendarSelectedDate:localDateKey(),
   calendarAnchorDate:localDateKey(),
   calendarArchive:[],
@@ -7626,6 +7642,7 @@ function load(){
         || DEFAULT_CALENDAR_TASK_COLOR;
       setCalendarTaskColor(migratedCalendarTaskColor);
       state.calendarView=state.calendarView==='week'?'week':'month';
+      state.calendarCollapsed=state.calendarCollapsed===true;
       state.calendarSelectedDate=/^\d{4}-\d{2}-\d{2}$/.test(String(state.calendarSelectedDate||''))?state.calendarSelectedDate:localDateKey();
       state.calendarAnchorDate=/^\d{4}-\d{2}-\d{2}$/.test(String(state.calendarAnchorDate||''))?state.calendarAnchorDate:state.calendarSelectedDate;
       // If this is the first load on a new day, open the calendar on Today
@@ -11891,7 +11908,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     {context:'settings',settingsTab:'timer',title:'Set your study rhythm',text:'Clock & Timer lets you choose <b>12- or 24-hour time</b>, use <b>Pomodoro</b> or one regular focus timer, change the timer lengths, and choose whether the next Pomodoro interval starts on its own.',hint:'A few knobs for your focus rhythm. Click <b>Next</b> when you’re ready.',explore:true,enter(){focusForExplore('[data-settings-tab="timer"]','[data-settings-panel="timer"]');setNext(true)}} ,
     {context:'settings',settingsTab:'tasks',title:'Plant one habit',text:'Now give your first habit a name and choose how many times you want to show up for it this week.',hint:'Try something simple like <b>read</b>, <b>study</b>, <b>exercise</b>, or <b>practice</b>.',enter(){safe(()=>app.tutorialResetHabitEditor?.(1));const editor=focus('#habitEditor');if(!editor){setNext(true);return}watchHabit(0)}} ,
     {context:'settings',settingsTab:'tasks',title:'Lock in the setup',text:'One weekly rule matters: once a habit earns its <b>first pull</b>, that habit’s goal can go higher, but not lower until the next week. Everything else in Settings stays editable.',hint:'Click <b>Save Changes</b> and we’ll head back out.',enter(){const el=focus('#saveSettings');if(practiceMode){setNext(false);onOnce(el,'click')}else setNext(true)}} ,
-    {context:'home',title:'Map out your days',text:'The Task Calendar is your little map: <b>Month</b> shows the big picture, <b>Week</b> brings seven days closer, and any day box can be selected.',hint:'Take a quick wander through Month or Week, then click <b>Next</b>.',explore:true,enter(){goHome();focusForExplore('#taskCalendarRangeTitle','#taskCalendarCard');setNext(true)}} ,
+    {context:'home',title:'Map out your days',text:'The Task Calendar is your little map: <b>Month</b> shows the big picture, <b>Week</b> brings seven days closer, and any day box can be selected. Need more room? <b>Minimize calendar</b> hides the Month/Week view while keeping Today’s tasks and Unscheduled visible.',hint:'Try <b>Minimize calendar</b> or <b>View calendar</b>, then explore a day when the calendar is open. Your choice is remembered.',explore:true,enter(){goHome();focusForExplore('#taskCalendarCollapseBtn','#taskCalendarCard');setNext(true)}} ,
     {context:'home',title:'Drop in one task',text:'Add one quick task for today. Today’s tasks can do more than keep you organized—they can also earn Bonus Pulls.',hint:'Type a task and click <b>Add Task</b>.',avoidSelectors:['#taskCalendarTaskList'],preferSides:['bottom','right','left','top'],enter(){goHome();const app=window.BloomByBitApp;const key=app?.localDateKey?.();if(key)window.BloomCalendar?.selectDate?.(key);const date=$('taskCalendarDate');if(date&&key)date.value=key;window.BloomCalendar?.syncPickerLabels?.();focus('#taskCalendarAddForm',true);waitForTaskAdd('taskCalendarText','taskCalendarAddBtn','#taskCalendarTaskList','.task-calendar-row')}} ,
     {context:'home',title:'A few tiny tools',text:'Date and Time open their own pickers; use <b>Apply</b> or <b>Cancel</b> to close them. The <b>three-line button</b> opens Edit and Delete.',hint:'When automatic due-time sorting is off, press and hold the three-line button and drag to rearrange tasks.',explore:true,enter(){focusForExplore('#taskCalendarTaskList .task-calendar-actions-handle, #taskCalendarDateButton','#taskCalendarAgenda');setNext(true)}} ,
     {context:'home',title:'Bonus Pull magic',text:'Bonus Pulls come from today’s <b>Locked Set</b>. The moment you check your first task, the tasks already scheduled for today are locked in. Finish every locked task to earn the bonus. Tasks you add afterward stay outside that set, so they do not make today’s bonus bigger.',hint:'<div class="tutorial-bonus-grid"><div class="tutorial-bonus-tier"><span class="task-range">1–4 locked tasks</span><span class="bonus-arrow">→</span><span class="pull-count">1 pull</span></div><div class="tutorial-bonus-tier"><span class="task-range">5–8 locked tasks</span><span class="bonus-arrow">→</span><span class="pull-count">2 pulls</span></div><div class="tutorial-bonus-tier"><span class="task-range">9+ locked tasks</span><span class="bonus-arrow">→</span><span class="pull-count">3 pulls</span></div></div>',anchorToTarget:true,coachWidth:430,preferSides:['right','left','bottom','top'],enter(){document.body.classList.add('tutorial-bonus-active');const app=window.BloomByBitApp;const key=app?.localDateKey?.();if(key)window.BloomCalendar?.selectDate?.(key);const restoreDemo=showLockedTaskExample();cleanupStep=()=>{document.body.classList.remove('tutorial-bonus-active');restoreDemo?.()};focus('#taskCalendarAgenda',true);setNext(true)}} ,
@@ -12362,6 +12379,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     ]},
     calendar:{label:'Task Calendar',intro:'The calendar keeps tasks, dates, optional times, and daily progress together in one place.',items:[
       ['calendar-views','How do Month and Week work?','Use Month for the big picture and Week for a closer look at seven days. Today is marked in both views. The arrows move one month or one week at a time, and Today brings you back to the current date. Click anywhere inside a day box to select it.'],
+      ['calendar-minimize','Can I make the calendar smaller?','Yes. Use <b>Minimize calendar</b> to hide the Month/Week calendar while keeping Today’s tasks, Add Task, and Unscheduled visible. The button changes to <b>View calendar</b> when the calendar is minimized, and Bloom remembers your choice. The small Date picker inside a task stays separate and will not reopen the large calendar.'],
       ['calendar-add','How do I add a task?','Select a day and enter the task. The due date is optional: choose <b>No due date</b> in the Date picker to place the task in Unscheduled at the bottom of the calendar. If you use a due date, time is optional, and the Time picker also lets you mark the task as All-day.'],
       ['calendar-edit','How do I edit or delete a task?','Select the task’s day, then click the three-line button on the right side of the task. Choose Edit or Delete. Delete always asks you to confirm before the task is removed. Tasks shown inside the calendar itself are display-only. If a day shows +more, open it to see every task.'],
       ['calendar-order','How do I rearrange tasks?','When Settings → Habits & Tasks → Order each day by due time is off, press and hold the three-line button on the right side of a task, then drag it to a new position. When automatic due-time sorting is on, Bloom by Bit keeps the order automatically, so manual rearranging is disabled.'],
@@ -13256,12 +13274,13 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
   'use strict';
   const byId=id=>document.getElementById(id);
   const card=byId('taskCalendarCard'),grid=byId('taskCalendarGrid'),weekdays=byId('taskCalendarWeekdays');
+  const collapseBtn=byId('taskCalendarCollapseBtn'),browser=byId('taskCalendarBrowser');
   const taskList=byId('taskCalendarTaskList'),unscheduled=byId('taskCalendarUnscheduled'),unscheduledList=byId('taskCalendarUnscheduledList');
   const modal=byId('taskCalendarEditModal');
   const deleteConfirm=byId('taskCalendarDeleteConfirm'),deleteConfirmText=byId('taskCalendarDeleteConfirmText');
   const deleteCancel=byId('taskCalendarDeleteCancel'),deleteConfirmBtn=byId('taskCalendarDeleteConfirmBtn');
   const app=window.BloomByBitApp;
-  if(!card||!grid||!taskList||!modal||!deleteConfirm||!deleteConfirmText||!deleteCancel||!deleteConfirmBtn||!app)return;
+  if(!card||!grid||!collapseBtn||!browser||!taskList||!modal||!deleteConfirm||!deleteConfirmText||!deleteCancel||!deleteConfirmBtn||!app)return;
   const state=new Proxy({}, {
     get:(_,key)=>app.getState()[key],
     set:(_,key,value)=>{app.getState()[key]=value;return true}
@@ -13535,6 +13554,7 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
 
   function ensureState(){
     state.calendarView=state.calendarView==='week'?'week':'month';
+    state.calendarCollapsed=state.calendarCollapsed===true;
     if(!validKey(state.calendarSelectedDate))state.calendarSelectedDate=today();
     if(!validKey(state.calendarAnchorDate))state.calendarAnchorDate=state.calendarSelectedDate;
     state.calendarArchive=Array.isArray(state.calendarArchive)?state.calendarArchive:[];
@@ -13571,6 +13591,29 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
   }
   function entryLabel(entry){return String(entry.task.text||'Untitled task')}
   function selectedDate(){return validKey(state.calendarSelectedDate)?state.calendarSelectedDate:today()}
+  function syncCollapsedUI(){
+    const collapsed=state.calendarCollapsed===true;
+    card.classList.toggle('is-collapsed',collapsed);
+    collapseBtn.textContent=collapsed?'View calendar':'Minimize calendar';
+    collapseBtn.setAttribute('aria-expanded',String(!collapsed));
+    browser.inert=collapsed;
+    browser.setAttribute('aria-hidden',String(collapsed));
+    const kicker=byId('taskCalendarAgendaKicker');
+    if(kicker)kicker.textContent=collapsed?'Today':'Selected day';
+  }
+  function setCalendarCollapsed(value){
+    const collapsed=!!value;
+    if(collapsed){
+      const key=today();
+      state.calendarSelectedDate=key;
+      state.calendarAnchorDate=key;
+      expandedDates.clear();
+      closeActionMenus();
+    }
+    state.calendarCollapsed=collapsed;
+    save();
+    renderCalendar();
+  }
 
   function chip(entry){
     const item=document.createElement('div');
@@ -13703,7 +13746,7 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
     byId('taskCalendarClaimMessage').textContent=remaining===1?'You earned 1 Bonus Pull.':`You earned ${remaining} Bonus Pulls.`;
   }
 
-  function renderCalendar(){renderGrid();renderAgenda()}
+  function renderCalendar(){syncCollapsedUI();renderGrid();renderAgenda()}
 
   function selectDate(key,{scroll=false}={}){
     if(!validKey(key))return;
@@ -13870,7 +13913,7 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
         state.laterTasks.push(updated);
       }
     }
-    if(hasDate){state.calendarSelectedDate=date;state.calendarAnchorDate=date}
+    if(hasDate&&!state.calendarCollapsed){state.calendarSelectedDate=date;state.calendarAnchorDate=date}
     save();closeEditor();render();
   }
 
@@ -13921,6 +13964,7 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
       event.preventDefault();selectDate(cell.dataset.calendarSelect,{scroll:true});
     }
   });
+  collapseBtn.addEventListener('click',()=>setCalendarCollapsed(!state.calendarCollapsed));
   byId('taskCalendarTodayBtn').addEventListener('click',()=>selectDate(today()));
   byId('taskCalendarPrevBtn').addEventListener('click',()=>shiftPeriod(-1));
   byId('taskCalendarNextBtn').addEventListener('click',()=>shiftPeriod(1));
@@ -13939,7 +13983,7 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
     if(hasDate&&date===today()){
       task.carried=false;task.nextDayOnly=dailyTaskListLocked();state.dailyTasks.items.push(task);
     }else state.laterTasks.push(task);
-    if(hasDate){state.calendarSelectedDate=date;state.calendarAnchorDate=date}
+    if(hasDate&&!state.calendarCollapsed){state.calendarSelectedDate=date;state.calendarAnchorDate=date}
     byId('taskCalendarText').value='';addTimeInput.value='';syncPickerLabels();save();render();
     if(window.BloomPhone?.active)byId('taskCalendarText').blur();else byId('taskCalendarText').focus();
   });
@@ -13975,7 +14019,9 @@ html.bbb-desktop #sidebar .nav-btn{flex-shrink:0;max-width:100%;white-space:nowr
 
   ensureState();
   syncPickerLabels();
-  window.BloomCalendar={render:renderCalendar,selectDate,syncPickerLabels};
+  syncCollapsedUI();
+  requestAnimationFrame(()=>card.classList.add('calendar-collapse-ready'));
+  window.BloomCalendar={render:renderCalendar,selectDate,syncPickerLabels,setCollapsed:setCalendarCollapsed};
   render();
 })();
 </script>
