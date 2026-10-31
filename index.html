@@ -5993,6 +5993,19 @@ form[data-themed-validation]{--bbb-validation-accent:var(--button)}
 </style>
 
 
+
+<style id="bbb-theme-done-readable-text-fix">
+/* Built-in worlds always use their authored readable text color on the primary Done button.
+   Custom themes intentionally preserve the user's literal Text choice, even if contrast is low. */
+body:not(.bbb-custom-active):not([data-theme="custom"]) #themesModal #closeThemes {
+  color:var(--button-text)!important;
+  -webkit-text-fill-color:var(--button-text)!important;
+}
+body:is(.bbb-custom-active,[data-theme="custom"]) #themesModal #closeThemes {
+  color:var(--text)!important;
+  -webkit-text-fill-color:var(--text)!important;
+}
+</style>
 </head>
 <body data-theme="fantasy">
 <div id="bbbDevicePicker" role="dialog" aria-modal="true" aria-labelledby="bbbDeviceTitle" aria-describedby="bbbDeviceIntro" hidden>
@@ -6036,7 +6049,6 @@ form[data-themed-validation]{--bbb-validation-accent:var(--button)}
     <button class="nav-btn" id="settingsNav"><svg viewBox="0 0 24 24"><path d="M12 8.5A3.5 3.5 0 1 0 12 15.5 3.5 3.5 0 0 0 12 8.5Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21h-4v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1A1.7 1.7 0 0 0 4.6 15 1.7 1.7 0 0 0 3 14H3v-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1L7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.5V3h4v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 1.5 1h.1v4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Settings</button>
     <button class="nav-btn" id="coffeeBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h11v6.5A4.5 4.5 0 0 1 11.5 19h-2A4.5 4.5 0 0 1 5 14.5V8Zm11 2h1.5a2.5 2.5 0 0 1 0 5H16M8 5.5c0-1 1-1.2 1-2.2M12 5.5c0-1 1-1.2 1-2.2"/></svg>Coffee</button>
   </nav>
-  <div class="side-note">Small steps<br>create a life<br>you love.</div>
 </aside>
 <button class="sidebar-fab" id="sidebarFab" aria-label="Hide navigation" title="Hide navigation">
   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -6407,7 +6419,7 @@ form[data-themed-validation]{--bbb-validation-accent:var(--button)}
 #settingsModal .settings-tabbed-modal{max-width:680px}
 .settings-tabs{
   display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-columns:repeat(4,minmax(0,1fr));
   gap:7px;
   padding:6px;
   margin:18px 0 20px;
@@ -6437,7 +6449,7 @@ form[data-themed-validation]{--bbb-validation-accent:var(--button)}
 @keyframes settingsPanelIn{from{opacity:.45;transform:translateY(3px)}to{opacity:1;transform:none}}
 .settings-tab-panel .backup-panel{margin-top:18px}
 @media(max-width:560px){
-  .settings-tabs{gap:4px;padding:4px}
+  .settings-tabs{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:4px}
   .settings-tab{font-size:12px;padding:8px 5px}
 }
 </style>
@@ -6447,10 +6459,11 @@ form[data-themed-validation]{--bbb-validation-accent:var(--button)}
     <button type="button" class="settings-tab active" data-settings-tab="basic" role="tab" aria-selected="true">Basic</button>
     <button type="button" class="settings-tab" data-settings-tab="tasks" role="tab" aria-selected="false">Habits &amp; Tasks</button>
     <button type="button" class="settings-tab" data-settings-tab="timer" role="tab" aria-selected="false">Clock &amp; Timer</button>
+    <button type="button" class="settings-tab" data-settings-tab="account" role="tab" aria-selected="false">Account</button>
   </div>
 
   <div class="settings-tab-panel active" data-settings-panel="basic" role="tabpanel">
-    <label>Your name<input id="nameInput" value="You"></label>
+    <label id="bbbGuestNameSetting">Your name<input id="nameInput" value="You"><span class="bbb-guest-name-note">Guest mode only · signed-in users change their name in Account.</span></label>
 
     <section class="bbb-device-settings" id="bbbDeviceSettings" aria-labelledby="bbbDeviceSettingsTitle">
       <strong id="bbbDeviceSettingsTitle">Device layout</strong>
@@ -6593,6 +6606,41 @@ form[data-themed-validation]{--bbb-validation-accent:var(--button)}
     </div>
   </div>
 
+  <div class="settings-tab-panel" data-settings-panel="account" role="tabpanel" hidden>
+    <section class="bbb-account-settings-card" id="bbbSettingsAccountGuest">
+      <div class="bbb-account-settings-heading">
+        <span class="bbb-account-settings-avatar" id="bbbSettingsGuestAvatar" aria-hidden="true"></span>
+        <div><strong>Save your progress</strong><span>Your Bloom progress is currently saved only on this device.</span></div>
+      </div>
+      <p>Create an account to keep your habits, tasks, history, and dashboard progress with you across devices.</p>
+      <div class="bbb-account-settings-actions">
+        <button type="button" class="save" id="bbbSettingsCreateAccount">Create account</button>
+        <button type="button" class="secondary" id="bbbSettingsLogin">Log in</button>
+      </div>
+    </section>
+    <section class="bbb-account-settings-card" id="bbbSettingsAccountUser" hidden>
+      <div class="bbb-account-settings-heading">
+        <span class="bbb-account-settings-avatar" id="bbbSettingsUserAvatar" aria-hidden="true"></span>
+        <div><strong id="bbbSettingsAccountName">Your account</strong><span id="bbbSettingsAccountHandle"></span></div>
+      </div>
+      <div class="bbb-account-email" id="bbbSettingsAccountEmail"></div>
+      <div class="bbb-sync-status" id="bbbSettingsSyncStatus" role="status" aria-live="polite">Checking sync…</div>
+      <div class="bbb-account-settings-actions">
+        <button type="button" class="secondary" id="bbbSettingsEditProfile">Edit profile</button>
+        <button type="button" class="secondary" id="bbbSettingsSyncNow">Sync now</button>
+        <button type="button" class="secondary bbb-logout-btn" id="bbbSettingsLogout">Log out</button>
+      </div>
+      <p class="bbb-account-settings-footnote">Logging out returns this browser to guest mode. Your account progress remains saved to your account.</p>
+      <div class="bbb-account-danger-zone">
+        <div>
+          <strong>Delete account</strong>
+          <span>Permanently remove your Bloom account and cloud-saved progress.</span>
+        </div>
+        <button type="button" class="bbb-danger-button" id="bbbSettingsDeleteAccount">Delete account</button>
+      </div>
+    </section>
+  </div>
+
   <div class="creator-credit">Bloom by Bit · Created by Vera Ni</div>
   <div class="modal-actions"><button id="closeSettings">Cancel</button><button class="save" id="saveSettings">Save Changes</button></div>
 </div></div>
@@ -6695,7 +6743,13 @@ body[data-theme="fantasy"] #tutorialModal .tutorial-actions button{font-size:17p
 #bbbTutorialThemeWarning p{margin:0;font:13px/1.45 var(--theme-ui);color:var(--muted)}
 #bbbTutorialThemeWarning button{position:absolute;right:9px;top:8px;width:28px;height:28px;min-width:0;padding:0;border:0;border-radius:8px;background:transparent;color:var(--muted);font:700 20px/1 var(--theme-ui);cursor:pointer}
 #bbbTutorialThemeWarning button:hover{background:var(--surface-soft);color:var(--text)}
-@media(max-width:600px){#bbbTutorialThemeWarning{top:12px;width:min(340px,calc(100vw - 20px));padding:12px 40px 12px 14px}#bbbTutorialThemeWarning strong{font-size:15px}#bbbTutorialThemeWarning p{font-size:12.5px}}
+#bbbTutorialAccountWarning{position:fixed;z-index:10060;left:var(--bbb-account-warning-left,50%);top:var(--bbb-account-warning-top,24px);width:var(--bbb-account-warning-width,min(360px,calc(100vw - 28px)));padding:14px 42px 14px 16px;border:1px solid var(--edge);border-radius:14px;background:var(--surface-strong);color:var(--text);box-shadow:0 16px 48px rgba(0,0,0,.34);opacity:0;visibility:hidden;pointer-events:none;transform:translate(-50%,-8px);transition:opacity .18s ease,transform .18s ease,visibility .18s ease;font-family:var(--theme-ui);text-align:left}
+#bbbTutorialAccountWarning.show{opacity:1;visibility:visible;pointer-events:auto;transform:translate(-50%,0)}
+#bbbTutorialAccountWarning strong{display:block;margin:0 0 4px;font:700 16px/1.25 var(--theme-font);color:var(--text)}
+#bbbTutorialAccountWarning p{margin:0;font:13px/1.45 var(--theme-ui);color:var(--muted)}
+#bbbTutorialAccountWarning button{position:absolute;right:9px;top:8px;width:28px;height:28px;min-width:0;padding:0;border:0;border-radius:8px;background:transparent;color:var(--muted);font:700 20px/1 var(--theme-ui);cursor:pointer}
+#bbbTutorialAccountWarning button:hover{background:var(--surface-soft);color:var(--text)}
+@media(max-width:600px){#bbbTutorialThemeWarning{top:12px;width:min(340px,calc(100vw - 20px))}#bbbTutorialThemeWarning,#bbbTutorialAccountWarning{padding:12px 40px 12px 14px}#bbbTutorialAccountWarning{top:var(--bbb-account-warning-top,12px);width:var(--bbb-account-warning-width,min(340px,calc(100vw - 20px)))}#bbbTutorialThemeWarning strong,#bbbTutorialAccountWarning strong{font-size:15px}#bbbTutorialThemeWarning p,#bbbTutorialAccountWarning p{font-size:12.5px}}
 </style>
 <div class="modal-backdrop" id="tutorialModal">
   <div class="modal tutorial-modal" role="dialog" aria-modal="true" aria-labelledby="tutorialTitle">
@@ -7345,6 +7399,7 @@ async function restoreBetterYouBackup(file){
       localStorage.setItem('betterYou_v1',JSON.stringify(payload.state));
       window.BBBRestoringBackup=true;
     }
+    try{await window.BBBAccount?.syncNow?.({force:true,preferLocalStorage:true});}catch(error){console.warn('Bloom cloud sync after restore:',error)}
     toast(result.missingImage?'Backup restored. Its missing custom image was replaced with theme artwork.':'Backup restored — reloading');
     setTimeout(()=>location.reload(),result.missingImage?1800:650);
   }catch(error){
@@ -7388,6 +7443,13 @@ if(confirmClearData) confirmClearData.addEventListener('click',async()=>{
     if(cancelClearData)cancelClearData.disabled=false;
     clearDataModal?.removeAttribute('aria-busy');
     toast(error.message||'Could not clear your custom image. Please try again.');
+    return;
+  }
+  try{await window.BBBAccount?.prepareStartFresh?.();}catch(error){
+    confirmClearData.disabled=false;
+    if(cancelClearData)cancelClearData.disabled=false;
+    clearDataModal?.removeAttribute('aria-busy');
+    toast('Could not reset your cloud progress. Please try again.');
     return;
   }
   window.BBBRestoringBackup=true;
@@ -7695,7 +7757,7 @@ function load(){
   }
   ensureCurrentWeek();
 }
-function save(){if(window.BBBRestoringBackup)return;try{localStorage.setItem('betterYou_v1',JSON.stringify(state))}catch(e){}}
+function save(){if(window.BBBRestoringBackup)return;try{localStorage.setItem('betterYou_v1',JSON.stringify(state))}catch(e){}try{window.dispatchEvent(new Event('bbb:data-changed'))}catch(e){}}
 
 function pullResult(p){return typeof p==='string'?p:p.result}
 function winnerCount(){return state.pulls.filter(p=>pullResult(p)==='win').length}
@@ -9210,7 +9272,12 @@ $('saveSettings').onclick=()=>{
   }
   const previousWeekStart=state.weekStartDay ?? 1;
   const newWeekStart=Math.min(6,Math.max(0,Math.floor(+$('weekStartDayInput')?.value||0)));
-  state.name=$('nameInput').value.trim()||'You';
+  if(window.BBBAccount?.isLoggedIn?.()){
+    const profileName=String(window.BBBAccount?.getProfile?.()?.first_name||'').trim();
+    if(profileName)state.name=profileName;
+  }else{
+    state.name=$('nameInput').value.trim()||'You';
+  }
   state.habits=cleaned;
   cleaned.forEach(h=>{if(habitGoalFloor(h.id)>0)state.habitGoalLocks[h.id]=Math.max(habitGoalFloor(h.id),h.goal)});
   state.weekStartDay=newWeekStart;
@@ -11535,12 +11602,52 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
   // While the guided tutorial is running, only the current tutorial target
   // and the tutorial controls themselves are interactive. This prevents
   // accidental navigation or changes elsewhere on the dashboard.
+  let tutorialAccountWarningTimer=0;
+  function positionTutorialAccountWarning(warning){
+    if(!warning)return;
+    const modal=document.querySelector('#settingsModal.open .modal')||document.querySelector('#settingsModal .modal');
+    if(!modal){
+      warning.style.removeProperty('--bbb-account-warning-left');
+      warning.style.removeProperty('--bbb-account-warning-top');
+      warning.style.removeProperty('--bbb-account-warning-width');
+      return;
+    }
+    const rect=modal.getBoundingClientRect();
+    const available=Math.max(240,Math.min(360,rect.width-28));
+    warning.style.setProperty('--bbb-account-warning-left',Math.round(rect.left+rect.width/2)+'px');
+    warning.style.setProperty('--bbb-account-warning-width',Math.round(available)+'px');
+    // Keep the notice centered to Settings, but lift it above the card so it
+    // does not cover the Account tab or its controls. On short screens, pin it
+    // near the top of the viewport rather than letting it spill off-screen.
+    const warningHeight=Math.max(84,warning.offsetHeight||0);
+    const aboveTop=rect.top-warningHeight-14;
+    warning.style.setProperty('--bbb-account-warning-top',Math.round(Math.max(12,aboveTop))+'px');
+  }
+  function showTutorialAccountWarning(){
+    let warning=$('bbbTutorialAccountWarning');
+    if(!warning){
+      warning=document.createElement('div');
+      warning.id='bbbTutorialAccountWarning';
+      warning.setAttribute('role','alert');
+      warning.setAttribute('aria-live','assertive');
+      warning.innerHTML='<button type="button" aria-label="Dismiss">&times;</button><strong>Please finish the tutorial first</strong><p>Finish the tour, then come back here to log in or manage your account.</p>';
+      document.body.appendChild(warning);
+      warning.querySelector('button')?.addEventListener('click',()=>{warning.classList.remove('show');clearTimeout(tutorialAccountWarningTimer)});
+    }
+    clearTimeout(tutorialAccountWarningTimer);
+    warning.classList.remove('show');
+    positionTutorialAccountWarning(warning);
+    requestAnimationFrame(()=>{positionTutorialAccountWarning(warning);warning.classList.add('show')});
+    tutorialAccountWarningTimer=setTimeout(()=>warning.classList.remove('show'),5200);
+  }
+  const tutorialAccountInteractiveTarget=target=>!!target?.closest?.('[data-settings-panel="account"] button,[data-settings-panel="account"] a,[data-settings-panel="account"] input,[data-settings-panel="account"] select,[data-settings-panel="account"] textarea');
+
   function isTutorialAllowedTarget(target){
     if(!document.body.classList.contains('tutorial-running'))return true;
     if(!target || !(target instanceof Element))return false;
     if(coach?.contains(target))return true;
     if(examplePanel?.contains(target))return true;
-    if(target.closest?.('#bbbTutorialThemeWarning'))return true;
+    if(target.closest?.('#bbbTutorialThemeWarning,#bbbTutorialAccountWarning'))return true;
     // The due-date picker lives directly under <body>, outside the highlighted
     // task card, so it needs an explicit tutorial exception to stay interactive.
     if(target.closest?.('.custom-due-picker') || target.closest?.('.task-due-btn'))return true;
@@ -11552,6 +11659,14 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     // while the guided tutorial is running.
     if(target.closest?.('#backupDataBtn') || target.closest?.('#restoreDataBtn') || target.closest?.('#restoreDataInput'))return true;
     const step=steps?.[stepIndex];
+    // Account controls stay locked during the tour. The tutorial may switch to
+    // the Account tab automatically, but login/profile actions remain blocked.
+    const accountTab=target.closest?.('[data-settings-tab="account"]');
+    const accountPanel=target.closest?.('[data-settings-panel="account"]');
+    if(accountTab || accountPanel){
+      if(accountPanel && step?.accountTutorial)return true;
+      return false;
+    }
     if(step?.explore && step.context==='studying'){
       const studyPage=$('clockPage');
       if(studyPage && studyPage.contains(target))return true;
@@ -11593,7 +11708,16 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
   }
   function blockOutsideTutorial(e){
     if(!e.isTrusted)return; // do not block the tutorial's own programmatic actions
+    // Outside the guided tour, account controls must behave normally.
+    if(!document.body.classList.contains('tutorial-running'))return;
     const step=steps?.[stepIndex];
+    if(tutorialAccountInteractiveTarget(e.target)){
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation?.();
+      showTutorialAccountWarning();
+      return;
+    }
     // During Explore Coffee, the Buy Me a Coffee widget is allowed to handle
     // its own clicks/close controls without the tutorial capture guard
     // swallowing them. The BMC controller keeps this true only while the
@@ -11774,7 +11898,7 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
         closeOtherModals(settings?.classList.contains('open')?settings:null);
         if(!settings?.classList.contains('open')) app.openSettings?.();
         const requestedTab=steps?.[stepIndex]?.settingsTab;
-        if(requestedTab) app.setSettingsTab?.(requestedTab);
+        if(requestedTab && !steps?.[stepIndex]?.manualSettingsTab) app.setSettingsTab?.(requestedTab);
       }else if(context==='home'){
         if(document.body.classList.contains('clock-mode')){ safe(()=>window.BloomByBitStudying?.resetAndStop?.()); app.closeClockPage?.(); }
         closeOtherModals();app.showHomePage?.();
@@ -11811,6 +11935,9 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     coachMinimized=false;coachPinnedByUser=false;coachDragMoved=false;
     modal?.classList.remove('open');
     document.body.classList.remove('tutorial-running','tutorial-theme-clearance','tutorial-bonus-active');
+    const accountWarning=$('bbbTutorialAccountWarning');
+    if(accountWarning)accountWarning.classList.remove('show');
+    clearTimeout(tutorialAccountWarningTimer);
     markSeen();restoreTutorialState();lastCoachPos=null;
     safe(syncPhoneTutorialNavigation);
     if(wasRunning && options?.notify!==false)app.toast?.('Tutorial complete ✦');
@@ -11903,9 +12030,13 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
 
   const steps=[
     {context:'home',title:'Open the settings nook',text:'First, a quick peek behind the curtain so you know where the important switches live.',hint:'Click <b>Settings</b>.',enter(){goHome();const el=focus('#settingsNav');setNext(false);onOnce(el,'click')}} ,
-    {context:'settings',settingsTab:'basic',title:'Your home base',text:'Basic keeps the little things that make Bloom by Bit yours: your <b>name</b>, <b>device layout</b>, this tutorial, and <b>backup or restore</b>.',hint:'Nothing complicated here. Take a peek, then click <b>Next</b>.',explore:true,enter(){focusForExplore('[data-settings-tab="basic"]','[data-settings-panel="basic"]');setNext(true)}} ,
+    {context:'settings',settingsTab:'basic',title:'Your home base',text:'Basic keeps the little things that belong to this device: your <b>layout</b>, this tutorial, <b>backup or restore</b>, and a local name if you are using Bloom as a guest.',hint:'A few quiet switches behind the scenes. Take a peek, then click <b>Next</b>.',explore:true,enter(){focusForExplore('[data-settings-tab="basic"]','[data-settings-panel="basic"]');setNext(true)}} ,
     {context:'settings',settingsTab:'tasks',title:'Plant your weekly goals',text:'Habits & Tasks is where you name your habits, set weekly goals, choose the calendar task color, pick when the week starts, and decide whether tasks sort themselves.',hint:'Take a quick look, then click <b>Next</b>.',explore:true,enter(){focusForExplore('[data-settings-tab="tasks"]','[data-settings-panel="tasks"]');setNext(true)}} ,
     {context:'settings',settingsTab:'timer',title:'Set your study rhythm',text:'Clock & Timer lets you choose <b>12- or 24-hour time</b>, use <b>Pomodoro</b> or one regular focus timer, change the timer lengths, and choose whether the next Pomodoro interval starts on its own.',hint:'A few knobs for your focus rhythm. Click <b>Next</b> when you’re ready.',explore:true,enter(){focusForExplore('[data-settings-tab="timer"]','[data-settings-panel="timer"]');setNext(true)}} ,
+    {context:'settings',settingsTab:'account',accountTutorial:true,title:'Keep your progress close',text:'Accounts are optional. Sign in to keep your Bloom progress with you across devices.',hint:'Login and profile controls live here. Click <b>Next</b> when you’re ready.',enter(){
+      focusForExplore('[data-settings-tab="account"]','[data-settings-panel="account"]');
+      setNext(true);
+    }} ,
     {context:'settings',settingsTab:'tasks',title:'Plant one habit',text:'Now give your first habit a name and choose how many times you want to show up for it this week.',hint:'Try something simple like <b>read</b>, <b>study</b>, <b>exercise</b>, or <b>practice</b>.',enter(){safe(()=>app.tutorialResetHabitEditor?.(1));const editor=focus('#habitEditor');if(!editor){setNext(true);return}watchHabit(0)}} ,
     {context:'settings',settingsTab:'tasks',title:'Lock in the setup',text:'One weekly rule matters: once a habit earns its <b>first pull</b>, that habit’s goal can go higher, but not lower until the next week. Everything else in Settings stays editable.',hint:'Click <b>Save Changes</b> and we’ll head back out.',enter(){const el=focus('#saveSettings');if(practiceMode){setNext(false);onOnce(el,'click')}else setNext(true)}} ,
     {context:'home',title:'Map out your days',text:'The Task Calendar is your little map: <b>Month</b> shows the big picture, <b>Week</b> brings seven days closer, and any day box can be selected. Need more room? <b>Minimize calendar</b> hides the Month/Week view while keeping Today’s tasks and Unscheduled visible.',hint:'Try <b>Minimize calendar</b> or <b>View calendar</b>, then explore a day when the calendar is open. Your choice is remembered.',explore:true,enter(){goHome();focusForExplore('#taskCalendarCollapseBtn','#taskCalendarCard');setNext(true)}} ,
@@ -12401,14 +12532,21 @@ body[data-theme="fantasy"] #bloomHelpPanel,body[data-theme="cottage"] #bloomHelp
     history:{label:'History',intro:'History is where finished weeks collect so you can look back at your progress.',items:[
       ['history-when','When does a week appear in History?','A completed week is saved to History automatically when the next week begins. You can then look back at that week’s habit progress and task history.']
     ]},
-    personalize:{label:'Themes & Settings',intro:'This is where you make Bloom by Bit work the way you like.',items:[
-      ['settings-basic','What is in Basic settings?','Basic lets you change your name and device layout, replay the tutorial, save or restore a backup, or use Start Fresh.'],
+    themes:{label:'Themes',intro:'Dress Bloom in a world that feels like yours.',items:[
+      ['themes-worlds','How do Themes work?','Open Themes from the sidebar and choose a world. Themes change Bloom’s atmosphere and styling, not your habits, tasks, pulls, or rewards.'],
+      ['themes-custom','Can I make my own theme?','Yes. Choose Create your theme to start from the current world, then adjust the image, colors, font, size, and positioning. Preview first or Apply settings when it feels right.']
+    ]},
+    settings:{label:'Settings',intro:'A few quiet controls for how Bloom works behind the scenes.',items:[
+      ['settings-basic','What is in Basic settings?','Basic holds your device layout, tutorial, backup or restore, Start Fresh, and a local name for guests. Signed-in users change their name in Account.'],
       ['settings-tasks','What is in Habits & Tasks settings?','Habits & Tasks lets you edit habits and weekly goals, choose the calendar task color, choose when your week starts, and turn automatic due-time task ordering on or off.'],
       ['settings-timer','What is in Clock & Timer settings?','Clock & Timer lets you switch between 12-hour and 24-hour time, choose Pomodoro or one regular focus timer, set focus and break lengths, and choose whether the next Pomodoro interval starts automatically.'],
-      ['themes','How do Themes work?','Open Themes from the sidebar and choose a world. Themes change the atmosphere and styling, not how your habits, tasks, pulls, or rewards work.'],
       ['week-start','Can I choose when my week starts?','Yes. In Settings → Habits & Tasks, choose the day your week starts. The calendar’s Week view, weekly habit progress, and History follow that choice.'],
       ['task-order','Can tasks sort by time?','Yes. In Settings → Habits & Tasks, turn on Order each day by due time. Turn it off if you want to rearrange tasks manually with the three-line handle.'],
-      ['tutorial-help','Can I replay the tutorial?','Yes. Open Settings → Basic → Tutorial and choose View Tutorial. The tutorial runs as a temporary practice version and returns your real dashboard afterward.']
+      ['tutorial-help','Can I replay the tutorial?','Yes. Open Settings → Basic → Tutorial and choose View Tutorial. The tutorial is a temporary practice run, then Bloom returns you to your real dashboard.'],
+      ['account-save','Where is my progress saved?','Guest progress stays on this device. An account syncs Bloom across devices. If both this device and your account already have progress, Bloom asks which one you want to use before changing anything.'],
+      ['account-profile','Can I change my profile picture or username?','Yes. Open Settings → Account → Edit profile. Choose a Bloom preset or upload your own picture. Usernames are unique, even if the capitalization is different.'],
+      ['account-password','What if I forget my password?','Choose Forgot password? on Log in. Bloom will email a reset link so you can choose a new password.'],
+      ['account-delete','How do I delete my account?','Open Settings → Account → Delete account. Type DELETE to confirm permanent removal of the account and its cloud-saved progress.']
     ]},
     coffee:{label:'Coffee & Support',intro:'Coffee is where you can learn more about Bloom by Bit, send feedback, or support the project.',items:[
       ['coffee-feedback','Can I send feedback?','Yes. Open Coffee from the sidebar and use the feedback form to send a message.'],
@@ -15267,6 +15405,18 @@ html.bbb-phone body:is(.bbb-custom-active,[data-theme="custom"]) #settingsModal 
 }
 #themesModal #bbbCustomEntry:has(#bbbCustomUse:not([hidden])) #bbbCustomEdit {background:var(--surface-strong);color:var(--text);}
 #themesModal #bbbCustomUse[hidden] {display:none!important;}
+/* Theme picker hierarchy: finishing the picker is the primary action; editing a custom theme is secondary. */
+#themesModal #bbbCustomEdit {
+  background:var(--surface-strong)!important;
+  color:var(--text)!important;
+  border-color:var(--edge)!important;
+}
+#themesModal #closeThemes {
+  background:var(--button)!important;
+  color:var(--button-text)!important;
+  border-color:var(--button)!important;
+  font-weight:700!important;
+}
 #themesModal :is(#bbbCustomUse,#bbbCustomEdit):focus-visible {outline:3px solid var(--button);outline-offset:3px;}
 #themesModal :is(#bbbCustomUse,#bbbCustomEdit):hover {filter:brightness(1.04);}
 #themesModal #bbbCustomUse[aria-pressed="true"] {box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--button-text) 30%,transparent);}
@@ -15898,5 +16048,1201 @@ html.bbb-phone #bbbCustomThemeModal :is(#bbbCustomName,#bbbCustomFont) {font-siz
 }
 
 </style>
+<style id="bbb-account-styles">
+/* ===== Bloom account / profile ===== */
+
+.bbb-account-settings-avatar,.bbb-profile-avatar-large{
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  border-radius:999px;
+  border:1px solid var(--edge);
+  background:color-mix(in srgb,var(--surface-soft) 78%,transparent);
+  color:var(--hero-text,var(--text));
+  flex:0 0 auto;
+}
+.bbb-account-settings-avatar svg,.bbb-profile-avatar-large svg,.bbb-avatar-choice svg{width:64%;height:64%;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.bbb-account-settings-avatar img,.bbb-profile-avatar-large img,.bbb-avatar-choice img{width:100%;height:100%;object-fit:cover;display:block}
+
+.bbb-account-modal{
+  max-width:520px!important;
+  position:relative;
+  max-height:calc(100dvh - 40px)!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+  box-sizing:border-box;
+}
+#bbbAuthModal,#bbbProfileModal{overflow-y:auto!important;overscroll-behavior:contain}
+@supports not (height:100dvh){.bbb-account-modal{max-height:calc(100vh - 40px)!important}}
+.bbb-account-close{position:absolute;top:13px;right:13px;width:34px;height:34px;border-radius:999px!important;padding:0!important;display:grid;place-items:center;background:var(--surface-soft)!important;color:var(--text)!important;border:1px solid var(--edge)!important;font-size:20px!important;line-height:1!important}
+.bbb-account-kicker{font-size:10px;font-weight:800;letter-spacing:.16em;opacity:.58;margin-bottom:7px;text-transform:uppercase}
+.bbb-account-modal h3{padding-right:42px}
+.bbb-account-lede{margin:0 0 16px!important;font-size:14px!important;line-height:1.5!important;color:var(--muted)!important}
+.bbb-account-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:5px;border:1px solid var(--edge);border-radius:14px;background:var(--surface-soft);margin:16px 0}
+.bbb-account-tab{border:1px solid transparent!important;border-radius:10px!important;background:transparent!important;color:var(--text)!important;font-family:var(--theme-ui,system-ui)!important;font-weight:700!important;padding:9px 10px!important}
+.bbb-account-tab.active{background:var(--surface-strong)!important;border-color:var(--edge)!important;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.bbb-account-form{display:grid;gap:11px}
+.bbb-account-form[hidden]{display:none!important}
+.bbb-account-form label{margin:0!important;font-family:var(--theme-ui,system-ui)!important;font-size:13px!important;font-weight:650}
+.bbb-account-form input{font-family:var(--theme-ui,system-ui)!important;background:var(--surface-soft)!important;color:var(--text)!important;border-color:var(--edge)!important}
+.bbb-account-form input::placeholder{color:var(--muted)}
+.bbb-password-wrap{position:relative;display:block;margin-top:5px}
+.bbb-password-wrap input{width:100%;box-sizing:border-box;padding-right:48px!important;margin-top:0!important}
+.bbb-password-toggle{position:absolute!important;right:6px;top:50%;transform:translateY(-50%);width:38px!important;height:38px!important;min-width:38px!important;padding:0!important;display:grid!important;place-items:center!important;border:0!important;border-radius:10px!important;background:transparent!important;color:var(--text)!important;box-shadow:none!important}
+.bbb-password-toggle:hover,.bbb-password-toggle:focus-visible{background:color-mix(in srgb,var(--text) 8%,transparent)!important;outline:2px solid color-mix(in srgb,var(--button) 55%,transparent);outline-offset:1px}
+.bbb-password-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.bbb-password-toggle .bbb-eye-off{display:none}
+.bbb-password-toggle[aria-pressed="true"] .bbb-eye-on{display:none}
+.bbb-password-toggle[aria-pressed="true"] .bbb-eye-off{display:block}
+.bbb-account-submit{width:100%;margin-top:3px;min-height:43px}
+.bbb-account-error{min-height:18px;font-family:var(--theme-ui,system-ui);font-size:12px;line-height:1.4;color:#9b443d}
+.bbb-account-error:empty{display:none}
+.bbb-account-note{margin:2px 0 0!important;font-family:var(--theme-ui,system-ui)!important;font-size:11px!important;line-height:1.45!important;color:var(--muted)!important}
+.bbb-forgot-row{display:flex;justify-content:flex-end;margin-top:-4px}
+.bbb-link-button{padding:2px 0!important;border:0!important;background:transparent!important;color:var(--text)!important;-webkit-text-fill-color:var(--text)!important;font-family:var(--theme-ui,system-ui)!important;font-size:12px!important;font-weight:700!important;text-decoration:underline;text-underline-offset:3px;box-shadow:none!important}
+.bbb-link-button:hover,.bbb-link-button:focus-visible{opacity:.76;outline:none!important}
+.bbb-reset-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:4px}
+.bbb-reset-actions .secondary{background:var(--surface-soft)!important;color:var(--text)!important;-webkit-text-fill-color:var(--text)!important;border:1px solid var(--edge)!important}
+.bbb-reset-note{margin:0!important;font-family:var(--theme-ui,system-ui)!important;font-size:11px!important;line-height:1.45!important;color:var(--muted)!important}
+.bbb-account-warning{padding:12px 13px;border:1px solid var(--edge);border-radius:12px;background:var(--surface-soft);font-family:var(--theme-ui,system-ui);font-size:12px;line-height:1.5;color:var(--muted)}
+.bbb-account-warning strong{color:var(--text)}
+
+.bbb-profile-top{display:flex;align-items:center;gap:14px;margin:8px 0 16px}
+.bbb-profile-avatar-large{width:72px;height:72px;color:var(--text)}
+.bbb-profile-top-copy{display:grid;gap:3px;min-width:0}
+.bbb-profile-top-copy strong{font-size:17px}
+.bbb-profile-top-copy span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.bbb-avatar-label{font-family:var(--theme-ui,system-ui);font-size:12px;font-weight:750;margin:3px 0 8px}
+.bbb-avatar-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:10px}
+.bbb-avatar-choice{aspect-ratio:1;border:1px solid var(--edge)!important;border-radius:16px!important;background:var(--surface-soft)!important;color:var(--text)!important;padding:9px!important;display:grid;place-items:center;overflow:hidden;position:relative}
+.bbb-avatar-choice:hover{transform:translateY(-1px)}
+.bbb-avatar-choice.selected{border-color:var(--button)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--button) 25%,transparent)}
+.bbb-avatar-choice[data-avatar="upload"]{font-family:var(--theme-ui,system-ui)!important;font-size:10px!important;font-weight:750!important;line-height:1.2!important;text-align:center}
+.bbb-avatar-choice[data-avatar="upload"] svg{width:36%;height:36%;margin-bottom:3px}
+.bbb-profile-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.bbb-profile-actions :is(#bbbProfileClose,#bbbProfileSave){min-height:42px;border-radius:12px!important;font-family:var(--theme-ui,system-ui)!important}
+.bbb-profile-actions #bbbProfileClose{min-width:96px;background:var(--surface-soft)!important;color:var(--text)!important;border:1px solid var(--edge)!important}
+.bbb-profile-actions #bbbProfileSave{min-width:132px}
+#bbbGuestNameSetting[hidden]{display:none!important}
+.bbb-guest-name-note{display:block;margin-top:5px;font-family:var(--theme-ui,system-ui);font-size:10.5px;font-weight:500;line-height:1.4;color:var(--muted)}
+
+[data-settings-panel="account"]:not([hidden]){display:grid!important;gap:22px!important;padding-block:4px}
+.bbb-account-settings-card{border:1px solid var(--line,var(--edge));border-radius:16px;padding:16px;background:rgba(255,255,255,.18);display:grid;gap:12px}
+.bbb-account-settings-card[hidden]{display:none!important}
+.bbb-account-settings-heading{display:flex;align-items:center;gap:12px}
+.bbb-account-settings-heading>div{display:grid;gap:3px;min-width:0}
+.bbb-account-settings-heading strong{font-size:15px}
+.bbb-account-settings-heading span{font-size:12px;color:var(--muted);line-height:1.35}
+.bbb-account-settings-avatar{width:48px;height:48px;color:var(--text)}
+.bbb-account-settings-card p{font-family:var(--theme-ui,system-ui)!important;font-size:12px!important;line-height:1.5!important;color:var(--muted)!important;margin:0!important}
+.bbb-account-settings-actions{display:flex;flex-wrap:wrap;gap:8px}
+.bbb-account-settings-actions button{font-family:var(--theme-ui,system-ui)!important}
+.bbb-account-email{font-family:var(--theme-ui,system-ui);font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.bbb-sync-status{display:flex;align-items:center;gap:7px;width:max-content;max-width:100%;padding:6px 9px;border:1px solid var(--edge);border-radius:999px;background:var(--surface-soft);font-family:var(--theme-ui,system-ui);font-size:11px;color:var(--muted)}
+.bbb-sync-status:before{content:"";width:7px;height:7px;border-radius:999px;background:currentColor;opacity:.65;flex:0 0 auto}
+.bbb-sync-status[data-state="ok"]{color:#426a4b}
+.bbb-sync-status[data-state="syncing"]{color:var(--text)}
+.bbb-sync-status[data-state="error"],.bbb-sync-status[data-state="setup"]{color:#9b5a39}
+.bbb-logout-btn{margin-left:0}
+.bbb-account-settings-footnote{font-size:11px!important}
+.bbb-account-danger-zone{margin-top:4px;padding-top:14px;border-top:1px solid var(--edge);display:flex;align-items:center;justify-content:space-between;gap:14px}
+.bbb-account-danger-zone>div{display:grid;gap:3px;min-width:0}
+.bbb-account-danger-zone strong{font-family:var(--theme-ui,system-ui);font-size:12px;color:var(--text)}
+.bbb-account-danger-zone span{font-family:var(--theme-ui,system-ui);font-size:11px;line-height:1.4;color:var(--muted)}
+.bbb-danger-button{background:#8e3f38!important;color:#fff!important;border-color:#8e3f38!important;font-family:var(--theme-ui,system-ui)!important}
+.bbb-danger-button:hover:not(:disabled){filter:brightness(.96)}
+.bbb-danger-button:disabled{opacity:.45;cursor:not-allowed}
+#bbbDeleteAccountModal{z-index:12060}
+.bbb-delete-account-modal{max-width:500px!important}
+.bbb-delete-warning{padding:12px 13px;border:1px solid color-mix(in srgb,#8e3f38 42%,var(--edge));border-radius:12px;background:color-mix(in srgb,#8e3f38 8%,var(--surface-soft));font-family:var(--theme-ui,system-ui);font-size:12px;line-height:1.5;color:var(--muted);margin-bottom:14px}
+.bbb-delete-warning strong{color:var(--text)}
+.bbb-delete-confirm-label{display:grid;gap:7px;font-family:var(--theme-ui,system-ui);font-size:12px;font-weight:650}
+.bbb-delete-confirm-label input{font-family:var(--theme-ui,system-ui)!important;background:var(--surface-soft)!important;color:var(--text)!important;border-color:var(--edge)!important}
+.bbb-delete-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:6px}
+.bbb-delete-cancel{background:var(--surface-soft)!important;color:var(--text)!important;-webkit-text-fill-color:var(--text)!important;border:1px solid var(--edge)!important;font-family:var(--theme-ui,system-ui)!important}
+.bbb-delete-cancel:hover{filter:brightness(.98)}
+
+#bbbAccountPrompt{z-index:12040}
+#bbbAuthModal,#bbbProfileModal,#bbbResetRequestModal,#bbbPasswordUpdateModal{z-index:12050}
+#bbbProgressChoiceModal{z-index:12058}
+.bbb-progress-choice-modal{max-width:500px!important}
+.bbb-progress-choice-list{display:grid;gap:10px;margin:16px 0 14px}
+.bbb-progress-choice-option{display:grid;gap:5px;padding:13px;border:1px solid var(--edge);border-radius:14px;background:var(--surface-soft)}
+.bbb-progress-choice-option button{width:100%;min-height:42px;font-family:var(--theme-ui,system-ui)!important}
+.bbb-progress-choice-option span{font-family:var(--theme-ui,system-ui);font-size:11px;line-height:1.45;color:var(--muted)}
+.bbb-progress-choice-option.device{border-color:color-mix(in srgb,var(--button) 45%,var(--edge))}
+.bbb-progress-choice-cancel{display:flex;justify-content:flex-end}
+.bbb-progress-choice-cancel button{min-width:96px;background:var(--surface-soft)!important;color:var(--text)!important;-webkit-text-fill-color:var(--text)!important;border:1px solid var(--edge)!important}
+.bbb-account-prompt-modal{max-width:470px!important;text-align:center}
+.bbb-account-prompt-icon{width:58px;height:58px;border-radius:999px;margin:2px auto 13px;display:grid;place-items:center;border:1px solid var(--edge);background:var(--surface-soft);color:var(--text)}
+.bbb-account-prompt-icon svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.bbb-account-prompt-modal h3{padding-right:0!important}
+.bbb-account-prompt-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:17px}
+.bbb-account-prompt-actions .bbb-continue-guest{grid-column:1/-1;background:transparent!important;color:var(--text)!important}
+.bbb-account-device-warning{margin-top:11px!important;font-family:var(--theme-ui,system-ui)!important;font-size:11px!important;line-height:1.45!important;color:var(--muted)!important}
+
+@media(max-width:760px){
+  .bbb-avatar-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .bbb-account-prompt-actions{grid-template-columns:1fr}
+  .bbb-account-prompt-actions .bbb-continue-guest{grid-column:auto}
+}
+@media(prefers-reduced-motion:reduce){.bbb-avatar-choice{transition:none!important}}
+</style>
+
+<div class="modal-backdrop" id="bbbAccountPrompt" aria-hidden="true">
+  <div class="modal bbb-account-prompt-modal" role="dialog" aria-modal="true" aria-labelledby="bbbAccountPromptTitle">
+    <div class="bbb-account-prompt-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 21v-8"/><path d="M12 13c-4.5 0-7-2.2-7-6 4.2-.2 6.7 1.4 7 6Z"/><path d="M12 13c4.5 0 7-2.2 7-6-4.2-.2-6.7 1.4-7 6Z"/></svg>
+    </div>
+    <h3 id="bbbAccountPromptTitle">Keep your progress with you</h3>
+    <p>Create a free account to save your habits, tasks, history, themes, and progress across devices.</p>
+    <div class="bbb-account-prompt-actions">
+      <button type="button" class="save" id="bbbPromptCreate">Create account</button>
+      <button type="button" class="secondary" id="bbbPromptLogin">Log in</button>
+      <button type="button" class="secondary bbb-continue-guest" id="bbbPromptGuest">Continue without an account</button>
+    </div>
+    <p class="bbb-account-device-warning"><strong>Guest mode:</strong> your progress is saved only on this device and browser.</p>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="bbbAuthModal" aria-hidden="true">
+  <div class="modal bbb-account-modal" role="dialog" aria-modal="true" aria-labelledby="bbbAuthTitle">
+    <button type="button" class="bbb-account-close" id="bbbAuthClose" aria-label="Close account window">×</button>
+    <div class="bbb-account-kicker">BLOOM ACCOUNT</div>
+    <h3 id="bbbAuthTitle">Keep your progress safe</h3>
+    <p class="bbb-account-lede">Use Bloom without an account anytime, or sign in to carry your progress between devices.</p>
+    <div class="bbb-account-tabs" role="tablist" aria-label="Account actions">
+      <button type="button" class="bbb-account-tab active" data-bbb-auth-tab="create" role="tab" aria-selected="true">Create account</button>
+      <button type="button" class="bbb-account-tab" data-bbb-auth-tab="login" role="tab" aria-selected="false">Log in</button>
+    </div>
+    <form class="bbb-account-form" id="bbbSignupForm">
+      <label>Email<input id="bbbSignupEmail" type="email" autocomplete="email" required placeholder="you@example.com"></label>
+      <label>Password<div class="bbb-password-wrap"><input id="bbbSignupPassword" type="password" autocomplete="new-password" minlength="8" required placeholder="At least 8 characters"><button type="button" class="bbb-password-toggle" data-password-target="bbbSignupPassword" aria-label="Show password" aria-pressed="false"><svg class="bbb-eye-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.6"/></svg><svg class="bbb-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 6.1A10.8 10.8 0 0 1 12 6c6 0 9.5 6 9.5 6a16.8 16.8 0 0 1-3 3.7"/><path d="M6.2 6.3C3.8 8 2.5 12 2.5 12s3.5 6 9.5 6a10 10 0 0 0 4-.8"/><path d="M9.9 9.8a3 3 0 0 0 4.3 4.3"/></svg></button></div></label>
+      <label>Confirm password<div class="bbb-password-wrap"><input id="bbbSignupConfirm" type="password" autocomplete="new-password" minlength="8" required><button type="button" class="bbb-password-toggle" data-password-target="bbbSignupConfirm" aria-label="Show password" aria-pressed="false"><svg class="bbb-eye-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.6"/></svg><svg class="bbb-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 6.1A10.8 10.8 0 0 1 12 6c6 0 9.5 6 9.5 6a16.8 16.8 0 0 1-3 3.7"/><path d="M6.2 6.3C3.8 8 2.5 12 2.5 12s3.5 6 9.5 6a10 10 0 0 0 4-.8"/><path d="M9.9 9.8a3 3 0 0 0 4.3 4.3"/></svg></button></div></label>
+      <div class="bbb-account-error" id="bbbSignupError" role="alert"></div>
+      <button type="submit" class="save bbb-account-submit" id="bbbSignupSubmit">Create account</button>
+      <p class="bbb-account-note">Your password is handled by Supabase authentication. Bloom never stores your raw password in the website data.</p>
+    </form>
+    <form class="bbb-account-form" id="bbbLoginForm" hidden>
+      <label>Email<input id="bbbLoginEmail" type="email" autocomplete="email" required placeholder="you@example.com"></label>
+      <label>Password<div class="bbb-password-wrap"><input id="bbbLoginPassword" type="password" autocomplete="current-password" required><button type="button" class="bbb-password-toggle" data-password-target="bbbLoginPassword" aria-label="Show password" aria-pressed="false"><svg class="bbb-eye-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.6"/></svg><svg class="bbb-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 6.1A10.8 10.8 0 0 1 12 6c6 0 9.5 6 9.5 6a16.8 16.8 0 0 1-3 3.7"/><path d="M6.2 6.3C3.8 8 2.5 12 2.5 12s3.5 6 9.5 6a10 10 0 0 0 4-.8"/><path d="M9.9 9.8a3 3 0 0 0 4.3 4.3"/></svg></button></div></label>
+      <div class="bbb-forgot-row"><button type="button" class="bbb-link-button" id="bbbForgotPassword">Forgot password?</button></div>
+      <div class="bbb-account-error" id="bbbLoginError" role="alert"></div>
+      <button type="submit" class="save bbb-account-submit" id="bbbLoginSubmit">Log in</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="bbbResetRequestModal" aria-hidden="true">
+  <div class="modal bbb-account-modal" role="dialog" aria-modal="true" aria-labelledby="bbbResetRequestTitle">
+    <div class="bbb-account-kicker">BLOOM ACCOUNT</div>
+    <h3 id="bbbResetRequestTitle">Reset your password</h3>
+    <p class="bbb-account-lede">Enter the email you use for Bloom and we’ll send a reset link.</p>
+    <form class="bbb-account-form" id="bbbResetRequestForm">
+      <label>Email<input id="bbbResetEmail" type="email" autocomplete="email" required placeholder="you@example.com"></label>
+      <p class="bbb-reset-note">For privacy, Bloom won’t say whether an account exists for that email.</p>
+      <div class="bbb-account-error" id="bbbResetRequestError" role="alert"></div>
+      <div class="bbb-reset-actions">
+        <button type="button" class="secondary" id="bbbResetRequestCancel">Cancel</button>
+        <button type="submit" class="save" id="bbbResetRequestSubmit">Send reset link</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="bbbPasswordUpdateModal" aria-hidden="true">
+  <div class="modal bbb-account-modal" role="dialog" aria-modal="true" aria-labelledby="bbbPasswordUpdateTitle">
+    <div class="bbb-account-kicker">BLOOM ACCOUNT</div>
+    <h3 id="bbbPasswordUpdateTitle">Choose a new password</h3>
+    <p class="bbb-account-lede">Make it at least 8 characters, then save it and log back in.</p>
+    <form class="bbb-account-form" id="bbbPasswordUpdateForm">
+      <label>New password<div class="bbb-password-wrap"><input id="bbbNewPassword" type="password" autocomplete="new-password" minlength="8" required><button type="button" class="bbb-password-toggle" data-password-target="bbbNewPassword" aria-label="Show password" aria-pressed="false"><svg class="bbb-eye-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.6"/></svg><svg class="bbb-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 6.1A10.8 10.8 0 0 1 12 6c6 0 9.5 6 9.5 6a16.8 16.8 0 0 1-3 3.7"/><path d="M6.2 6.3C3.8 8 2.5 12 2.5 12s3.5 6 9.5 6a10 10 0 0 0 4-.8"/><path d="M9.9 9.8a3 3 0 0 0 4.3 4.3"/></svg></button></div></label>
+      <label>Confirm new password<div class="bbb-password-wrap"><input id="bbbNewPasswordConfirm" type="password" autocomplete="new-password" minlength="8" required><button type="button" class="bbb-password-toggle" data-password-target="bbbNewPasswordConfirm" aria-label="Show password" aria-pressed="false"><svg class="bbb-eye-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.6"/></svg><svg class="bbb-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 6.1A10.8 10.8 0 0 1 12 6c6 0 9.5 6 9.5 6a16.8 16.8 0 0 1-3 3.7"/><path d="M6.2 6.3C3.8 8 2.5 12 2.5 12s3.5 6 9.5 6a10 10 0 0 0 4-.8"/><path d="M9.9 9.8a3 3 0 0 0 4.3 4.3"/></svg></button></div></label>
+      <div class="bbb-account-error" id="bbbPasswordUpdateError" role="alert"></div>
+      <div class="bbb-reset-actions">
+        <button type="button" class="secondary" id="bbbPasswordUpdateCancel">Cancel</button>
+        <button type="submit" class="save" id="bbbPasswordUpdateSubmit">Save new password</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="bbbProgressChoiceModal" aria-hidden="true">
+  <div class="modal bbb-account-modal bbb-progress-choice-modal" role="dialog" aria-modal="true" aria-labelledby="bbbProgressChoiceTitle">
+    <div class="bbb-account-kicker">YOUR PROGRESS</div>
+    <h3 id="bbbProgressChoiceTitle">We found progress on this device</h3>
+    <p class="bbb-account-lede">This browser and your account both have Bloom progress. Choose which one you want to continue with.</p>
+    <div class="bbb-progress-choice-list">
+      <div class="bbb-progress-choice-option">
+        <button type="button" class="save" id="bbbUseAccountProgress">Use my account progress</button>
+        <span>Loads the progress already saved to your account. This device’s guest copy stays safe for when you log out.</span>
+      </div>
+      <div class="bbb-progress-choice-option device">
+        <button type="button" class="secondary" id="bbbUseDeviceProgress">Use this device’s progress</button>
+        <span>Uses what you have been doing here and replaces the progress currently saved to your account.</span>
+      </div>
+    </div>
+    <div class="bbb-account-error" id="bbbProgressChoiceError" role="alert"></div>
+    <div class="bbb-progress-choice-cancel"><button type="button" class="secondary" id="bbbProgressChoiceCancel">Cancel</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="bbbProfileModal" aria-hidden="true">
+  <div class="modal bbb-account-modal" role="dialog" aria-modal="true" aria-labelledby="bbbProfileTitle">
+    <div class="bbb-account-kicker">YOUR PROFILE</div>
+    <h3 id="bbbProfileTitle">Make Bloom yours</h3>
+    <p class="bbb-account-lede" id="bbbProfileLede">Choose the name, unique username, and picture that appear in your Bloom profile.</p>
+    <div class="bbb-profile-top">
+      <span class="bbb-profile-avatar-large" id="bbbProfilePreview" aria-hidden="true"></span>
+      <div class="bbb-profile-top-copy"><strong id="bbbProfilePreviewName">Your profile</strong><span id="bbbProfilePreviewHandle">Pick a username below</span></div>
+    </div>
+    <form class="bbb-account-form" id="bbbProfileForm">
+      <label>First name<input id="bbbProfileFirstName" type="text" maxlength="40" autocomplete="given-name" required placeholder="What should Bloom call you?"></label>
+      <label>Username<input id="bbbProfileUsername" type="text" maxlength="24" autocomplete="username" required placeholder="3–24 letters, numbers, or underscores"></label>
+      <p class="bbb-account-note">Usernames are unique. Capitalization does not create a second version of the same username.</p>
+      <div>
+        <div class="bbb-avatar-label">Profile picture</div>
+        <div class="bbb-avatar-grid" id="bbbAvatarGrid" role="radiogroup" aria-label="Choose a profile picture"></div>
+        <input id="bbbAvatarUploadInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+      </div>
+      <div class="bbb-account-error" id="bbbProfileError" role="alert"></div>
+      <div class="bbb-profile-actions">
+        <button type="button" class="secondary" id="bbbProfileClose">Cancel</button>
+        <button type="submit" class="save" id="bbbProfileSave">Save profile</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="bbbDeleteAccountModal" aria-hidden="true">
+  <div class="modal bbb-account-modal bbb-delete-account-modal" role="dialog" aria-modal="true" aria-labelledby="bbbDeleteAccountTitle">
+    <div class="bbb-account-kicker">ACCOUNT</div>
+    <h3 id="bbbDeleteAccountTitle">Delete your account?</h3>
+    <p class="bbb-account-lede">This permanently deletes your Bloom account, profile, uploaded profile picture, uploaded custom-theme images, and cloud-saved progress. This cannot be undone.</p>
+    <div class="bbb-delete-warning"><strong>Your guest data on this browser is separate.</strong> After deletion, Bloom returns this browser to the guest copy that existed before you logged in.</div>
+    <label class="bbb-delete-confirm-label">Type <strong>DELETE</strong> to confirm
+      <input id="bbbDeleteAccountConfirm" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="DELETE">
+    </label>
+    <div class="bbb-account-error" id="bbbDeleteAccountError" role="alert"></div>
+    <div class="bbb-delete-actions">
+      <button type="button" class="secondary bbb-delete-cancel" id="bbbDeleteAccountCancel">Cancel</button>
+      <button type="button" class="bbb-danger-button" id="bbbDeleteAccountSubmit" disabled>Delete account permanently</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script id="bbb-account-runtime">
+(()=>{
+  'use strict';
+  const SUPABASE_URL='https://vwnadooiukywpsgkllgm.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY='sb_publishable_ttmcv3rF_9kftZ-3Qty4sQ_Bj9TXCdb';
+  const CLOUD_TABLE='bloom_user_data';
+  const AVATAR_BUCKET='avatars';
+  const GUEST_SNAPSHOT_KEY='bloomByBit_guestSnapshot_v1';
+  const CLOUD_USER_KEY='bloomByBit_cloudUserId_v1';
+  const CLOUD_UPDATED_KEY='bloomByBit_cloudUpdatedAt_v1';
+  const ACCOUNT_PROMPT_SEEN='bloomByBit_accountPromptSeen_v1';
+  const CLOUD_THEME_IMAGE_KEY='bloomByBit_cloudThemeImage_v1';
+  const RESET_REQUEST_KEY='bloomByBit_passwordResetRequested_v1';
+  const $=id=>document.getElementById(id);
+  const app=()=>window.BloomByBitApp;
+  const notify=msg=>{if(app()?.toast)app().toast(msg);else console.info(msg)};
+
+  const ICONS={
+    sprout:'<svg viewBox="0 0 24 24"><path d="M12 21v-8"/><path d="M12 13c-4.5 0-7-2.2-7-6 4.2-.2 6.7 1.4 7 6Z"/><path d="M12 13c4.5 0 7-2.2 7-6-4.2-.2-6.7 1.4-7 6Z"/></svg>',
+    moon:'<svg viewBox="0 0 24 24"><path d="M19.5 15.3A8 8 0 0 1 8.7 4.5 8.2 8.2 0 1 0 19.5 15.3Z"/><path d="M17 4v3M15.5 5.5h3"/></svg>',
+    book:'<svg viewBox="0 0 24 24"><path d="M4 5.5c3.3-.7 5.8.2 8 2.2v11c-2.2-2-4.7-2.9-8-2.2v-11Z"/><path d="M20 5.5c-3.3-.7-5.8.2-8 2.2v11c2.2-2 4.7-2.9 8-2.2v-11Z"/></svg>',
+    coffee:'<svg viewBox="0 0 24 24"><path d="M5 9h11v5.5A4.5 4.5 0 0 1 11.5 19h-2A4.5 4.5 0 0 1 5 14.5V9Z"/><path d="M16 11h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 5c0 1-1 1.2-1 2.2M12 5c0 1-1 1.2-1 2.2"/></svg>',
+    star:'<svg viewBox="0 0 24 24"><path d="m12 3 2.6 5.4 5.9.9-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.2 5.9-.9L12 3Z"/></svg>',
+    mountain:'<svg viewBox="0 0 24 24"><path d="m3 19 6.5-10 3.2 4.5 2.3-3.2L21 19H3Z"/><path d="m8 11.5 1.5 1.3 1.2-1.4"/></svg>',
+    palette:'<svg viewBox="0 0 24 24"><path d="M12 4a8 8 0 1 0 0 16h1.2c1.3 0 2-1.5 1.1-2.4-.8-.8-.2-2.2 1-2.2H18a2 2 0 0 0 2-2C20 8.2 16.4 4 12 4Z"/><circle cx="8" cy="10" r=".8"/><circle cx="11" cy="7.5" r=".8"/><circle cx="15" cy="8.5" r=".8"/><circle cx="7.5" cy="14" r=".8"/></svg>',
+    planet:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5.5"/><path d="M4 15.5c2.7 1.4 7.8.7 12.1-1.6 4.4-2.3 6.9-5.4 5.7-7.1-1-1.4-4-.7-6.2.3"/></svg>'
+  };
+  const AVATAR_IDS=Object.keys(ICONS);
+  const defaultIcon=ICONS.sprout;
+
+  let supabaseClient=null;
+  let currentUser=null;
+  let currentProfile=null;
+  let currentSignedAvatarUrl='';
+  let selectedAvatar='sprout';
+  let selectedUploadFile=null;
+  let selectedUploadPreview='';
+  let syncTimer=null;
+  let syncInFlight=null;
+  let lastPayloadHash='';
+  let syncState='idle';
+  let syncMessage='Guest mode · saved on this device';
+  let profileLoading=false;
+  let logoutInProgress=false;
+  // While entering an account, never let background sync write the currently visible
+  // guest dashboard to the cloud before we have compared both copies.
+  let accountEntryInProgress=false;
+  let progressChoiceResolver=null;
+  let passwordRecoveryMode=/(?:[?#&])type=recovery(?:[&#]|$)/i.test(location.href)||(()=>{try{const stamp=Number(localStorage.getItem(RESET_REQUEST_KEY)||0);return /(?:[?&])code=/.test(location.search)&&stamp>0&&(Date.now()-stamp)<2*60*60*1000}catch(_){return false}})();
+
+  function setModalOpen(el,open){
+    if(!el)return;
+    el.classList.toggle('open',!!open);
+    el.setAttribute('aria-hidden',open?'false':'true');
+  }
+  function safeJSON(value,fallback=null){try{return value==null?fallback:JSON.parse(value)}catch(_){return fallback}}
+  function clone(value){return value==null?value:JSON.parse(JSON.stringify(value))}
+  function normalizeUsername(value){return String(value||'').trim().toLowerCase()}
+  function normalizeEmail(value){return String(value||'').trim().toLowerCase()}
+  function usernameValid(value){return /^[a-z0-9_]{3,24}$/.test(value)}
+  function firstNameValid(value){const v=String(value||'').trim();return v.length>=1&&v.length<=40}
+  function setError(id,msg=''){const el=$(id);if(el)el.textContent=msg}
+  function setBusy(button,busy,label){if(!button)return;button.disabled=!!busy;if(label)button.textContent=label}
+  function markPromptSeen(){try{localStorage.setItem(ACCOUNT_PROMPT_SEEN,'1')}catch(_){}}
+  function promptWasSeen(){try{return localStorage.getItem(ACCOUNT_PROMPT_SEEN)==='1'}catch(_){return true}}
+
+  function renderPresetInto(el,id='sprout'){
+    if(!el)return;
+    el.innerHTML=ICONS[id]||defaultIcon;
+  }
+  function renderImageInto(el,url){
+    if(!el)return;
+    el.innerHTML='';
+    const img=document.createElement('img');img.alt='';img.src=url;el.appendChild(img);
+  }
+  function renderAvatarInto(el,profile=currentProfile){
+    if(!el)return;
+    if(profile?.avatar_type==='upload'&&currentSignedAvatarUrl){renderImageInto(el,currentSignedAvatarUrl);return;}
+    renderPresetInto(el,profile?.avatar_type==='preset'&&AVATAR_IDS.includes(profile?.avatar_url)?profile.avatar_url:'sprout');
+  }
+
+  async function refreshSignedAvatar(){
+    currentSignedAvatarUrl='';
+    if(!supabaseClient||!currentProfile||currentProfile.avatar_type!=='upload'||!currentProfile.avatar_url)return;
+    try{
+      const {data,error}=await supabaseClient.storage.from(AVATAR_BUCKET).createSignedUrl(currentProfile.avatar_url,3600);
+      if(error)throw error;
+      currentSignedAvatarUrl=data?.signedUrl||'';
+    }catch(error){console.warn('Bloom avatar URL:',error)}
+  }
+
+  function renderAccountUI(){
+    const logged=!!currentUser;
+    const guest=$('bbbSettingsAccountGuest'),user=$('bbbSettingsAccountUser');
+    if(guest)guest.hidden=logged;
+    if(user)user.hidden=!logged;
+    const guestNameSetting=$('bbbGuestNameSetting');
+    if(guestNameSetting)guestNameSetting.hidden=logged;
+    if(logged){
+      renderAvatarInto($('bbbSettingsUserAvatar'));
+      if($('bbbSettingsAccountName'))$('bbbSettingsAccountName').textContent=currentProfile?.first_name||'Your account';
+      if($('bbbSettingsAccountHandle'))$('bbbSettingsAccountHandle').textContent=currentProfile?.username?'@'+currentProfile.username:'Finish your profile to choose a username';
+      if($('bbbSettingsAccountEmail'))$('bbbSettingsAccountEmail').textContent=currentUser.email||'';
+    }else renderPresetInto($('bbbSettingsGuestAvatar'),'sprout');
+    renderSyncStatus();
+  }
+
+  function renderSyncStatus(){
+    const el=$('bbbSettingsSyncStatus');
+    if(!el)return;
+    if(!currentUser){el.dataset.state='idle';el.textContent='Guest mode · saved on this device';return;}
+    el.dataset.state=syncState;
+    el.textContent=syncMessage;
+  }
+  function setSyncStatus(stateName,message){syncState=stateName;syncMessage=message;renderSyncStatus()}
+
+  function themeImageMarker(){return safeJSON(localStorage.getItem(CLOUD_THEME_IMAGE_KEY),null)}
+  function themeImageExt(type){return type==='image/png'?'png':type==='image/webp'?'webp':'jpg'}
+  async function attachCloudThemeImage(payload){
+    if(!currentUser||!supabaseClient)return payload;
+    const cfg=payload?.state?.customTheme;
+    const imageId=cfg?.imageId;
+    const marker=themeImageMarker();
+    if(!imageId){
+      if(marker?.userId===currentUser.id&&marker?.path){supabaseClient.storage.from(AVATAR_BUCKET).remove([marker.path]).catch(()=>{});localStorage.removeItem(CLOUD_THEME_IMAGE_KEY)}
+      delete payload.customThemeImagePath;
+      return payload;
+    }
+    if(marker?.userId===currentUser.id&&marker?.imageId===imageId&&marker?.path){payload.customThemeImagePath=marker.path;return payload}
+    try{
+      const blob=await window.BBBThemeImages?.get?.(imageId);
+      if(!blob)return payload;
+      const path=`${currentUser.id}/themes/${imageId}.${themeImageExt(blob.type)}`;
+      const {error}=await supabaseClient.storage.from(AVATAR_BUCKET).upload(path,blob,{contentType:blob.type,upsert:true,cacheControl:'3600'});
+      if(error)throw error;
+      if(marker?.userId===currentUser.id&&marker?.path&&marker.path!==path)supabaseClient.storage.from(AVATAR_BUCKET).remove([marker.path]).catch(()=>{});
+      localStorage.setItem(CLOUD_THEME_IMAGE_KEY,JSON.stringify({userId:currentUser.id,imageId,path}));
+      payload.customThemeImagePath=path;
+    }catch(error){console.warn('Bloom custom theme image sync:',error)}
+    return payload;
+  }
+  async function hydrateCloudThemeImage(payload){
+    const cfg=payload?.state?.customTheme,path=payload?.customThemeImagePath,imageId=cfg?.imageId;
+    if(!currentUser||!supabaseClient||!imageId||!path||!window.BBBThemeImages?.put)return;
+    try{
+      const existing=await window.BBBThemeImages.get(imageId).catch(()=>null);
+      if(!existing){
+        const {data,error}=await supabaseClient.storage.from(AVATAR_BUCKET).download(path);
+        if(error)throw error;
+        if(data)await window.BBBThemeImages.put(imageId,data);
+      }
+      localStorage.setItem(CLOUD_THEME_IMAGE_KEY,JSON.stringify({userId:currentUser.id,imageId,path}));
+    }catch(error){console.warn('Bloom custom theme image restore:',error)}
+  }
+
+  function collectPayload({preferLocalStorage=false}={}){
+    let stateValue=null;
+    const raw=localStorage.getItem('betterYou_v1');
+    if(preferLocalStorage&&raw)stateValue=safeJSON(raw,null);
+    if(!stateValue){
+      const live=app()?.getState?.();
+      stateValue=live?clone(live):safeJSON(raw,null);
+    }
+    return {
+      version:1,
+      state:stateValue||{},
+      tutorialSeen:localStorage.getItem('bloomByBit_tutorialSeen')==='1'
+    };
+  }
+
+  function payloadString(payload){try{return JSON.stringify(payload)}catch(_){return ''}}
+  function captureGuestSnapshot(){
+    const snapshot={
+      version:1,
+      state:localStorage.getItem('betterYou_v1'),
+      tutorialSeen:localStorage.getItem('bloomByBit_tutorialSeen')
+    };
+    try{localStorage.setItem(GUEST_SNAPSHOT_KEY,JSON.stringify(snapshot))}catch(_){ }
+  }
+  function restoreGuestSnapshot(){
+    const snap=safeJSON(localStorage.getItem(GUEST_SNAPSHOT_KEY),null);
+    try{
+      if(snap?.state==null)localStorage.removeItem('betterYou_v1');else localStorage.setItem('betterYou_v1',snap.state);
+      if(snap?.tutorialSeen==null)localStorage.removeItem('bloomByBit_tutorialSeen');else localStorage.setItem('bloomByBit_tutorialSeen',snap.tutorialSeen);
+      localStorage.removeItem(GUEST_SNAPSHOT_KEY);
+      localStorage.removeItem(CLOUD_USER_KEY);
+      localStorage.removeItem(CLOUD_UPDATED_KEY);
+      localStorage.removeItem(CLOUD_THEME_IMAGE_KEY);
+    }catch(_){ }
+  }
+  function guestSnapshotPayload(){
+    const snap=safeJSON(localStorage.getItem(GUEST_SNAPSHOT_KEY),null);
+    const stateValue=safeJSON(snap?.state,null);
+    if(!stateValue||typeof stateValue!=='object')return null;
+    return {version:1,state:stateValue,tutorialSeen:snap?.tutorialSeen==='1'};
+  }
+  function guestHasMeaningfulProgress(payload){
+    const st=payload?.state;if(!st||typeof st!=='object')return false;
+    const habits=Array.isArray(st.habits)?st.habits:[];
+    const defaultHabit=habits.length===1&&String(habits[0]?.name||'')==='What do you want to work on?'&&Number(habits[0]?.goal||0)===7;
+    if(!defaultHabit)return true;
+    if(String(st.name||'You')!=='You')return true;
+    if(String(st.theme||'fantasy')!=='fantasy'||st.customTheme)return true;
+    if((st.pulls||[]).length||(st.history||[]).length||(st.calendarArchive||[]).length||(st.laterTasks||[]).length||(st.pendingRewards||[]).length)return true;
+    if((st.dailyTasks?.items||[]).length||Number(st.dailyTasks?.drawn||0)>0||Number(st.weeklyDailyTaskSlots||0)>0)return true;
+    if(st.rewardClaimed||st.guaranteePending||Number(st.pullsSinceLarge||0)>0)return true;
+    if(Number(st.weekStartDay??1)!==1||!!st.militaryTime||!!st.autoSortTasksByDue||st.pomodoroEnabled===false||!!st.pomodoroAutoStart)return true;
+    if(Number(st.pomodoroFocusMinutes??25)!==25||Number(st.pomodoroShortBreakMinutes??5)!==5||Number(st.pomodoroLongBreakMinutes??15)!==15||Number(st.pomodoroRounds??4)!==4||Number(st.focusTimerMinutes??45)!==45)return true;
+    if(String(st.calendarTaskColor||'#D6D7D9').toUpperCase()!=='#D6D7D9')return true;
+    const prizes=st.prizes||{};
+    const defaults={small:['Iced coffee or tea','One guilt-free episode','Favorite snack'],medium:['Boba or coffee run','$5 fun money','One hour guilt-free gaming'],large:['$10 fun money','Meal I have been craving','Small accessory or book']};
+    if(payloadString(prizes)!==payloadString(defaults))return true;
+    return false;
+  }
+  function guestAndCloudDiffer(guestPayload,cloudPayload){
+    return payloadString(guestPayload?.state||{})!==payloadString(cloudPayload?.state||{});
+  }
+  function applyGuestSnapshotToActiveStorage(){
+    const snap=safeJSON(localStorage.getItem(GUEST_SNAPSHOT_KEY),null);
+    if(!snap)return false;
+    try{
+      if(snap.state==null){
+        localStorage.removeItem('betterYou_v1');
+      }else{
+        localStorage.setItem('betterYou_v1',snap.state);
+        const nextState=safeJSON(snap.state,null);
+        if(nextState&&app()?.setState)app().setState(clone(nextState));
+      }
+      if(snap.tutorialSeen==null)localStorage.removeItem('bloomByBit_tutorialSeen');else localStorage.setItem('bloomByBit_tutorialSeen',snap.tutorialSeen);
+      return true;
+    }catch(_){return false}
+  }
+  function requestProgressChoice(){
+    setError('bbbProgressChoiceError','');
+    setModalOpen($('bbbProgressChoiceModal'),true);
+    return new Promise(resolve=>{progressChoiceResolver=resolve});
+  }
+  function resolveProgressChoice(choice){
+    setModalOpen($('bbbProgressChoiceModal'),false);
+    const resolve=progressChoiceResolver;progressChoiceResolver=null;
+    if(resolve)resolve(choice);
+  }
+  function applyCloudPayload(payload){
+    if(!payload||typeof payload!=='object'||!payload.state)return false;
+    try{
+      const nextState=clone(payload.state);
+      // Replace both the persisted copy and the live in-memory app state. If only
+      // localStorage changes, a late save from the guest dashboard can overwrite it
+      // again before the reload completes.
+      localStorage.setItem('betterYou_v1',JSON.stringify(nextState));
+      if(app()?.setState)app().setState(nextState);
+      if(payload.tutorialSeen)localStorage.setItem('bloomByBit_tutorialSeen','1');
+      else localStorage.removeItem('bloomByBit_tutorialSeen');
+      return true;
+    }catch(error){console.warn('Bloom cloud apply:',error);return false}
+  }
+
+  function cloudSetupMissing(error){
+    const msg=String(error?.message||'');
+    return error?.code==='42P01'||error?.code==='PGRST205'||/bloom_user_data|relation .* does not exist|schema cache/i.test(msg);
+  }
+
+  async function syncNow(options={}){
+    if(!supabaseClient||!currentUser)return {skipped:true};
+    if(accountEntryInProgress&&!options.allowDuringAccountEntry)return {skipped:true,accountEntry:true};
+    if(syncInFlight)return syncInFlight;
+    const payload=collectPayload(options);
+    await attachCloudThemeImage(payload);
+    const hash=payloadString(payload);
+    if(!options.force&&hash&&hash===lastPayloadHash)return {skipped:true};
+    setSyncStatus('syncing','Syncing…');
+    syncInFlight=(async()=>{
+      try{
+        const {data,error}=await supabaseClient.from(CLOUD_TABLE)
+          .upsert({user_id:currentUser.id,payload},{onConflict:'user_id'})
+          .select('updated_at')
+          .single();
+        if(error)throw error;
+        lastPayloadHash=hash;
+        if(data?.updated_at)localStorage.setItem(CLOUD_UPDATED_KEY,data.updated_at);
+        setSyncStatus('ok','Synced to your account');
+        return {ok:true,data};
+      }catch(error){
+        console.warn('Bloom cloud sync:',error);
+        if(cloudSetupMissing(error))setSyncStatus('setup','Cloud sync needs the one-time Supabase data table setup');
+        else setSyncStatus('error',navigator.onLine===false?'Offline · changes are safe on this device':'Could not sync · changes are safe on this device');
+        return {ok:false,error};
+      }finally{syncInFlight=null}
+    })();
+    return syncInFlight;
+  }
+  function scheduleSync(delay=900){
+    if(!currentUser||accountEntryInProgress)return;
+    clearTimeout(syncTimer);
+    syncTimer=setTimeout(()=>syncNow(),delay);
+  }
+
+  async function fetchCloudRow(){
+    const {data,error}=await supabaseClient.from(CLOUD_TABLE).select('payload,updated_at').eq('user_id',currentUser.id).maybeSingle();
+    if(error)throw error;
+    return data||null;
+  }
+  async function hydrateCloud({forceCloud=false}={}){
+    if(!currentUser)return false;
+    let row;
+    try{row=await fetchCloudRow()}
+    catch(error){
+      if(cloudSetupMissing(error)){setSyncStatus('setup','Cloud sync needs the one-time Supabase data table setup');return false}
+      setSyncStatus('error',navigator.onLine===false?'Offline · using the copy saved on this device':'Could not check cloud progress');
+      return false;
+    }
+    if(!row){await syncNow({force:true});return false}
+    const localStamp=localStorage.getItem(CLOUD_UPDATED_KEY)||'';
+    const cloudStamp=row.updated_at||'';
+    const currentPayload=collectPayload();
+    const cloudHash=payloadString(row.payload||{});
+    const localHash=payloadString(currentPayload);
+    const cloudNewer=forceCloud||!localStamp||(cloudStamp&&cloudStamp>localStamp);
+    if(row.payload?.state&&cloudNewer&&cloudHash!==localHash){
+      await hydrateCloudThemeImage(row.payload);
+      if(applyCloudPayload(row.payload)){
+        localStorage.setItem(CLOUD_UPDATED_KEY,cloudStamp);
+        lastPayloadHash=cloudHash;
+        location.reload();
+        return true;
+      }
+    }
+    lastPayloadHash=localHash;
+    if(cloudStamp)localStorage.setItem(CLOUD_UPDATED_KEY,cloudStamp);
+    setSyncStatus('ok','Synced to your account');
+    if(cloudHash!==localHash)await syncNow({force:true});
+    return false;
+  }
+
+  async function loadProfile(){
+    currentProfile=null;currentSignedAvatarUrl='';
+    if(!supabaseClient||!currentUser){renderAccountUI();return null}
+    profileLoading=true;
+    try{
+      const {data,error}=await supabaseClient.from('profiles').select('id,username,first_name,avatar_url,avatar_type').eq('id',currentUser.id).maybeSingle();
+      if(error)throw error;
+      currentProfile=data||null;
+      await refreshSignedAvatar();
+      if(currentProfile?.first_name&&!accountEntryInProgress){
+        const st=app()?.getState?.();
+        if(st&&st.name!==currentProfile.first_name){st.name=currentProfile.first_name;app()?.render?.()}
+      }
+      return currentProfile;
+    }catch(error){console.warn('Bloom profile load:',error);return null}
+    finally{profileLoading=false;renderAccountUI()}
+  }
+
+  async function resolveGuestCloudConflictIfNeeded(row){
+    const guestPayload=guestSnapshotPayload();
+    if(!row?.payload?.state||!guestHasMeaningfulProgress(guestPayload)||!guestAndCloudDiffer(guestPayload,row.payload))return {handled:false};
+    const choice=await requestProgressChoice();
+    if(choice==='cancel'){
+      logoutInProgress=true;
+      try{await supabaseClient.auth.signOut({scope:'local'})}finally{logoutInProgress=false}
+      currentUser=null;currentProfile=null;currentSignedAvatarUrl='';lastPayloadHash='';accountEntryInProgress=false;
+      restoreGuestSnapshot();
+      setSyncStatus('idle','Guest mode · saved on this device');renderAccountUI();notify('Stayed in guest mode');
+      location.reload();
+      return {handled:true,cancelled:true};
+    }
+    if(choice==='account'){
+      // Re-read the row at the moment the user chooses the account copy. This makes
+      // the choice authoritative even if the first row was fetched a few moments ago.
+      const freshRow=await fetchCloudRow();
+      if(!freshRow?.payload?.state)throw new Error('No saved account progress was found.');
+      await hydrateCloudThemeImage(freshRow.payload);
+      if(!applyCloudPayload(freshRow.payload))throw new Error('Could not load your account progress.');
+      if(freshRow.updated_at)localStorage.setItem(CLOUD_UPDATED_KEY,freshRow.updated_at);
+      lastPayloadHash=payloadString(freshRow.payload||{});
+      localStorage.setItem(CLOUD_USER_KEY,currentUser.id);
+      location.reload();
+      return {handled:true,reloaded:true};
+    }
+    if(choice==='device'){
+      if(!applyGuestSnapshotToActiveStorage())throw new Error('Could not restore this device’s guest progress.');
+      const guest=guestSnapshotPayload();
+      if(currentProfile?.first_name&&guest?.state){
+        guest.state.name=currentProfile.first_name;
+        localStorage.setItem('betterYou_v1',JSON.stringify(guest.state));
+        if(app()?.setState)app().setState(clone(guest.state));
+      }
+      localStorage.removeItem(CLOUD_UPDATED_KEY);lastPayloadHash='';
+      const result=await syncNow({force:true,preferLocalStorage:true,allowDuringAccountEntry:true});
+      if(!result?.ok)throw new Error('Could not save this device’s progress to your account. Your guest copy is still safe.');
+      localStorage.setItem(CLOUD_USER_KEY,currentUser.id);
+      location.reload();
+      return {handled:true,reloaded:true};
+    }
+    return {handled:false};
+  }
+
+  async function finishAccountEntrySafely(row){
+    const conflict=await resolveGuestCloudConflictIfNeeded(row);
+    if(conflict.handled)return conflict;
+
+    // Existing account: account progress wins unless the user explicitly chose the
+    // device copy in the conflict dialog above. Never upload the guest dashboard first.
+    if(row?.payload?.state){
+      await hydrateCloudThemeImage(row.payload);
+      const cloudHash=payloadString(row.payload||{});
+      const localHash=payloadString(collectPayload());
+      if(row.updated_at)localStorage.setItem(CLOUD_UPDATED_KEY,row.updated_at);
+      lastPayloadHash=cloudHash;
+      if(cloudHash!==localHash){
+        if(!applyCloudPayload(row.payload))throw new Error('Could not load your account progress.');
+        localStorage.setItem(CLOUD_USER_KEY,currentUser.id);
+        location.reload();
+        return {handled:true,reloaded:true};
+      }
+      localStorage.setItem(CLOUD_USER_KEY,currentUser.id);
+      setSyncStatus('ok','Synced to your account');
+      return {handled:false};
+    }
+
+    // Brand-new account: there is no cloud copy to protect, so the guest dashboard
+    // intentionally becomes this account's starting progress.
+    const result=await syncNow({force:true,preferLocalStorage:true,allowDuringAccountEntry:true});
+    if(!result?.ok&&!result?.skipped)throw new Error('Could not save this device’s progress to your new account. Your guest copy is still safe.');
+    localStorage.setItem(CLOUD_USER_KEY,currentUser.id);
+    return {handled:false,newAccount:true};
+  }
+
+  async function initSupabase(){
+    if(!window.supabase?.createClient){
+      setSyncStatus('error','Account service unavailable · guest progress still works');
+      renderAccountUI();
+      return;
+    }
+    supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{
+      auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+    });
+    window.BBBSupabase=supabaseClient;
+    supabaseClient.auth.onAuthStateChange((event,session)=>{
+      if(event==='PASSWORD_RECOVERY'){
+        passwordRecoveryMode=true;currentUser=session?.user||currentUser;
+        setTimeout(openPasswordUpdate,0);
+        return;
+      }
+      if(event==='TOKEN_REFRESHED'){currentUser=session?.user||currentUser;return}
+      if(event==='SIGNED_OUT'&&!session){
+        currentUser=null;currentProfile=null;currentSignedAvatarUrl='';renderAccountUI();
+        if(!logoutInProgress&&!passwordRecoveryMode&&localStorage.getItem(CLOUD_USER_KEY)){restoreGuestSnapshot();location.reload();}
+      }
+    });
+    const {data}=await supabaseClient.auth.getSession();
+    currentUser=data?.session?.user||null;
+    if(passwordRecoveryMode&&currentUser){
+      await loadProfile();renderAccountUI();setTimeout(openPasswordUpdate,60);return;
+    }
+    if(!currentUser){
+      if(localStorage.getItem(CLOUD_USER_KEY)){
+        restoreGuestSnapshot();
+        location.reload();
+        return;
+      }
+      setSyncStatus('idle','Guest mode · saved on this device');
+      renderAccountUI();
+      maybeShowAccountPrompt();
+    }else{
+      const cachedUser=localStorage.getItem(CLOUD_USER_KEY);
+      const enteringAccount=cachedUser!==currentUser.id;
+      if(enteringAccount){
+        accountEntryInProgress=true;
+        captureGuestSnapshot();
+        localStorage.removeItem(CLOUD_UPDATED_KEY);
+      }
+      await loadProfile();
+      if(enteringAccount){
+        try{
+          const row=await fetchCloudRow();
+          const result=await finishAccountEntrySafely(row);
+          if(result.handled)return;
+          accountEntryInProgress=false;
+        }catch(error){
+          console.warn('Bloom account entry:',error);
+          if(cloudSetupMissing(error)){
+            accountEntryInProgress=false;
+            setSyncStatus('setup','Cloud sync needs the one-time Supabase data table setup');
+          }else{
+            // Keep writes paused rather than risk replacing an existing account copy
+            // when Bloom was unable to compare it with the guest copy.
+            setSyncStatus('error','Could not check account progress · cloud sync paused');
+          }
+          renderAccountUI();
+          return;
+        }
+      }else{
+        const reloaded=await hydrateCloud({forceCloud:false});
+        if(reloaded)return;
+      }
+      if(!currentProfile)setTimeout(()=>openProfileEditor({setup:true}),450);
+    }
+  }
+
+  function setAuthTab(name){
+    document.querySelectorAll('[data-bbb-auth-tab]').forEach(btn=>{const active=btn.dataset.bbbAuthTab===name;btn.classList.toggle('active',active);btn.setAttribute('aria-selected',active?'true':'false')});
+    $('bbbSignupForm').hidden=name!=='create';
+    $('bbbLoginForm').hidden=name!=='login';
+    setError('bbbSignupError','');setError('bbbLoginError','');
+    setTimeout(()=>$(name==='create'?'bbbSignupEmail':'bbbLoginEmail')?.focus(),30);
+  }
+  function openAuth(name='create'){
+    if(currentUser){openProfileEditor();return}
+    markPromptSeen();setModalOpen($('bbbAccountPrompt'),false);setModalOpen($('settingsModal'),false);setAuthTab(name);setModalOpen($('bbbAuthModal'),true);
+  }
+  function closeAuth(){setModalOpen($('bbbAuthModal'),false)}
+  function openDeleteAccount(){
+    if(!currentUser)return;
+    setModalOpen($('settingsModal'),false);
+    setError('bbbDeleteAccountError','');
+    const input=$('bbbDeleteAccountConfirm');
+    if(input)input.value='';
+    const submit=$('bbbDeleteAccountSubmit');
+    if(submit){submit.disabled=true;submit.textContent='Delete account permanently'}
+    setModalOpen($('bbbDeleteAccountModal'),true);
+    setTimeout(()=>input?.focus(),40);
+  }
+  function closeDeleteAccount(){setModalOpen($('bbbDeleteAccountModal'),false);setError('bbbDeleteAccountError','')}
+  function updateDeleteAccountButton(){
+    const submit=$('bbbDeleteAccountSubmit');
+    if(submit)submit.disabled=String($('bbbDeleteAccountConfirm')?.value||'').trim()!=='DELETE';
+  }
+  async function deleteAccountPermanently(){
+    if(!supabaseClient||!currentUser)throw new Error('You are not signed in.');
+    if(String($('bbbDeleteAccountConfirm')?.value||'').trim()!=='DELETE')throw new Error('Type DELETE to confirm.');
+    const {data,error}=await supabaseClient.functions.invoke('delete-account',{body:{confirm:'DELETE'}});
+    if(error){
+      const msg=String(error.message||'');
+      if(/non-2xx|not found|404|function/i.test(msg))throw new Error('Account deletion still needs the one-time Supabase server function setup.');
+      throw error;
+    }
+    if(!data?.ok)throw new Error(data?.error||'Could not delete your account.');
+    logoutInProgress=true;
+    try{await supabaseClient.auth.signOut({scope:'local'})}catch(_){ }
+    currentUser=null;currentProfile=null;currentSignedAvatarUrl='';lastPayloadHash='';accountEntryInProgress=false;
+    closeDeleteAccount();
+    restoreGuestSnapshot();
+    notify('Account deleted');
+    location.reload();
+  }
+
+  async function login(email,password){
+    if(!supabaseClient)throw new Error('Account service is unavailable right now. You can keep using Bloom in guest mode.');
+    accountEntryInProgress=true;
+    captureGuestSnapshot();
+    try{
+      const {data,error}=await supabaseClient.auth.signInWithPassword({email:normalizeEmail(email),password});
+      if(error)throw error;
+      currentUser=data.user;currentProfile=null;currentSignedAvatarUrl='';
+      localStorage.removeItem(CLOUD_UPDATED_KEY);
+      await loadProfile();
+      closeAuth();
+
+      // Fetch the cloud copy before any automatic sync is allowed to run.
+      const row=await fetchCloudRow();
+      const result=await finishAccountEntrySafely(row);
+      if(result.handled)return;
+
+      localStorage.setItem(CLOUD_USER_KEY,currentUser.id);
+      accountEntryInProgress=false;
+      renderAccountUI();
+      if(!currentProfile)openProfileEditor({setup:true});else notify('Welcome back');
+    }catch(error){
+      // Authentication failures should leave guest mode fully usable. A cloud-read
+      // failure after authentication keeps sync paused so the guest copy cannot
+      // accidentally replace the account copy.
+      if(!currentUser)accountEntryInProgress=false;
+      if(currentUser&&!cloudSetupMissing(error)){
+        setSyncStatus('error','Could not check account progress · cloud sync paused');
+        renderAccountUI();
+      }else if(cloudSetupMissing(error)){
+        accountEntryInProgress=false;
+      }
+      throw error;
+    }
+  }
+  function authEmailRedirectUrl(){
+    try{
+      if(location.protocol==='http:'||location.protocol==='https:')return location.origin+location.pathname;
+    }catch{}
+    return '';
+  }
+  function friendlyLoginError(error){
+    const msg=String(error?.message||'');
+    if(/invalid login credentials/i.test(msg))return 'Email or password wasn’t recognized. Check the email, or use Forgot password?';
+    if(/email not confirmed/i.test(msg))return 'Please confirm your email first, then try again.';
+    return msg||'Could not log in.';
+  }
+  function openResetRequest(){
+    setModalOpen($('bbbAuthModal'),false);setError('bbbResetRequestError','');
+    const email=normalizeEmail($('bbbLoginEmail')?.value||$('bbbSignupEmail')?.value||'');
+    if($('bbbResetEmail'))$('bbbResetEmail').value=email;
+    setModalOpen($('bbbResetRequestModal'),true);
+    setTimeout(()=>$('bbbResetEmail')?.focus(),30);
+  }
+  function closeResetRequest(){setModalOpen($('bbbResetRequestModal'),false);setError('bbbResetRequestError','')}
+  async function sendPasswordReset(email){
+    if(!supabaseClient)throw new Error('Account service is unavailable right now.');
+    const redirectUrl=authEmailRedirectUrl();
+    const options=redirectUrl?{redirectTo:redirectUrl}:{};
+    const {error}=await supabaseClient.auth.resetPasswordForEmail(normalizeEmail(email),options);
+    if(error)throw error;
+    try{localStorage.setItem(RESET_REQUEST_KEY,String(Date.now()))}catch(_){}
+    closeResetRequest();
+    notify('If an account exists for that email, a reset link is on the way.');
+  }
+  function openPasswordUpdate(){
+    setModalOpen($('bbbAccountPrompt'),false);setModalOpen($('bbbAuthModal'),false);setModalOpen($('bbbResetRequestModal'),false);
+    setError('bbbPasswordUpdateError','');
+    if($('bbbNewPassword'))$('bbbNewPassword').value='';
+    if($('bbbNewPasswordConfirm'))$('bbbNewPasswordConfirm').value='';
+    setModalOpen($('bbbPasswordUpdateModal'),true);
+    setTimeout(()=>$('bbbNewPassword')?.focus(),40);
+  }
+  function clearRecoveryUrl(){
+    try{if(location.protocol==='http:'||location.protocol==='https:')history.replaceState({},document.title,location.pathname)}catch{}
+  }
+  async function leavePasswordRecovery({openLogin=true}={}){
+    setModalOpen($('bbbPasswordUpdateModal'),false);
+    if(supabaseClient){
+      logoutInProgress=true;
+      try{await supabaseClient.auth.signOut({scope:'local'})}catch(_){}
+      logoutInProgress=false;
+    }
+    currentUser=null;currentProfile=null;currentSignedAvatarUrl='';passwordRecoveryMode=false;accountEntryInProgress=false;
+    try{localStorage.removeItem(RESET_REQUEST_KEY)}catch(_){}
+    clearRecoveryUrl();renderAccountUI();
+    if(openLogin){openAuth('login');}
+  }
+  async function saveRecoveredPassword(password){
+    if(!supabaseClient)throw new Error('Account service is unavailable right now.');
+    const {error}=await supabaseClient.auth.updateUser({password});
+    if(error)throw error;
+    const email=normalizeEmail(currentUser?.email||'');
+    await leavePasswordRecovery({openLogin:true});
+    if(email&&$('bbbLoginEmail'))$('bbbLoginEmail').value=email;
+    notify('Password updated · log in with your new password');
+  }
+
+  async function signup(email,password){
+    if(!supabaseClient)throw new Error('Account service is unavailable right now. You can keep using Bloom in guest mode.');
+    accountEntryInProgress=false;
+    captureGuestSnapshot();
+    const redirectUrl=authEmailRedirectUrl();
+    const signupPayload={email:normalizeEmail(email),password};
+    if(redirectUrl)signupPayload.options={emailRedirectTo:redirectUrl};
+    const {data,error}=await supabaseClient.auth.signUp(signupPayload);
+    if(error)throw error;
+    if(!data?.session){
+      localStorage.removeItem(GUEST_SNAPSHOT_KEY);
+      if(redirectUrl){
+        throw new Error('Your account was created. Check your email to confirm it. After confirmation, return to Bloom if it does not reopen automatically.');
+      }
+      throw new Error('Your account was created. Check your email to confirm it. Because this copy of Bloom is being opened as a downloaded file, the confirmation may verify successfully and then show a localhost page. If that happens, return to Bloom and log in.');
+    }
+    currentUser=data.user;currentProfile=null;currentSignedAvatarUrl='';
+    localStorage.setItem(CLOUD_USER_KEY,currentUser.id);localStorage.removeItem(CLOUD_UPDATED_KEY);
+    await syncNow({force:true});
+    closeAuth();renderAccountUI();openProfileEditor({setup:true});
+  }
+
+  function suggestUsername(){
+    const raw=String(currentUser?.email||'').split('@')[0].toLowerCase().replace(/[^a-z0-9_]+/g,'_').replace(/^_+|_+$/g,'').slice(0,24);
+    return raw.length>=3?raw:'';
+  }
+  function clearUploadPreview(){if(selectedUploadPreview){URL.revokeObjectURL(selectedUploadPreview);selectedUploadPreview=''}selectedUploadFile=null}
+  function renderAvatarChoices(){
+    const grid=$('bbbAvatarGrid');if(!grid)return;grid.innerHTML='';
+    AVATAR_IDS.forEach(id=>{
+      const b=document.createElement('button');b.type='button';b.className='bbb-avatar-choice';b.dataset.avatar=id;b.setAttribute('role','radio');b.setAttribute('aria-label',id+' profile picture');b.innerHTML=ICONS[id];grid.appendChild(b);
+    });
+    const upload=document.createElement('button');upload.type='button';upload.className='bbb-avatar-choice';upload.dataset.avatar='upload';upload.setAttribute('role','radio');upload.setAttribute('aria-label','Upload your own profile picture');upload.innerHTML='<div><svg viewBox="0 0 24 24"><path d="M12 16V5"/><path d="m8 9 4-4 4 4"/><path d="M5 15v4h14v-4"/></svg><span>Upload<br>your own</span></div>';grid.appendChild(upload);
+    grid.addEventListener('click',e=>{
+      const b=e.target.closest('.bbb-avatar-choice');if(!b)return;
+      if(b.dataset.avatar==='upload'){$('bbbAvatarUploadInput').click();return}
+      clearUploadPreview();selectedAvatar=b.dataset.avatar;updateAvatarChoiceUI();updateProfilePreview();
+    });
+  }
+  function updateAvatarChoiceUI(){
+    document.querySelectorAll('#bbbAvatarGrid .bbb-avatar-choice').forEach(b=>{
+      const chosen=(selectedUploadFile||selectedAvatar==='__existing_upload__')?b.dataset.avatar==='upload':b.dataset.avatar===selectedAvatar;
+      b.classList.toggle('selected',chosen);b.setAttribute('aria-checked',chosen?'true':'false');
+      if(b.dataset.avatar==='upload'&&selectedUploadPreview){renderImageInto(b,selectedUploadPreview)}
+      else if(b.dataset.avatar==='upload'&&!b.querySelector('svg'))b.innerHTML='<div><svg viewBox="0 0 24 24"><path d="M12 16V5"/><path d="m8 9 4-4 4 4"/><path d="M5 15v4h14v-4"/></svg><span>Upload<br>your own</span></div>';
+    });
+  }
+  function updateProfilePreview(){
+    const first=String($('bbbProfileFirstName')?.value||'').trim();
+    const username=normalizeUsername($('bbbProfileUsername')?.value);
+    if($('bbbProfilePreviewName'))$('bbbProfilePreviewName').textContent=first||'Your profile';
+    if($('bbbProfilePreviewHandle'))$('bbbProfilePreviewHandle').textContent=username?'@'+username:'Pick a username below';
+    if(selectedUploadPreview)renderImageInto($('bbbProfilePreview'),selectedUploadPreview);
+    else if(currentProfile?.avatar_type==='upload'&&selectedAvatar==='__existing_upload__'&&currentSignedAvatarUrl)renderImageInto($('bbbProfilePreview'),currentSignedAvatarUrl);
+    else renderPresetInto($('bbbProfilePreview'),AVATAR_IDS.includes(selectedAvatar)?selectedAvatar:'sprout');
+  }
+  async function openProfileEditor({setup=false}={}){
+    if(!currentUser){openAuth('create');return}
+    setModalOpen($('settingsModal'),false);setModalOpen($('bbbAuthModal'),false);clearUploadPreview();setError('bbbProfileError','');
+    if(!currentProfile&&!profileLoading)await loadProfile();
+    $('bbbProfileTitle').textContent=currentProfile?'Edit your profile':'Finish your profile';
+    $('bbbProfileLede').textContent=currentProfile?'Update the name, unique username, or picture shown in Bloom.':'Choose the name, unique username, and picture that appear in your Bloom profile.';
+    $('bbbProfileFirstName').value=currentProfile?.first_name||app()?.getState?.()?.name?.replace(/^You$/,'')||'';
+    $('bbbProfileUsername').value=currentProfile?.username||suggestUsername();
+    if(currentProfile?.avatar_type==='upload'){selectedAvatar='__existing_upload__'}
+    else selectedAvatar=currentProfile?.avatar_type==='preset'&&AVATAR_IDS.includes(currentProfile.avatar_url)?currentProfile.avatar_url:'sprout';
+    updateAvatarChoiceUI();updateProfilePreview();setModalOpen($('bbbProfileModal'),true);
+    setTimeout(()=>$('bbbProfileFirstName')?.focus(),30);
+  }
+  function closeProfile(){clearUploadPreview();setModalOpen($('bbbProfileModal'),false)}
+
+  async function saveProfile(){
+    if(!currentUser)throw new Error('Log in first.');
+    const firstName=String($('bbbProfileFirstName').value||'').trim();
+    const username=normalizeUsername($('bbbProfileUsername').value);
+    if(!firstNameValid(firstName))throw new Error('Enter a first name.');
+    if(!usernameValid(username))throw new Error('Username must be 3–24 letters, numbers, or underscores.');
+    const oldUpload=currentProfile?.avatar_type==='upload'?currentProfile.avatar_url:null;
+    let avatarType=selectedAvatar==='__existing_upload__'?'upload':'preset';
+    let avatarUrl=selectedAvatar==='__existing_upload__'?oldUpload:(AVATAR_IDS.includes(selectedAvatar)?selectedAvatar:'sprout');
+    if(selectedUploadFile){avatarType=currentProfile?.avatar_type||null;avatarUrl=currentProfile?.avatar_url||null}
+
+    const base={id:currentUser.id,username,first_name:firstName,avatar_type:avatarType,avatar_url:avatarUrl};
+    const {data,error}=await supabaseClient.from('profiles').upsert(base,{onConflict:'id'}).select('id,username,first_name,avatar_url,avatar_type').single();
+    if(error){
+      if(error.code==='23505'||/profiles_username_unique|duplicate key|username/i.test(String(error.message||'')))throw new Error('That username is already taken. Try another.');
+      throw error;
+    }
+    currentProfile=data;
+
+    if(selectedUploadFile){
+      const ext=selectedUploadFile.type==='image/png'?'png':selectedUploadFile.type==='image/webp'?'webp':'jpg';
+      const path=`${currentUser.id}/avatar-${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+      const up=await supabaseClient.storage.from(AVATAR_BUCKET).upload(path,selectedUploadFile,{contentType:selectedUploadFile.type,upsert:false,cacheControl:'3600'});
+      if(up.error)throw new Error('Your profile was saved, but the photo could not upload. Try the photo again.');
+      const upd=await supabaseClient.from('profiles').update({avatar_type:'upload',avatar_url:path}).eq('id',currentUser.id).select('id,username,first_name,avatar_url,avatar_type').single();
+      if(upd.error)throw upd.error;
+      currentProfile=upd.data;
+      if(oldUpload&&oldUpload!==path)supabaseClient.storage.from(AVATAR_BUCKET).remove([oldUpload]).catch(()=>{});
+    }else if(selectedAvatar!=='__existing_upload__'&&oldUpload){
+      supabaseClient.storage.from(AVATAR_BUCKET).remove([oldUpload]).catch(()=>{});
+    }
+    await refreshSignedAvatar();
+    const st=app()?.getState?.();if(st){st.name=firstName;app()?.render?.()}
+    closeProfile();renderAccountUI();scheduleSync(50);notify('Profile saved');
+  }
+
+  async function logout(){
+    if(!supabaseClient||!currentUser)return;
+    await syncNow({force:true});
+    logoutInProgress=true;
+    const {error}=await supabaseClient.auth.signOut();
+    if(error){logoutInProgress=false;throw error;}
+    currentUser=null;currentProfile=null;currentSignedAvatarUrl='';lastPayloadHash='';accountEntryInProgress=false;
+    restoreGuestSnapshot();
+    location.reload();
+  }
+  async function prepareStartFresh(){
+    if(!supabaseClient||!currentUser)return;
+    const marker=themeImageMarker();
+    if(marker?.userId===currentUser.id&&marker?.path){
+      const removed=await supabaseClient.storage.from(AVATAR_BUCKET).remove([marker.path]);
+      if(removed.error)console.warn('Bloom custom theme cleanup:',removed.error);
+    }
+    const {error}=await supabaseClient.from(CLOUD_TABLE).delete().eq('user_id',currentUser.id);
+    if(error&&!cloudSetupMissing(error))throw error;
+    localStorage.removeItem(CLOUD_UPDATED_KEY);localStorage.removeItem(CLOUD_THEME_IMAGE_KEY);lastPayloadHash='';
+  }
+
+
+  function maybeShowAccountPrompt(){
+    if(currentUser||promptWasSeen())return;
+    const ready=()=>{
+      if(currentUser||promptWasSeen())return true;
+      const tutorialSeen=localStorage.getItem('bloomByBit_tutorialSeen')==='1';
+      if(!tutorialSeen||document.body.classList.contains('tutorial-running')||window.BloomDevice?.startupPending||document.querySelector('.modal-backdrop.open'))return false;
+      setTimeout(()=>{if(!currentUser&&!promptWasSeen()&&!document.body.classList.contains('tutorial-running')&&!window.BloomDevice?.startupPending&&!document.querySelector('.modal-backdrop.open'))setModalOpen($('bbbAccountPrompt'),true)},700);
+      return true;
+    };
+    if(ready())return;
+    const watcher=setInterval(()=>{if(ready())clearInterval(watcher)},1000);
+    setTimeout(()=>clearInterval(watcher),10*60*1000);
+  }
+
+  function bindPasswordToggles(){
+    document.querySelectorAll('.bbb-password-toggle[data-password-target]').forEach(button=>{
+      button.addEventListener('click',()=>{
+        const input=$(button.dataset.passwordTarget);
+        if(!input)return;
+        const showing=input.type==='text';
+        input.type=showing?'password':'text';
+        button.setAttribute('aria-pressed',String(!showing));
+        button.setAttribute('aria-label',showing?'Show password':'Hide password');
+        input.focus({preventScroll:true});
+      });
+    });
+  }
+
+  function bind(){
+    renderAvatarChoices();
+    bindPasswordToggles();
+    $('bbbPromptCreate')?.addEventListener('click',()=>{markPromptSeen();openAuth('create')});
+    $('bbbPromptLogin')?.addEventListener('click',()=>{markPromptSeen();openAuth('login')});
+    $('bbbPromptGuest')?.addEventListener('click',()=>{markPromptSeen();setModalOpen($('bbbAccountPrompt'),false);notify('Guest mode · progress stays on this device')});
+    $('bbbAuthClose')?.addEventListener('click',closeAuth);
+    $('bbbForgotPassword')?.addEventListener('click',openResetRequest);
+    $('bbbResetRequestCancel')?.addEventListener('click',()=>{closeResetRequest();openAuth('login')});
+    $('bbbResetRequestModal')?.addEventListener('click',e=>{if(e.target===$('bbbResetRequestModal')){closeResetRequest();openAuth('login')}});
+    $('bbbResetRequestForm')?.addEventListener('submit',async e=>{
+      e.preventDefault();setError('bbbResetRequestError','');const btn=$('bbbResetRequestSubmit');setBusy(btn,true,'Sending…');
+      try{await sendPasswordReset($('bbbResetEmail')?.value)}catch(error){setError('bbbResetRequestError',error.message||'Could not send the reset email.')}
+      finally{setBusy(btn,false,'Send reset link')}
+    });
+    $('bbbPasswordUpdateCancel')?.addEventListener('click',()=>leavePasswordRecovery({openLogin:true}));
+    $('bbbPasswordUpdateForm')?.addEventListener('submit',async e=>{
+      e.preventDefault();setError('bbbPasswordUpdateError','');
+      const pw=$('bbbNewPassword')?.value||'',confirm=$('bbbNewPasswordConfirm')?.value||'';
+      if(pw.length<8){setError('bbbPasswordUpdateError','Use at least 8 characters for your password.');return}
+      if(pw!==confirm){setError('bbbPasswordUpdateError','Those passwords do not match.');return}
+      const btn=$('bbbPasswordUpdateSubmit');setBusy(btn,true,'Saving…');
+      try{await saveRecoveredPassword(pw)}catch(error){setError('bbbPasswordUpdateError',error.message||'Could not update your password.')}
+      finally{setBusy(btn,false,'Save new password')}
+    });
+    $('bbbProfileClose')?.addEventListener('click',closeProfile);
+    $('bbbAuthModal')?.addEventListener('click',e=>{if(e.target===$('bbbAuthModal'))closeAuth()});
+    $('bbbProfileModal')?.addEventListener('click',e=>{if(e.target===$('bbbProfileModal'))closeProfile()});
+    document.querySelectorAll('[data-bbb-auth-tab]').forEach(btn=>btn.addEventListener('click',()=>setAuthTab(btn.dataset.bbbAuthTab)));
+
+    $('bbbSignupForm')?.addEventListener('submit',async e=>{
+      e.preventDefault();setError('bbbSignupError','');
+      const email=normalizeEmail($('bbbSignupEmail').value);const pw=$('bbbSignupPassword').value;const confirm=$('bbbSignupConfirm').value;
+      if(pw.length<8){setError('bbbSignupError','Use at least 8 characters for your password.');return}
+      if(pw!==confirm){setError('bbbSignupError','Those passwords do not match.');return}
+      const btn=$('bbbSignupSubmit');setBusy(btn,true,'Creating…');
+      try{await signup(email,pw)}catch(error){setError('bbbSignupError',error.message||'Could not create your account.')}
+      finally{setBusy(btn,false,'Create account')}
+    });
+    $('bbbLoginForm')?.addEventListener('submit',async e=>{
+      e.preventDefault();setError('bbbLoginError','');const btn=$('bbbLoginSubmit');setBusy(btn,true,'Logging in…');
+      try{await login(normalizeEmail($('bbbLoginEmail').value),$('bbbLoginPassword').value)}catch(error){setError('bbbLoginError',friendlyLoginError(error))}
+      finally{setBusy(btn,false,'Log in')}
+    });
+    $('bbbUseAccountProgress')?.addEventListener('click',()=>resolveProgressChoice('account'));
+    $('bbbUseDeviceProgress')?.addEventListener('click',()=>resolveProgressChoice('device'));
+    $('bbbProgressChoiceCancel')?.addEventListener('click',()=>resolveProgressChoice('cancel'));
+    $('bbbProgressChoiceModal')?.addEventListener('click',e=>{if(e.target===$('bbbProgressChoiceModal'))resolveProgressChoice('cancel')});
+    $('bbbProfileFirstName')?.addEventListener('input',updateProfilePreview);
+    $('bbbProfileUsername')?.addEventListener('input',()=>{$('bbbProfileUsername').value=$('bbbProfileUsername').value.replace(/\s+/g,'');updateProfilePreview()});
+    $('bbbAvatarUploadInput')?.addEventListener('change',e=>{
+      const file=e.target.files?.[0];e.target.value='';if(!file)return;
+      if(!['image/jpeg','image/png','image/webp'].includes(file.type)){setError('bbbProfileError','Choose a JPG, PNG, or WebP image.');return}
+      if(file.size>5*1024*1024){setError('bbbProfileError','Profile pictures must be 5 MB or smaller.');return}
+      clearUploadPreview();selectedUploadFile=file;selectedUploadPreview=URL.createObjectURL(file);setError('bbbProfileError','');updateAvatarChoiceUI();updateProfilePreview();
+    });
+    $('bbbProfileForm')?.addEventListener('submit',async e=>{
+      e.preventDefault();setError('bbbProfileError','');const btn=$('bbbProfileSave');setBusy(btn,true,'Saving…');
+      try{await saveProfile()}catch(error){setError('bbbProfileError',error.message||'Could not save your profile.')}
+      finally{setBusy(btn,false,'Save profile')}
+    });
+
+    $('bbbSettingsCreateAccount')?.addEventListener('click',()=>openAuth('create'));
+    $('bbbSettingsLogin')?.addEventListener('click',()=>openAuth('login'));
+    $('bbbSettingsEditProfile')?.addEventListener('click',()=>openProfileEditor());
+    $('bbbSettingsSyncNow')?.addEventListener('click',async()=>{const result=await syncNow({force:true});if(result?.ok)notify('Progress synced')});
+    $('bbbSettingsLogout')?.addEventListener('click',async()=>{try{await logout()}catch(error){notify(error.message||'Could not log out')}});
+    $('bbbSettingsDeleteAccount')?.addEventListener('click',openDeleteAccount);
+    $('bbbDeleteAccountCancel')?.addEventListener('click',closeDeleteAccount);
+    $('bbbDeleteAccountModal')?.addEventListener('click',e=>{if(e.target===$('bbbDeleteAccountModal'))closeDeleteAccount()});
+    $('bbbDeleteAccountConfirm')?.addEventListener('input',updateDeleteAccountButton);
+    $('bbbDeleteAccountSubmit')?.addEventListener('click',async()=>{
+      setError('bbbDeleteAccountError','');const btn=$('bbbDeleteAccountSubmit');setBusy(btn,true,'Deleting…');
+      try{await deleteAccountPermanently()}catch(error){setError('bbbDeleteAccountError',error.message||'Could not delete your account.');setBusy(btn,false,'Delete account permanently');updateDeleteAccountButton()}
+    });
+
+    document.addEventListener('keydown',e=>{
+      if(e.key!=='Escape')return;
+      if($('bbbProgressChoiceModal')?.classList.contains('open')){e.preventDefault();resolveProgressChoice('cancel');return}
+      if($('bbbPasswordUpdateModal')?.classList.contains('open')){e.preventDefault();leavePasswordRecovery({openLogin:true});return}
+      if($('bbbResetRequestModal')?.classList.contains('open')){e.preventDefault();closeResetRequest();openAuth('login');return}
+      if($('bbbDeleteAccountModal')?.classList.contains('open')){e.preventDefault();closeDeleteAccount();return}
+      if($('bbbProfileModal')?.classList.contains('open')){e.preventDefault();closeProfile();return}
+      if($('bbbAuthModal')?.classList.contains('open')){e.preventDefault();closeAuth();return}
+      if($('bbbAccountPrompt')?.classList.contains('open')){e.preventDefault();markPromptSeen();setModalOpen($('bbbAccountPrompt'),false)}
+    });
+    window.addEventListener('bbb:data-changed',()=>scheduleSync());
+    window.addEventListener('online',()=>scheduleSync(100));
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')syncNow()});
+    setInterval(()=>{if(currentUser)scheduleSync(100)},6000);
+    window.addEventListener('bloomsettingsopen',renderAccountUI);
+  }
+
+  window.BBBAccount={
+    isLoggedIn:()=>!!currentUser,
+    getUser:()=>currentUser,
+    getProfile:()=>currentProfile,
+    openLogin:()=>openAuth('login'),
+    openCreate:()=>openAuth('create'),
+    openProfile:()=>openProfileEditor(),
+    syncNow,
+    prepareStartFresh
+  };
+
+  bind();renderAccountUI();initSupabase().catch(error=>{console.warn('Bloom account init:',error);setSyncStatus('error','Account service unavailable · guest progress still works');renderAccountUI();maybeShowAccountPrompt()});
+})();
+</script>
+
 </body>
 </html>
